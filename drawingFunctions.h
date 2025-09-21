@@ -13,8 +13,8 @@
 #define DRAWINGFUNCTIONSH
 
 void DrawBasicCardStats(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide);
-void DrawTextS(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation);
-float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation);
+void DrawTextS(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness = 0);
+float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness = 0);
 void DrawButtonLine(SingleButtonGroup &buttons, Data &StyleGuide);
 void DrawSettingsButtons(PlusMinusButtonGroup &buttons, Data &StyleGuide);
 void DrawRules(float &scrollOffset, Data &StyleGuide);

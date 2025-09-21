@@ -17,76 +17,94 @@ void DrawBasicCardStats(int index, deck *Deck, Vector2 pos, float size, Data &St
 	DrawTextS("Health: " + to_string(Deck->at(index)->GetHealth()) + "/" + to_string(Deck->at(index)->GetHealthT()), belowCard, StyleGuide.textColor, (StyleGuide.fontSize/2) * size, (Alignment){CENTERX, CENTERY});
 }
 
-void DrawTextS(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation) {
-	if (fontSize <= 0) fontSize = 40;
+void DrawTextS(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness) {
 	
 	//Draw Test
 	if (orientation.x == CENTERX) { //Centered
 		dest.x = (dest.x + (dest.width/2)) - (((MeasureTextEx(GetFontDefault(), text.c_str(), fontSize, 1.0f)).x)/2);
 	} else if (orientation.x == RIGHTX) { //Right
-		dest.x = dest.x + dest.width - ((MeasureTextEx(GetFontDefault(), text.c_str(), fontSize, 1.0f)).x);
+		dest.x = dest.x + dest.width - ((MeasureTextEx(GetFontDefault(), text.c_str(), fontSize, 1.0f)).x) - lineThickness;
 	} else { //Left
-		//Do nothing
+		dest.x = dest.x + lineThickness;
 	}
 	
 	if (orientation.y == CENTERY) { //Centered
 		dest.y = (dest.y + (dest.height/2)) - (((MeasureTextEx(GetFontDefault(), text.c_str(), fontSize, 1.0f)).y)/2);
 	} else if (orientation.y == DOWNY) { //Down
-		dest.y = (dest.y + (dest.height)) - (((MeasureTextEx(GetFontDefault(), text.c_str(), fontSize, 1.0f)).y)/2);
+		dest.y = (dest.y + (dest.height)) - ((MeasureTextEx(GetFontDefault(), text.c_str(), fontSize, 1.0f)).y) - lineThickness;
 	} else { //UP
-		//Do nothing
+		dest.y = dest.y + lineThickness;
 	}
 	
 	DrawTextEx(GetFontDefault(), text.c_str(), (Vector2){dest.x, dest.y}, fontSize, 1.0f, tint); // Draw text using font and additional parameters
 }
 
-float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation) {
 
-    float totalHeight;
-    float modifiedFontSize = fontSize * 1.2;
-    vector<string> lines;
-    do {
-		lines.clear();
-		string currentLine;
-		istringstream words(text);
-		string word;
-		modifiedFontSize /= 1.2;
-		while (words >> word) {
-			string testLine = currentLine.empty() ? word : currentLine + " " + word;
-			Vector2 textSize = MeasureTextEx(GetFontDefault(), testLine.c_str(), modifiedFontSize, 1.0f);
-			
-			if (textSize.x <= dest.width) {
-				currentLine = testLine;
-			} else {
-				lines.push_back(currentLine);
-				currentLine = word;
-			}
-		}
-		
-		if (!currentLine.empty()) {
-			lines.push_back(currentLine);
-		}
-		
-		totalHeight = (lines.size()-1) * modifiedFontSize;
-	} while(totalHeight >= (dest.height) && orientation.reduceTextSize == true);
-	
-    if (lines.size() < 1) {
-		//cout << "Error: No text in function DrawTextSWrapped" << endl;
-		return 0;
-	} else if (lines.size() < 2) {
-		DrawTextS(lines[0], dest, tint, modifiedFontSize, (Alignment){orientation.x, orientation.y});
-	} else {
-		for (size_t i = 0; i < lines.size(); ++i) {
-			if (orientation.y == CENTERY) DrawTextS(lines[i], (Rectangle){dest.x, dest.y - (totalHeight/2) + (i * modifiedFontSize), dest.width, dest.height}, tint, modifiedFontSize, (Alignment){orientation.x, orientation.y});
-			if (orientation.y == UPY || orientation.y == DOWNY) {
-				DrawTextS(lines[i], dest, tint, modifiedFontSize, (Alignment){orientation.x, orientation.y});
-				dest.y += modifiedFontSize;
-			}
+
+float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness) {
+
+	//Splits text up into its individual words
+    vector<string> words;
+    stringstream ss(text);
+    string tempWord;
+    while (ss >> tempWord) {
+        words.push_back(tempWord);
+    }
+    
+    //Decides which words need to be on a new line and indexes them
+    queue<int> newLineQueue;
+    float sum = 0;
+    /*Add the width of each word in words until it is greater than the dest width
+     * then push the index of the word that went over onto the queue to be
+     * used later.
+     */
+    for (int i = 0; i < words.size(); ++i) {
+		sum += MeasureTextEx(GetFontDefault(), (words[i] + " ").c_str(), fontSize, 1.0f).x;
+		if (sum >= dest.width) {
+			newLineQueue.push(i);
+			sum = MeasureTextEx(GetFontDefault(), (words[i]).c_str(), fontSize, 1.0f).x;
 		}
 	}
 	
-	if (totalHeight <= 0) return modifiedFontSize;
-	return (modifiedFontSize * lines.size());
+	//Pushes words.size() to the end of the queue so the last line is forgotten
+	newLineQueue.push(words.size());
+	
+	/*The queue now marks where the new lines should begin
+	 * so this sections combines the words into the lines
+	 */
+	/*Now newLineQueue.size() == number of lines needed*/
+	int totalNumLines = newLineQueue.size();
+	vector<string> lines;
+	int j = 0;
+	for (int i = 0; i < totalNumLines; ++i) {
+		lines.push_back("");
+		while (j < newLineQueue.front()) {
+			if (!lines[i].empty()) lines[i] += " ";
+			lines[i] += words[j];
+			++j;
+		}
+		newLineQueue.pop();
+	}
+	
+	//Finally this section puts the words to the screen
+	float lineHeight = MeasureTextEx(GetFontDefault(), "Ay", fontSize, 1.0f).y;
+	float blockHeight = lines.size() * lineHeight;
+
+	// Align the entire block vertically once
+	if (orientation.y == CENTERY) {
+		dest.y = (dest.y + dest.height/2) - blockHeight/2 - lineThickness; //LineThickness will need to be subtracted to counter DrawTextS() UPY
+	} else if (orientation.y == DOWNY) {
+		dest.y = (dest.y + dest.height) - blockHeight - (lineThickness * 2); ////LineThickness will need to be subtracted twice to counter DrawTextS() UPY
+	} else { // UPY
+		dest.y = dest.y; //Do not apply lineThickness it will be applied later in DrawTextS() using UPY
+	}
+	for (int i = 0; i < lines.size(); ++i) {
+		DrawTextS(lines[i], dest, tint, fontSize, (Alignment){orientation.x, UPY}, lineThickness);
+		dest.y += MeasureTextEx(GetFontDefault(), "Ay", fontSize, 1.0f).y;
+	}
+	
+	return blockHeight;
+
 }
 
 void DrawButtonLine(SingleButtonGroup &buttons, Data &StyleGuide) {
