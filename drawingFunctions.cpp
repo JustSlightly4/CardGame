@@ -274,14 +274,14 @@ void DrawGame(deck *deck1, deck *deck2, GameVars &gameVars, Data &StyleGuide, Fl
 	
 	//Draw both Cards currently in play
 	float offSet = StyleGuide.cardTextureSize.x/2;
-	Vector2 player1MainDest = {StyleGuide.screenDimensions.x/2 - (2 *(StyleGuide.cardTextureSize.x * size)) - offSet, StyleGuide.margin + StyleGuide.fontSize * 4};
-	Vector2 player2MainDest = {StyleGuide.screenDimensions.x/2 + ((3 * (StyleGuide.cardTextureSize.x * size))/2) - offSet, StyleGuide.margin + StyleGuide.fontSize * 4};
+	Vector2 player1MainDest = {StyleGuide.screenDimensions.x/2 - (2 *(StyleGuide.cardTextureSize.x * size)) - offSet, StyleGuide.screenDimensions.y/2 - StyleGuide.cardTextureSize.y/2 - (StyleGuide.recDimensions.height * 2)};
+	Vector2 player2MainDest = {StyleGuide.screenDimensions.x/2 + ((3 * (StyleGuide.cardTextureSize.x * size))/2) - offSet, StyleGuide.screenDimensions.y/2 - StyleGuide.cardTextureSize.y/2 - (StyleGuide.recDimensions.height * 2)};
 	DrawCard(gameVars.round, deck1, player1MainDest, size, StyleGuide);
 	DrawCard(gameVars.round, deck2, player2MainDest, size, StyleGuide);
 	
 	//Draws the card that the player is able to swap out with
-	Vector2 player1SupportDest = {StyleGuide.screenDimensions.x/2.0f - (StyleGuide.cardTextureSize.x * size/2) - offSet, StyleGuide.margin + (StyleGuide.fontSize * 2) + (StyleGuide.cardTextureSize.y * size)};
-	Vector2 player2SupportDest = {StyleGuide.screenDimensions.x/2.0f + (StyleGuide.cardTextureSize.x * size/2) - offSet, StyleGuide.margin + (StyleGuide.fontSize * 2) + (StyleGuide.cardTextureSize.y * size)};
+	Vector2 player1SupportDest = {StyleGuide.screenDimensions.x/2.0f - (StyleGuide.cardTextureSize.x * size/2) - offSet, StyleGuide.screenDimensions.y/2 - (StyleGuide.recDimensions.height)};
+	Vector2 player2SupportDest = {StyleGuide.screenDimensions.x/2.0f + (StyleGuide.cardTextureSize.x * size/2) - offSet, StyleGuide.screenDimensions.y/2 - (StyleGuide.recDimensions.height)};
 	if (gameVars.round < deck1->GetCardAmt() - 1) {
 		DrawCard(deck1->GetCardAmt() - 1, deck1, player1SupportDest, size/2, StyleGuide);
 		DrawCard(deck1->GetCardAmt() - 1, deck2, player2SupportDest, size/2, StyleGuide);
