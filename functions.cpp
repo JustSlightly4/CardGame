@@ -63,6 +63,7 @@ void UpdateStyleGuide(Data &StyleGuide) {
 	}
 }
 
+//Logic for the ENTIRE GAME NOT AN INDIVIDUAL TURN
 void RegularGame(deck &deck1, deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide) {
 	
 	//Correctly Initialize Starting Variables
@@ -164,6 +165,7 @@ void RegularGame(deck &deck1, deck &deck2, GameVars &gameVars, Flags &flags, Sin
 	}
 }
 
+//LOGIC FOR AN INDIVIDUAL TURN IN A GAME
 void RegularGameTurn(deck &player, deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide) {
 	
 	//Decide if main or support card is playing
@@ -176,7 +178,7 @@ void RegularGameTurn(deck &player, deck &opponent, GameVars &gameVars, Flags &fl
 	actions AIDecision = ERROR;
 	if (player.IsAI() == true && flags.firstTurnFrame == false) {
 		WaitTime(3.0);
-		AIDecision = MakeAIDecision(player, opponent, gameVars);
+		AIDecision = MakeAIDecisionDumb(player, opponent, gameVars);
 	}
 	
 	//Enable all buttons
@@ -185,17 +187,17 @@ void RegularGameTurn(deck &player, deck &opponent, GameVars &gameVars, Flags &fl
 	}
 	
 	//Disable swap button if already used twice
-	if (player.GetTimesSwapped() > 1) {
+	if (player.GetTimesSwapped() >= gameVars.maxSwaps) {
 		buttons[3].SetFunctionality(false);
 	}
 	
 	//Disable charge button if already used twice
-	if (player[gameVars.who]->GetCharge() > 1) {
+	if (player[gameVars.who]->GetCharge() >= gameVars.maxCharges) {
 		buttons[4].SetFunctionality(false);
 	}
 	
 	//Disable flask button if already used twice
-	if (player.GetFlaskAmt() > 1) {
+	if (player.GetFlaskAmt() >= gameVars.maxFlasks) {
 		buttons[5].SetFunctionality(false);
 	}
 	
@@ -585,27 +587,29 @@ string MagicalAttack(card *player, card *opponent, card *mainCard) {
 	return oss.str();
 }
 
-actions MakeAIDecision(deck &player, deck &opponent, GameVars &gameVars) {
+actions MakeAIDecisionDumb(deck &player, deck &opponent, GameVars &gameVars) {
 	
 	//Remove Charges if can't charge anymore
-	if (player[gameVars.who]->GetCharge() >= 2 && player[gameVars.who]->GetNextAction() == CHARGE) {
+	if (player[gameVars.who]->GetCharge() >= gameVars.maxCharges && player[gameVars.who]->GetNextAction() == CHARGE) {
 		while (player[gameVars.who]->GetNextAction() == CHARGE) player[gameVars.who]->PopAction();
 	}
 	
 	//Remove Swaps if can't swap anymore
-	if (player.GetTimesSwapped() >= 2 && player[gameVars.who]->GetNextAction() == SWAP) {
+	if (player.GetTimesSwapped() >= gameVars.maxSwaps && player[gameVars.who]->GetNextAction() == SWAP) {
 		while (player[gameVars.who]->GetNextAction() == SWAP) player[gameVars.who]->PopAction();
 	}
 	
 	//Remove flask usage if has no more flask
-	if (player.GetFlaskAmt() >= 2 && player[gameVars.who]->GetNextAction() == FLASK) {
+	if (player.GetFlaskAmt() >= gameVars.maxFlasks && player[gameVars.who]->GetNextAction() == FLASK) {
 		while (player[gameVars.who]->GetNextAction() == FLASK) player[gameVars.who]->PopAction();
 	}
 	
+	/*
 	//Remove spell usage if MP has lowered to zero or below
 	if (player[gameVars.who]->GetMagicalPower() <= 0 && player[gameVars.who]->GetMagicalPower() == CASTSPELL) {
 		while (player[gameVars.who]->GetNextAction() == CASTSPELL) player[gameVars.who]->PopAction();
 	}
+	*/
 	
 	
 	
@@ -625,7 +629,7 @@ actions MakeAIDecision(deck &player, deck &opponent, GameVars &gameVars) {
 	}
 	
 	//Base Case if there is nothing in the queue
-	if (player[gameVars.who]->IsActionQueueEmpty() && x) player[gameVars.who]->PushAction(ATTACK);
+	if (player[gameVars.who]->IsActionQueueEmpty()) player[gameVars.who]->PushAction(ATTACK);
 	
 	//Remove action from queue and return it
 	return player[gameVars.who]->PopAction();

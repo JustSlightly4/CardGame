@@ -207,7 +207,7 @@ void DrawCard(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide) 
 	
 	//Draw Card Texture		
 	DrawTexturePro(*Deck->GetTexture(), (Rectangle){GetCardSourceX(Deck->at(index), StyleGuide), 
-			StyleGuide.baseCardTextureSize.y, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y}, 
+			0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y}, 
 			(Rectangle){pos.x, pos.y, StyleGuide.cardTextureSize.x * size, StyleGuide.cardTextureSize.y * size}, 
 			StyleGuide.origin, 0, Deck->at(index)->GetColorRaylib());
 	
@@ -220,7 +220,7 @@ void DrawCardWithStats(int index, deck *Deck, Vector2 pos, float size, Data &Sty
 	Rectangle cardDest = {pos.x, pos.y, StyleGuide.cardTextureSize.x * size, StyleGuide.cardTextureSize.y * size};
 	//Draw Card Texture		
 	DrawTexturePro(*Deck->GetTexture(), (Rectangle){GetCardSourceX(Deck->at(index), StyleGuide), 
-			StyleGuide.baseCardTextureSize.y, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y}, 
+			0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y}, 
 			cardDest, StyleGuide.origin, 0, Deck->at(index)->GetColorRaylib());
 	
 	//Draw Card Details
@@ -248,11 +248,12 @@ void DrawCardButton(int index, deck *Deck, SingleButtonGroup &buttons, Vector2 p
 	} else { //Card color when it is highlighted
 		cardColor = buttons[index].GetColor();
 	}
-	//For the card source, the Y, width, and height will always be the same. The X is the only thing that changes
-	DrawTexturePro(*Deck->GetTexture(), (Rectangle){GetCardSourceX(Deck->at(index), StyleGuide), 
-		StyleGuide.baseCardTextureSize.y, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y}, 
+	DrawTexturePro(
+		*Deck->GetTexture(), 
+		(Rectangle){GetCardSourceX(Deck->at(index), StyleGuide), 0, 100, 150}, 
 		(Rectangle){pos.x, pos.y, StyleGuide.cardTextureSize.x * size, StyleGuide.cardTextureSize.y * size}, 
-		StyleGuide.origin, 0, cardColor);
+		StyleGuide.origin, 0, cardColor
+	);
 	
 	//Draw Card Details
 	DrawBasicCardStats(index, Deck, pos, size, StyleGuide);

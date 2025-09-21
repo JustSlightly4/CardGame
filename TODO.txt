@@ -1,0 +1,9 @@
+TO DO LIST:
+Make Buttons Scroll so can have more buttons
+Rewrite Text in Rectangle Code
+Make it possible to save/reload card configuration
+Fix AI
+Add Dumb/Smart AI Option
+Make new gamemodes
+Add Status Effects
+Fix Screen Resolution Code

@@ -2,6 +2,7 @@
  * Eric Ryan Montgomery
  * 03/13/2025
  * Build Command: g++ -Wall -o out CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp deckofcards.cpp globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
+ * Web Build Command: cmd /c em++ -Wall CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp deckofcards.cpp globals.cpp -o game.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 --preload-file textures@/textures
  * Make Command: mingw32-make
  */
  
@@ -9,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <emscripten.h>
 #include "functions.h"
 #include "drawingFunctions.h"
 #include "deckofcards.h"
@@ -17,12 +19,38 @@
 #include "globals.h"
 using namespace std;
 
+void PrintVirtualFS_EMS() {
+    EM_ASM({
+        console.log("=== Virtual FS Contents ===");
+
+        function printDir(path) {
+            try {
+                var entries = FS.readdir(path);
+                for (var i = 0; i < entries.length; i++) {
+                    if (entries[i] === "." || entries[i] === "..") continue;
+                    var fullPath = path + "/" + entries[i];
+                    console.log(fullPath);
+
+                    if (FS.isDir(FS.lookupPath(fullPath).node.mode)) {
+                        printDir(fullPath);
+                    }
+                }
+            } catch (e) {
+                console.error("Error reading directory:", e);
+            }
+        }
+
+        printDir("/");
+    });
+}
+
 int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(1600, 900, "Card Game");
+    PrintVirtualFS_EMS();
     Data StyleGuide = {1600, 900};
     Flags flags;
     GameVars gameVars;
@@ -43,6 +71,8 @@ int main(void)
 	shared_ptr<Texture2D> buttonTexture = make_shared<Texture2D>(LoadTexture("textures/button.png"));
 	shared_ptr<Texture2D> cardTexture = make_shared<Texture2D>(LoadTexture("textures/cardTextures.png"));
 	shared_ptr<Texture2D> invisTexture = make_shared<Texture2D>(LoadTexture("textures/invisTexture.png"));
+	if (cardTexture->id == 0) TraceLog(LOG_ERROR, "Failed to load card texture!");
+	else TraceLog(LOG_INFO, "Card texture loaded successfully: %i x %i", cardTexture->width, cardTexture->height);
 	
 	//Button Definitions
     SingleButtonGroup setupButtons(buttonTexture, StyleGuide);

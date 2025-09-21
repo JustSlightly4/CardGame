@@ -31,6 +31,6 @@ string ApplyAbility(deck &player, deck &opponent, int pos, int mainPos);
 string NullifyOpponentsAbility(card &player, card &opponent);
 string PhysicalAttack(card *player, card *opponent, card *mainCard);
 string MagicalAttack(card *player, card *opponent, card *mainCard);
-actions MakeAIDecision(deck &player, deck &opponent, GameVars &gameVars);
+actions MakeAIDecisionDumb(deck &player, deck &opponent, GameVars &gameVars);
 
 #endif

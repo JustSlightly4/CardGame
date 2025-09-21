@@ -81,7 +81,7 @@ typedef struct DATA {
 		screenDimensions = baseScreenDimensions;
 		prevScreenDimensions = baseScreenDimensions;
 		buttonTextureSize = baseButtonTextureSize * scale;
-		cardTextureSize = baseCardTextureSize * scale;
+		cardTextureSize = {100, 150};
 		fontSize = baseFontSize * scale;
 		margin = baseMargin * scale;
 		recDimensions = {
@@ -234,13 +234,22 @@ typedef struct GAMEVARS {
 	int turn = 0;
 	int round = 0;
 	players playerInPlay = PLAYER1; //This is the deck that is in play
-	cardRoles currCardRole = C_MAIN;
+	cardRoles currCardRole = C_MAIN; //This is the role that the current card is in
 	int player1Score = 0;
 	int player2Score = 0;
 	string dialog = "";
 	int amtActions = 0;
 	bool gameStarted = false;
 	bool gameEnded = false;
+	/*
+	 * static constexpr makes these varable const and compile time known
+	 * It also prevents errors when doing something like this:
+	 * GameVars gameVars1 = gameVars2;
+	 * because these variable can't be changed
+	 */
+	static constexpr int maxSwaps = 2;
+	static constexpr int maxCharges = 2;
+	static constexpr int maxFlasks = 2;
 } GameVars;
 
 
