@@ -1,8 +1,8 @@
 /*
  * Eric Ryan Montgomery
- * 03/17/2025
+ * 09/21/2025
  * For CardGameUI
- * Function/Classes that are not part of the cards/deck are written here
+ * Global Variables/Structs/Class are written here
  */
  
 #ifndef GLOBALSH
@@ -23,6 +23,7 @@ Vector2 operator*(const Vector2& lhs, const float& rhs);
 bool operator==(const Vector2& lhs, const Vector2& rhs);
 bool operator!=(const Vector2& lhs, const Vector2& rhs);
 
+/*
 typedef struct DATA {
 	//Constant bases
 	Vector2 origin;
@@ -110,6 +111,132 @@ typedef struct DATA {
 		deck2AI = false;
 	}
 } Data;
+*/
+
+class Data {
+public:
+    // Constant bases
+    Vector2 origin;
+    Vector2 const baseScreenDimensions; // x = width, y = height
+    Vector2 const baseCardTextureSize;
+    Vector2 const baseButtonTextureSize;
+    float const baseMargin;
+    float const baseFontSize;
+    Rectangle const buttonSource;
+    Rectangle const baseRecDimensions;
+
+    // Mutable depending on scale
+    Vector2 screenDimensions;
+    Vector2 prevScreenDimensions;
+    Rectangle recDimensions;
+    Vector2 buttonTextureSize;
+    Vector2 cardTextureSize;
+    float fontSize;
+    float margin;
+    int starRadius;
+    int starLineThickness;
+    float scaleX;
+    float scaleY;
+
+    // Not depending on scale
+    float aspectRatio;
+    float scrollSpeed;
+    float lineSpacing; // Line spacing is the same as char spacing
+    float sentenceSpacing;
+    float maxScroll;
+    float starRotation;
+    Color textColor;
+    Color background;
+    Color starColor;
+    int numCards;
+    int numDecks;
+    int deckStrength;
+    bool deck1AI;
+    bool deck2AI;
+
+    Data() : 
+        baseScreenDimensions{1600, 900}, // example values
+        baseCardTextureSize{100, 150},
+        baseButtonTextureSize{200, 50},
+        baseMargin(10.0f),
+        baseFontSize(24.0f),
+        buttonSource{0, 0, 200, 50},
+        baseRecDimensions{0, 0, 400, 300}
+    {
+        // Initialize screen dimensions
+        screenDimensions = {(float)GetScreenWidth(), (float)GetScreenHeight()};
+        prevScreenDimensions = screenDimensions;
+
+        // Compute scale factors
+        scaleX = screenDimensions.x / baseScreenDimensions.x;
+        scaleY = screenDimensions.y / baseScreenDimensions.y;
+
+        // Scale dependent values
+        buttonTextureSize = { baseButtonTextureSize.x * scaleX, baseButtonTextureSize.y * scaleY };
+        cardTextureSize   = { baseCardTextureSize.x * scaleX, baseCardTextureSize.y * scaleY };
+        fontSize          = baseFontSize * scaleY;   // font usually tied to height
+        margin            = baseMargin * scaleX;     // horizontal margin usually tied to width
+        recDimensions = {
+            margin,
+            screenDimensions.y - buttonTextureSize.y - (margin * 3),
+            screenDimensions.x - (margin * 2),
+            buttonTextureSize.y + (margin * 2)
+        };
+
+        starRadius = 20;
+        starLineThickness = 7;
+
+        // Not depending on scale
+        aspectRatio = baseScreenDimensions.x / baseScreenDimensions.y;
+        scrollSpeed = 50.0f;
+        lineSpacing = 1.0f;
+        sentenceSpacing = 20.0f;
+        starRotation = 0.0f;
+        maxScroll = 0;
+        textColor = BLACK;
+        background = RAYWHITE;
+        starColor = GOLD;
+        numCards = 5;
+        numDecks = 2;
+        deckStrength = 7;
+        deck1AI = false;
+        deck2AI = false;
+
+        Update();
+    }
+
+    void Update() {
+        // Update screen dimensions
+        screenDimensions.x = GetScreenWidth();
+        screenDimensions.y = GetScreenHeight();
+
+        // Star rotation animation
+        starRotation += 20 * GetFrameTime();
+        if (starRotation > 360.0f) starRotation = 0.0f;
+
+        // Recompute scale if screen changed
+        if (screenDimensions.x != prevScreenDimensions.x || screenDimensions.y != prevScreenDimensions.y) {
+            scaleX = screenDimensions.x / baseScreenDimensions.x;
+            scaleY = screenDimensions.y / baseScreenDimensions.y;
+
+            // Update dependent dimensions
+            fontSize = baseFontSize * scaleY;
+            margin   = baseMargin * scaleX;
+
+            buttonTextureSize = { baseButtonTextureSize.x * scaleX, baseButtonTextureSize.y * scaleY };
+            cardTextureSize   = { baseCardTextureSize.x * scaleX, baseCardTextureSize.y * scaleY };
+
+            recDimensions = {
+                margin,
+                screenDimensions.y - buttonTextureSize.y - (margin * 3),
+                screenDimensions.x - (margin * 2),
+                buttonTextureSize.y + (margin * 2)
+            };
+
+            prevScreenDimensions = screenDimensions;
+        }
+    }
+};
 
 enum GameScreen {
 	TITLE = 0,

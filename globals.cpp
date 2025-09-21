@@ -1,8 +1,8 @@
 /*
  * Eric Ryan Montgomery
- * 03/17/2025
+ * 09/21/2025
  * For CardGameUI
- * Functions for deck/cards without the use of raylib are written here
+ * Global Variables/Structs/Class are written here
  */
 #include "globals.h"
 

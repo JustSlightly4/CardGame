@@ -1,3 +1,10 @@
+/*
+ * Eric Ryan Montgomery
+ * 09/21/2025
+ * For CardGameUI
+ * Function/Classes for drawing to the screen are written here
+ */
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -7,6 +14,7 @@
 #include "functions.h"
 #include "raylib.h"
 #include "deckofcards.h"
+#include "cards.h"
 #include "buttons.h"
 #include "globals.h"
 #ifndef DRAWINGFUNCTIONSH

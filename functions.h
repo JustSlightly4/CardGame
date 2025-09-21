@@ -1,8 +1,8 @@
 /*
  * Eric Ryan Montgomery
- * 03/17/2025
+ * 09/21/2025
  * For CardGameUI
- * Function/Classes that are not part of the cards/deck are written here
+ * Logic Functions not related to drawing are written here
  */
  
 #ifndef FUNCTIONSH
@@ -15,6 +15,7 @@
 #include <iomanip>
 #include "raylib.h"
 #include "deckofcards.h"
+#include "cards.h"
 #include "buttons.h"
 #include "globals.h"
 using namespace std;
@@ -22,7 +23,6 @@ using namespace std;
 void RegularGame(deck &deck1, deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide);
 void RegularGameTurn(deck &player, deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide);
 void scrollLogic(float &scrollOffset, Data &StyleGuide);
-void UpdateStyleGuide(Data &StyleGuide);
 float GetCardSourceX(card *Card, Data &StyleGuide);
 Flags ResetFlags();
 GameVars ResetGameVars();

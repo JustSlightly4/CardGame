@@ -1,8 +1,8 @@
 /*
  * Eric Ryan Montgomery
- * 03/17/2025
+ * 09/21/2025
  * For CardGameUI
- * Function/Classes that are not part of the cards/deck are written here
+ * Logic Functions not related to drawing are written here
  */
  
 #include "functions.h"
@@ -31,35 +31,6 @@ float GetCardSourceX(card *Card, Data &StyleGuide) {
 			return StyleGuide.baseCardTextureSize.x * 5;
 		default:
 			return StyleGuide.baseCardTextureSize.x * 6;
-	}
-}
-
-//Updates the all variables in the StyleGuide if something has changed
-void UpdateStyleGuide(Data &StyleGuide) {
-	StyleGuide.screenDimensions.x = GetScreenWidth();                            
-	StyleGuide.screenDimensions.y = GetScreenHeight();
-	
-	//Animations
-	StyleGuide.starRotation += 20 * GetFrameTime();
-	if (StyleGuide.starRotation > 360.0f) StyleGuide.starRotation = 0.0f;
-	
-	//If screen dimensions have changed then recalculate size of everything
-	if (StyleGuide.screenDimensions != StyleGuide.prevScreenDimensions) {
-		
-		//Recalculate the StyleGuide's numbers
-		StyleGuide.scale = ((StyleGuide.screenDimensions.x/1600) + (StyleGuide.screenDimensions.y/900))/2.0f;
-		StyleGuide.fontSize = StyleGuide.baseFontSize * StyleGuide.scale;
-		StyleGuide.margin = StyleGuide.baseMargin * StyleGuide.scale;
-		StyleGuide.buttonTextureSize = StyleGuide.baseButtonTextureSize * StyleGuide.scale;
-		StyleGuide.cardTextureSize = StyleGuide.baseCardTextureSize * StyleGuide.scale;
-		StyleGuide.recDimensions = {
-			StyleGuide.margin, 
-			StyleGuide.screenDimensions.y - StyleGuide.buttonTextureSize.y - (StyleGuide.margin * 3), 
-			StyleGuide.screenDimensions.x - (StyleGuide.margin * 2), 
-			StyleGuide.buttonTextureSize.y + (StyleGuide.margin * 2)
-		};
-		StyleGuide.prevScreenDimensions = StyleGuide.screenDimensions;
-		
 	}
 }
 

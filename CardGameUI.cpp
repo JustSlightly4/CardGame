@@ -1,8 +1,8 @@
 /*
  * Eric Ryan Montgomery
- * 03/13/2025
- * Build Command: g++ -Wall -o out CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp deckofcards.cpp globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
- * Web Build Command: cmd /c em++ -Wall CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp deckofcards.cpp globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 --preload-file textures@/textures
+ * 09/21/2025
+ * Build Command: g++ -Wall -o out CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp cards.pp deckofcards.cpp globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
+ * Web Build Command: cmd /c em++ -Wall CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp cards.cpp deckofcards.cpp globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 --preload-file textures@/textures
  * Web Execute Local Command: 
  * Make Command: mingw32-make
  */
@@ -15,6 +15,7 @@
 #include "functions.h"
 #include "drawingFunctions.h"
 #include "deckofcards.h"
+#include "cards.h"
 #include "buttons.h"
 #include "raylib.h"
 #include "globals.h"
@@ -51,8 +52,7 @@ int main(void)
     //--------------------------------------------------------------------------------------
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(1600, 900, "Card Game");
-    PrintVirtualFS_EMS();
-    Data StyleGuide = {1600, 900};
+    Data StyleGuide;
     Flags flags;
     GameVars gameVars;
     CardEditVars cardEditVars;
@@ -130,7 +130,7 @@ int main(void)
     {
 		//UpdateStyleGuide(StyleGuide);
 		mousePoint = GetMousePosition(); //Gets current mouse position
-		UpdateStyleGuide(StyleGuide); //Updates screen width/height and rec width/height
+		StyleGuide.Update();
 		
 		//Input
 		switch(currentScreen) {

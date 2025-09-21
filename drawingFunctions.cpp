@@ -1,8 +1,8 @@
 /*
  * Eric Ryan Montgomery
- * 03/17/2025
+ * 09/21/2025
  * For CardGameUI
- * Function/Classes that are not part of the cards/deck are written here
+ * Function/Classes for drawing to the screen are written here
  */
  
 #include "drawingFunctions.h"
