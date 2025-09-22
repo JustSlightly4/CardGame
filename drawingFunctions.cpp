@@ -7,6 +7,95 @@
  
 #include "drawingFunctions.h"
 
+//Draws grid across screen for debugging purposes
+void DrawGrid(int segments) {
+	//void DrawLineEx(Vector2 startPos, Vector2 endPos, float thick, Color color); 
+	//Split screen into 32 by 32 squares
+	Vector2 linePos = {0, 0};
+	float width = GetScreenWidth();
+	float widthSegment = width/segments;
+	float height = GetScreenHeight();
+	float heightSegment = height/segments;
+	for (int i = 0; i < segments + 1; ++i) {
+		DrawLineEx({linePos.x, 0}, {linePos.x, height}, 1, BLACK);
+		DrawLineEx({0, linePos.y}, {width, linePos.y}, 1, BLACK);
+		linePos.x = i * widthSegment;
+		linePos.y = i * heightSegment;
+	}
+}
+
+//Draws dots across screen for debugging purposes
+void DrawGridDots(int segments) {
+	//void DrawCircleV(Vector2 center, float radius, Color color)
+	float width = GetScreenWidth();
+	float widthSegment = width/segments;
+	float height = GetScreenHeight();
+	float heightSegment = height/segments;
+	for (int i = 0; i < segments + 1; ++i) {
+		for (int j = 0; j < segments + 1; ++j) {
+			DrawCircleV({i * widthSegment, j * heightSegment}, 3, RED);
+		}
+	}
+}
+
+//Draws a texture on a grid
+void DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords, Vector2 endCoords, int segments) {
+	//void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
+	float width = GetScreenWidth();
+	float widthSegment = width/segments;
+	float height = GetScreenHeight();
+	float heightSegment = height/segments;
+	DrawTexturePro(texture, source, {startCoords.x * widthSegment, startCoords.y * heightSegment, (endCoords.x - startCoords.x) * widthSegment, (endCoords.y - startCoords.y) * heightSegment}, {0, 0}, 0.0f, WHITE);
+	//DrawCircleV({startCoords.x * widthSegment, startCoords.y * heightSegment}, 3, BLUE);
+	//DrawCircleV({endCoords.x * widthSegment, endCoords.y * heightSegment}, 3, GREEN);
+}
+
+//Draws a rectangle on a grid
+void DrawRectangleOnGrid(Vector2 startCoords, Vector2 endCoords, int segments) {
+	//void DrawRectangleRec(Rectangle rec, Color color);
+	float width = GetScreenWidth();
+	float widthSegment = width/segments;
+	float height = GetScreenHeight();
+	float heightSegment = height/segments;
+	DrawRectangleRec({startCoords.x * widthSegment, startCoords.y * heightSegment, (endCoords.x - startCoords.x) * widthSegment, (endCoords.y - startCoords.y) * heightSegment}, BLACK);
+	//DrawCircleV({startCoords.x * widthSegment, startCoords.y * heightSegment}, 3, BLUE);
+	//DrawCircleV({endCoords.x * widthSegment, endCoords.y * heightSegment}, 3, GREEN);
+}
+
+//Draws Rectangle Lines on a grid
+void DrawRectangleLinesOnGrid(Vector2 startCoords, Vector2 endCoords, int lineThickness, int segments) {
+	//void DrawRectangleLinesEx(Rectangle rec, float lineThick, Color color);
+	float width = GetScreenWidth();
+	float widthSegment = width/segments;
+	float height = GetScreenHeight();
+	float heightSegment = height/segments;
+	DrawRectangleLinesEx({startCoords.x * widthSegment, startCoords.y * heightSegment, (endCoords.x - startCoords.x) * widthSegment, (endCoords.y - startCoords.y) * heightSegment}, lineThickness, BLACK);
+	//DrawCircleV({startCoords.x * widthSegment, startCoords.y * heightSegment}, 3, BLUE);
+	//DrawCircleV({endCoords.x * widthSegment, endCoords.y * heightSegment}, 3, GREEN);
+}
+
+//DrawTextS but on a grid
+void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Color tint, float fontSize, Alignment orientation, int segments, int lineThickness) {
+	float width = GetScreenWidth();
+	float widthSegment = width/segments;
+	float height = GetScreenHeight();
+	float heightSegment = height/segments;
+	DrawTextS(text, {startCoords.x * widthSegment, startCoords.y * heightSegment, (endCoords.x - startCoords.x) * widthSegment, (endCoords.y - startCoords.y) * heightSegment}, lineThickness, tint, fontSize, orientation);
+	DrawCircleV({startCoords.x * widthSegment, startCoords.y * heightSegment}, 3, BLUE);
+	DrawCircleV({endCoords.x * widthSegment, endCoords.y * heightSegment}, 3, GREEN);
+}
+
+//DrawTextSWrapped but on a grid
+void DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Color tint, float fontSize, Alignment orientation, int segments, int lineThickness) {
+	float width = GetScreenWidth();
+	float widthSegment = width/segments;
+	float height = GetScreenHeight();
+	float heightSegment = height/segments;
+	DrawTextSWrapped(text, {startCoords.x * widthSegment, startCoords.y * heightSegment, (endCoords.x - startCoords.x) * widthSegment, (endCoords.y - startCoords.y) * heightSegment}, lineThickness, tint, fontSize, orientation);
+	DrawCircleV({startCoords.x * widthSegment, startCoords.y * heightSegment}, 3, BLUE);
+	DrawCircleV({endCoords.x * widthSegment, endCoords.y * heightSegment}, 3, GREEN);
+}
+
 void DrawBasicCardStats(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide) {
 	//Draw Card Details
 	Rectangle belowCard = {pos.x, pos.y + (StyleGuide.cardTextureSize.y * size) + (StyleGuide.margin * (size-1)), StyleGuide.cardTextureSize.x * size, StyleGuide.fontSize/2.0f};
@@ -60,13 +149,13 @@ float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, 
      */
     for (int i = 0; i < words.size(); ++i) {
 		sum += MeasureTextEx(GetFontDefault(), (words[i] + " ").c_str(), fontSize, 1.0f).x;
-		if (sum >= dest.width) {
+		if (sum >= dest.width && i > 0) { //i > 0 to fix adding an empty line
 			newLineQueue.push(i);
 			sum = MeasureTextEx(GetFontDefault(), (words[i]).c_str(), fontSize, 1.0f).x;
 		}
 	}
 	
-	//Pushes words.size() to the end of the queue so the last line is forgotten
+	//Pushes words.size() to the end of the queue so the last line isn't forgotten
 	newLineQueue.push(words.size());
 	
 	/*The queue now marks where the new lines should begin

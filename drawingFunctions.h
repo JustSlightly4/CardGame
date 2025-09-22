@@ -20,6 +20,16 @@
 #ifndef DRAWINGFUNCTIONSH
 #define DRAWINGFUNCTIONSH
 
+//New Grid Based Drawing Functions
+void DrawGrid(int segments);
+void DrawGridDots(int segments);
+void DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords, Vector2 endCoords, int segments);
+void DrawRectangleOnGrid(Vector2 startCoords, Vector2 endCoords, int segments);
+void DrawRectangleLinesOnGrid(Vector2 startCoords, Vector2 endCoords, int lineThickness, int segments);
+void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Color tint, float fontSize, Alignment orientation, int segments, int lineThickness = 0);
+void DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Color tint, float fontSize, Alignment orientation, int segments, int lineThickness = 0);
+
+//Older Absolute Pixel Drawing Functions 
 void DrawBasicCardStats(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide);
 void DrawTextS(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness = 0);
 float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness = 0);
