@@ -21,13 +21,14 @@
 #define DRAWINGFUNCTIONSH
 
 //New Grid Based Drawing Functions
-void DrawGrid(int segments);
-void DrawGridDots(int segments);
-void DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords, Vector2 endCoords, int segments);
-void DrawRectangleOnGrid(Vector2 startCoords, Vector2 endCoords, int segments);
-void DrawRectangleLinesOnGrid(Vector2 startCoords, Vector2 endCoords, int lineThickness, int segments);
-void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Color tint, float fontSize, Alignment orientation, int segments, int lineThickness = 0);
-void DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Color tint, float fontSize, Alignment orientation, int segments, int lineThickness = 0);
+void DrawGrid(Data &StyleGuide);
+void DrawGridDots(Data &StyleGuide);
+void DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords, Vector2 endCoords, Color tint, Data &StyleGuide);
+void DrawRectangleOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, Data &StyleGuide);
+void DrawRectangleLinesOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, int lineThickness, Data &StyleGuide);
+void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness = 0);
+void DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness = 0);
+void DrawFPSOnGrid(Data &StyleGuide);
 
 //Older Absolute Pixel Drawing Functions 
 void DrawBasicCardStats(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide);

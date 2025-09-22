@@ -65,7 +65,7 @@ int main(void)
 	bool settingsChanged = false;
     
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+    SetTargetFPS(0);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
 	//Texture Definitions
@@ -522,6 +522,7 @@ int main(void)
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
+            DrawFPSOnGrid(StyleGuide);
             
             switch(currentScreen) {
 				case TITLE: {

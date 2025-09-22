@@ -153,6 +153,9 @@ public:
     int deckStrength;
     bool deck1AI;
     bool deck2AI;
+    int segments;
+    float widthSegment;
+    float heightSegment;
 
     Data() : 
         baseScreenDimensions{1600, 900}, // example values
@@ -201,7 +204,9 @@ public:
         deckStrength = 7;
         deck1AI = false;
         deck2AI = false;
-
+        segments = 32;
+        widthSegment = screenDimensions.x/segments;
+        heightSegment = screenDimensions.y/segments;
         Update();
     }
 
@@ -233,6 +238,9 @@ public:
                 buttonTextureSize.y + (margin * 2)
             };
 
+			widthSegment = screenDimensions.x/segments;
+			heightSegment = screenDimensions.y/segments;
+			
             prevScreenDimensions = screenDimensions;
         }
     }
