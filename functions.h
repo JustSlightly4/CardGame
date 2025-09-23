@@ -24,6 +24,7 @@ void RegularGame(deck &deck1, deck &deck2, GameVars &gameVars, Flags &flags, Sin
 void RegularGameTurn(deck &player, deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide);
 void scrollLogic(float &scrollOffset, Data &StyleGuide);
 float GetCardSourceX(card *Card, Data &StyleGuide);
+Rectangle GetCardSourceRec(card *Card, Data &StyleGuide);
 Flags ResetFlags();
 GameVars ResetGameVars();
 CardEditVars ResetCardEditVars();

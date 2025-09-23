@@ -541,6 +541,8 @@ int main(void)
 					DrawCardLine(deck2, deck2EditButtons, deck2Dest, ((StyleGuide.screenDimensions.x - (StyleGuide.cardTextureSize.x * 2) - StyleGuide.margin) - (StyleGuide.cardTextureSize.x * StyleGuide.numCards))/(StyleGuide.numCards-1), StyleGuide);
 					
 					DrawButtonLine(setupButtons, StyleGuide);
+					//DrawGrid(StyleGuide);
+					//DrawButtonOnGrid(setupButtons, 0, {1, 1}, {12, 8}, StyleGuide);
 					break;
 				}
 				case RULES: {

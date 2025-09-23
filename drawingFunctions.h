@@ -23,12 +23,16 @@
 //New Grid Based Drawing Functions
 void DrawGrid(Data &StyleGuide);
 void DrawGridDots(Data &StyleGuide);
+Rectangle CoordsToRec(Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
 void DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords, Vector2 endCoords, Color tint, Data &StyleGuide);
 void DrawRectangleOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, Data &StyleGuide);
 void DrawRectangleLinesOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, int lineThickness, Data &StyleGuide);
 void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness = 0);
 void DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness = 0);
 void DrawFPSOnGrid(Data &StyleGuide);
+void DrawCardOnGrid(int index, deck &Deck, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
+void DrawCardWithBasicStatsOnGrid(int index, deck &Deck, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
+void DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
 
 //Older Absolute Pixel Drawing Functions 
 void DrawBasicCardStats(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide);

@@ -160,10 +160,10 @@ public:
     Data() : 
         baseScreenDimensions{1600, 900}, // example values
         baseCardTextureSize{100, 150},
-        baseButtonTextureSize{200, 50},
+        baseButtonTextureSize{200, 100},
         baseMargin(10.0f),
         baseFontSize(24.0f),
-        buttonSource{0, 0, 200, 50},
+        buttonSource{0, 0, 200, 100},
         baseRecDimensions{0, 0, 400, 300}
     {
         // Initialize screen dimensions
@@ -204,7 +204,7 @@ public:
         deckStrength = 7;
         deck1AI = false;
         deck2AI = false;
-        segments = 32;
+        segments = 64;
         widthSegment = screenDimensions.x/segments;
         heightSegment = screenDimensions.y/segments;
         Update();

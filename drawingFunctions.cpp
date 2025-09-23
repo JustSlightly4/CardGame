@@ -30,40 +30,37 @@ void DrawGridDots(Data &StyleGuide) {
 	}
 }
 
+Rectangle CoordsToRec(Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
+	return (Rectangle){startCoords.x * StyleGuide.widthSegment, startCoords.y * StyleGuide.heightSegment, 
+		(endCoords.x - startCoords.x) * StyleGuide.widthSegment, 
+		(endCoords.y - startCoords.y) * StyleGuide.heightSegment};
+}
+
 //Draws a texture on a grid
 void DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords, Vector2 endCoords, Color tint, Data &StyleGuide) {
 	//void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
 	DrawTexturePro(texture, source, 
-	{startCoords.x * StyleGuide.widthSegment, startCoords.y * StyleGuide.heightSegment, 
-		(endCoords.x - startCoords.x) * StyleGuide.widthSegment, 
-		(endCoords.y - startCoords.y) * StyleGuide.heightSegment}, 
-		StyleGuide.origin, 0.0f, tint);
+	CoordsToRec(startCoords, endCoords, StyleGuide), 
+	StyleGuide.origin, 0.0f, tint);
 }
 
 //Draws a rectangle on a grid
 void DrawRectangleOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, Data &StyleGuide) {
 	//void DrawRectangleRec(Rectangle rec, Color color);
-	DrawRectangleRec({startCoords.x * StyleGuide.widthSegment, startCoords.y * StyleGuide.heightSegment, 
-		(endCoords.x - startCoords.x) * StyleGuide.widthSegment, 
-		(endCoords.y - startCoords.y) * StyleGuide.heightSegment}, 
+	DrawRectangleRec(CoordsToRec(startCoords, endCoords, StyleGuide), 
 		tint);
 }
 
 //Draws Rectangle Lines on a grid
 void DrawRectangleLinesOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, int lineThickness, Data &StyleGuide) {
 	//void DrawRectangleLinesEx(Rectangle rec, float lineThick, Color color);
-	DrawRectangleLinesEx({startCoords.x * StyleGuide.widthSegment, startCoords.y * StyleGuide.heightSegment, 
-		(endCoords.x - startCoords.x) * StyleGuide.widthSegment, 
-		(endCoords.y - startCoords.y) * StyleGuide.heightSegment}, 
+	DrawRectangleLinesEx(CoordsToRec(startCoords, endCoords, StyleGuide), 
 		lineThickness, tint);
 }
 
 //DrawTextS but on a grid
 void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness) {
-	DrawTextS(text, {startCoords.x * StyleGuide.widthSegment, 
-		startCoords.y * StyleGuide.heightSegment, 
-		(endCoords.x - startCoords.x) * StyleGuide.widthSegment, 
-		(endCoords.y - startCoords.y) * StyleGuide.heightSegment}, 
+	DrawTextS(text, CoordsToRec(startCoords, endCoords, StyleGuide), 
 		StyleGuide.textColor, StyleGuide.fontSize, orientation, lineThickness);
 }
 
@@ -73,8 +70,8 @@ void DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords,
 		(endCoords.x - startCoords.x) * StyleGuide.widthSegment, 
 		(endCoords.y - startCoords.y) * StyleGuide.heightSegment}, 
 		StyleGuide.textColor, StyleGuide.fontSize, orientation, lineThickness);
-	//DrawCircleV({startCoords.x * widthSegment, startCoords.y * heightSegment}, 3, BLUE);
-	//DrawCircleV({endCoords.x * widthSegment, endCoords.y * heightSegment}, 3, GREEN);
+	//DrawCircleV({startCoords.x * StyleGuide.widthSegment, startCoords.y * StyleGuide.heightSegment}, 3, BLUE);
+	//DrawCircleV({endCoords.x * StyleGuide.widthSegment, endCoords.y * StyleGuide.heightSegment}, 3, GREEN);
 }
 
 //Draws the FPS on the top left of the screen
@@ -82,6 +79,30 @@ void DrawFPSOnGrid(Data &StyleGuide) {
 	//void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness)
 	string FPS = "FPS: " + to_string(GetFPS());
 	DrawTextSOnGrid(FPS, {0, 0}, {3, 1}, {LEFTX, UPY}, StyleGuide);
+}
+
+//Draws a single card on the grid
+void DrawCardOnGrid(int index, deck &Deck, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
+	//void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
+	DrawTexturePro(*Deck.GetTexture(), 
+	GetCardSourceRec(Deck[index], StyleGuide),
+	CoordsToRec(startCoords, endCoords, StyleGuide),
+	StyleGuide.origin, 0.0f, Deck[index]->GetColorRaylib());
+}
+
+//Draws a single card on the grid
+void DrawCardWithBasicStatsOnGrid(int index, deck &Deck, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
+	DrawCardOnGrid(index, Deck, startCoords, endCoords, StyleGuide);
+	DrawTextSOnGrid(Deck[index]->GetName(), {startCoords.x, endCoords.y}, {endCoords.x, endCoords.y + 2}, {CENTERX, CENTERY}, StyleGuide);
+	DrawTextSOnGrid("P: " + to_string(Deck[index]->GetPower()) + ", " + to_string(Deck[index]->GetMagicalPower()), {startCoords.x, endCoords.y + 2}, {endCoords.x, endCoords.y + 4}, {CENTERX, CENTERY}, StyleGuide);
+	DrawTextSOnGrid("Health: " + to_string(Deck[index]->GetHealthT()), {startCoords.x, endCoords.y + 4}, {endCoords.x, endCoords.y + 6}, {CENTERX, CENTERY}, StyleGuide);
+}
+
+//Draws a single button on the grid
+void DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
+	buttons[index].SetBounds(CoordsToRec(startCoords, endCoords, StyleGuide));
+	DrawTextureOnGrid(*buttons.GetTexture(), StyleGuide.buttonSource, startCoords, endCoords, buttons[index].GetColor(), StyleGuide);
+	DrawTextSWrappedOnGrid(buttons[index].GetLabel(), startCoords, endCoords, (Alignment){CENTERX, CENTERY}, StyleGuide);
 }
 
 void DrawBasicCardStats(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide) {

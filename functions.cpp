@@ -30,7 +30,28 @@ float GetCardSourceX(card *Card, Data &StyleGuide) {
 		case(C_ARC):
 			return StyleGuide.baseCardTextureSize.x * 5;
 		default:
-			return StyleGuide.baseCardTextureSize.x * 6;
+			return StyleGuide.baseCardTextureSize.x * 4;
+	}
+}
+
+//Gets the correct card source texture data based on its attribute
+//and returns it as a rectangle
+Rectangle GetCardSourceRec(card *Card, Data &StyleGuide) {
+	switch(Card->GetAttribute()) {
+		case(C_MIMIC):
+			return {StyleGuide.baseCardTextureSize.x * 4, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+		case(C_STR):
+			return {StyleGuide.baseCardTextureSize.x * 0, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+		case(C_FTH):
+			return {StyleGuide.baseCardTextureSize.x * 2, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+		case(C_DEX):
+			return {StyleGuide.baseCardTextureSize.x * 1, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+		case(C_INT):
+			return {StyleGuide.baseCardTextureSize.x * 3, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+		case(C_ARC):
+			return {StyleGuide.baseCardTextureSize.x * 5, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+		default:
+			return {StyleGuide.baseCardTextureSize.x * 4, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
 	}
 }
 
