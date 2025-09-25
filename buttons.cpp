@@ -158,20 +158,6 @@ SingleButton::SingleButton(string &text) {
 void SingleButton::SetButtonState(int state) {
 	if (state < 0 || state > 2) return;
 	buttonState = state;
-	switch(state) {
-		case 0:
-			tint = WHITE;
-			break;
-		case 1:
-			tint = LIGHTGRAY;
-			break;
-		case 2:
-			tint = DARKGRAY;
-			break;
-		default:
-			tint = WHITE;
-			break;
-	}
 }
 
 void SingleButton::SetButtonAction(bool action) {

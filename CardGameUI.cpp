@@ -65,15 +65,13 @@ int main(void)
 	bool settingsChanged = false;
     
 
-    SetTargetFPS(0);               // Set our game to run at 60 frames-per-second
+    SetTargetFPS(0);               // Set our game to run at unlimited frames-per-second
     //--------------------------------------------------------------------------------------
 
 	//Texture Definitions
 	shared_ptr<Texture2D> buttonTexture = make_shared<Texture2D>(LoadTexture("textures/button.png"));
 	shared_ptr<Texture2D> cardTexture = make_shared<Texture2D>(LoadTexture("textures/cardTextures.png"));
 	shared_ptr<Texture2D> invisTexture = make_shared<Texture2D>(LoadTexture("textures/invisTexture.png"));
-	if (cardTexture->id == 0) TraceLog(LOG_ERROR, "Failed to load card texture!");
-	else TraceLog(LOG_INFO, "Card texture loaded successfully: %i x %i", cardTexture->width, cardTexture->height);
 	
 	//Button Definitions
     SingleButtonGroup setupButtons(buttonTexture, StyleGuide);
@@ -530,19 +528,15 @@ int main(void)
 					break;
 				}
 				case SETUP: {
-					Vector2 deck1Dest = {(StyleGuide.cardTextureSize.x + StyleGuide.margin), StyleGuide.margin + StyleGuide.fontSize};
-					Vector2 deck2Dest = {(StyleGuide.cardTextureSize.x + StyleGuide.margin), StyleGuide.margin + (StyleGuide.fontSize * 2) + (StyleGuide.cardTextureSize.y * 2)};
-					//Display Deck1
-					DrawTextS("Player 1 Deck", (Rectangle){0, deck1Dest.y - StyleGuide.fontSize - StyleGuide.margin, StyleGuide.screenDimensions.x, StyleGuide.fontSize}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-					DrawCardLine(deck1, deck1EditButtons, deck1Dest, ((StyleGuide.screenDimensions.x - (StyleGuide.cardTextureSize.x * 2) - StyleGuide.margin) - (StyleGuide.cardTextureSize.x * StyleGuide.numCards))/(StyleGuide.numCards-1), StyleGuide);
 					
-					//Display Deck2
-					DrawTextS("Player 2 Deck", (Rectangle){0, deck2Dest.y - StyleGuide.fontSize - StyleGuide.margin, StyleGuide.screenDimensions.x, StyleGuide.fontSize}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-					DrawCardLine(deck2, deck2EditButtons, deck2Dest, ((StyleGuide.screenDimensions.x - (StyleGuide.cardTextureSize.x * 2) - StyleGuide.margin) - (StyleGuide.cardTextureSize.x * StyleGuide.numCards))/(StyleGuide.numCards-1), StyleGuide);
+					//Draws both decks on the screen
+					DrawCardButtonRowOnGrid(*deck1, deck1EditButtons, 4, {3, 1}, {61, 13}, true, StyleGuide);
+					DrawCardButtonRowOnGrid(*deck2, deck2EditButtons, 4, {3, 23}, {61, 35}, true, StyleGuide);
 					
-					DrawButtonLine(setupButtons, StyleGuide);
-					//DrawGrid(StyleGuide);
-					//DrawButtonOnGrid(setupButtons, 0, {1, 1}, {12, 8}, StyleGuide);
+					//Draws the setup buttons at the bottom of the screen
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide);
+					DrawButtonRowOnGrid(setupButtons, {2, 55}, {62, 62}, StyleGuide);
+					
 					break;
 				}
 				case RULES: {
@@ -561,8 +555,33 @@ int main(void)
 					break;
 				}
 				case GAME: {
-					DrawGame(deck1, deck2, gameVars, StyleGuide, flags);
-					DrawButtonLine(gameButtons, StyleGuide);
+					DrawRectangleLinesOnGrid({7, 1}, {57, 7}, BLACK, 5, StyleGuide); //Turn Counter Box
+					DrawTextSOnGrid("Round: " + to_string(gameVars.round+1), {7, 1}, {57, 4}, (Alignment){CENTERX, CENTERY}, StyleGuide, 5); //Round #
+					DrawTextSOnGrid("Turn: " + to_string(gameVars.turn+1), {7, 4}, {57, 7}, (Alignment){CENTERX, CENTERY}, StyleGuide, 5); //Turn #
+					if (gameVars.playerInPlay == 0) DrawTextSOnGrid("Player 1 Turn", {7, 1}, {57, 7}, (Alignment){LEFTX, CENTERY}, StyleGuide, 6); //Shows if it's P1's turn
+					if (gameVars.playerInPlay == 1) DrawTextSOnGrid("Player 2 Turn", {7, 1}, {57, 7}, (Alignment){RIGHTX, CENTERY}, StyleGuide, 6); //Shows if it's P2's turn
+					DrawCardOnGrid(*deck1, gameVars.round, {7, 8}, {17, 38}, true, StyleGuide); //deck1 main card
+					DrawCardOnGrid(*deck2, gameVars.round, {47, 8}, {57, 38}, true, StyleGuide); //deck2 main card
+					if (gameVars.round < deck1->size() - 1) { //Only draws support cards if not the last round
+						DrawCardOnGrid(*deck1, deck1->size() - 1, {18, 14}, {26, 38}, true, StyleGuide); //deck1 support card
+						DrawCardOnGrid(*deck2, deck1->size() - 1, {38, 14}, {46, 38}, true, StyleGuide); //deck2 support card
+					}
+					DrawRectangleOnGrid({1, 43.0f - ((42.0f/deck1->size()) * gameVars.player1Score)}, {6, 43}, RED, StyleGuide); //Left Score Column
+					DrawRectangleOnGrid({58, 43.0f - ((42.0f/deck1->size()) * gameVars.player2Score)}, {63, 43}, BLUE, StyleGuide); //Right Score Column Outline
+					DrawRectangleLinesOnGrid({1, 1}, {6, 43}, BLACK, 5, StyleGuide); //Left Score Column Outline
+					DrawRectangleLinesOnGrid({58, 1}, {63, 43}, BLACK, 5, StyleGuide); //Right Score Column Outline
+					DrawRectangleLinesOnGrid({1, 44}, {63, 53}, BLACK, 5, StyleGuide); //Text Box
+					DrawTextSWrappedOnGrid(gameVars.dialog, {1, 44}, {63, 53}, (Alignment){CENTERX, CENTERY}, StyleGuide, 5); //Dialog in Text Box
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Behind Buttons
+					DrawButtonRowOnGrid(gameButtons, {2, 55}, {62, 62}, StyleGuide); //Buttons
+					//Draw Star on who is playing
+					if (gameVars.playerInPlay == PLAYER1) {
+						if (gameVars.currCardRole == C_MAIN) DrawStarOnGrid({7, 8}, StyleGuide);
+						else DrawStarOnGrid({18, 14}, StyleGuide);
+					} else {
+						if (gameVars.currCardRole == C_MAIN) DrawStarOnGrid({57, 8}, StyleGuide);
+						else DrawStarOnGrid({46, 14}, StyleGuide);
+					}
 					break;
 				}
 				case(EDITCARD): {

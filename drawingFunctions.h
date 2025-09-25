@@ -27,12 +27,16 @@ Rectangle CoordsToRec(Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
 void DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords, Vector2 endCoords, Color tint, Data &StyleGuide);
 void DrawRectangleOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, Data &StyleGuide);
 void DrawRectangleLinesOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, int lineThickness, Data &StyleGuide);
+void DrawStarOnGrid(Vector2 coords, Data &StyleGuide);
 void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness = 0);
 void DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness = 0);
 void DrawFPSOnGrid(Data &StyleGuide);
-void DrawCardOnGrid(int index, deck &Deck, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
-void DrawCardWithBasicStatsOnGrid(int index, deck &Deck, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
+void DrawCardOnGrid(deck &Deck, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
+void DrawCardButtonOnGrid(deck &Deck, SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
 void DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
+void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
+void DrawCardRowOnGrid(deck &Deck, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
+void DrawCardButtonRowOnGrid(deck &Deck, SingleButtonGroup &buttons, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
 
 //Older Absolute Pixel Drawing Functions 
 void DrawBasicCardStats(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide);

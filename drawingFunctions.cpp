@@ -47,8 +47,7 @@ void DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords
 //Draws a rectangle on a grid
 void DrawRectangleOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, Data &StyleGuide) {
 	//void DrawRectangleRec(Rectangle rec, Color color);
-	DrawRectangleRec(CoordsToRec(startCoords, endCoords, StyleGuide), 
-		tint);
+	DrawRectangleRec(CoordsToRec(startCoords, endCoords, StyleGuide), tint);
 }
 
 //Draws Rectangle Lines on a grid
@@ -56,6 +55,11 @@ void DrawRectangleLinesOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint
 	//void DrawRectangleLinesEx(Rectangle rec, float lineThick, Color color);
 	DrawRectangleLinesEx(CoordsToRec(startCoords, endCoords, StyleGuide), 
 		lineThickness, tint);
+}
+
+//Draws a rotating star on the grid
+void DrawStarOnGrid(Vector2 coords, Data &StyleGuide) {
+	DrawPolyLinesEx({coords.x * StyleGuide.widthSegment, coords.y * StyleGuide.heightSegment}, 4, StyleGuide.starRadius, StyleGuide.starRotation, StyleGuide.starLineThickness, GOLD);
 }
 
 //DrawTextS but on a grid
@@ -82,28 +86,74 @@ void DrawFPSOnGrid(Data &StyleGuide) {
 }
 
 //Draws a single card on the grid
-void DrawCardOnGrid(int index, deck &Deck, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
+void DrawCardOnGrid(deck &Deck, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
 	//void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
 	DrawTexturePro(*Deck.GetTexture(), 
 	GetCardSourceRec(Deck[index], StyleGuide),
 	CoordsToRec(startCoords, endCoords, StyleGuide),
 	StyleGuide.origin, 0.0f, Deck[index]->GetColorRaylib());
+	
+	if (showStats) {
+		DrawTextSOnGrid(Deck[index]->GetName(), {startCoords.x, endCoords.y}, {endCoords.x, endCoords.y + 2}, {CENTERX, CENTERY}, StyleGuide);
+		DrawTextSOnGrid("P: " + to_string(Deck[index]->GetPower()) + ", M: " + to_string(Deck[index]->GetMagicalPower()), {startCoords.x, endCoords.y + 2}, {endCoords.x, endCoords.y + 4}, {CENTERX, CENTERY}, StyleGuide);
+		DrawTextSOnGrid("Health: " + to_string(Deck[index]->GetHealth()) + "/" + to_string(Deck[index]->GetHealthT()), {startCoords.x, endCoords.y + 4}, {endCoords.x, endCoords.y + 6}, {CENTERX, CENTERY}, StyleGuide);
+	}
 }
 
-//Draws a single card on the grid
-void DrawCardWithBasicStatsOnGrid(int index, deck &Deck, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
-	DrawCardOnGrid(index, Deck, startCoords, endCoords, StyleGuide);
-	DrawTextSOnGrid(Deck[index]->GetName(), {startCoords.x, endCoords.y}, {endCoords.x, endCoords.y + 2}, {CENTERX, CENTERY}, StyleGuide);
-	DrawTextSOnGrid("P: " + to_string(Deck[index]->GetPower()) + ", " + to_string(Deck[index]->GetMagicalPower()), {startCoords.x, endCoords.y + 2}, {endCoords.x, endCoords.y + 4}, {CENTERX, CENTERY}, StyleGuide);
-	DrawTextSOnGrid("Health: " + to_string(Deck[index]->GetHealthT()), {startCoords.x, endCoords.y + 4}, {endCoords.x, endCoords.y + 6}, {CENTERX, CENTERY}, StyleGuide);
+//Draws a single card button on the grid
+void DrawCardButtonOnGrid(deck &Deck, SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
+	DrawCardOnGrid(Deck, index, startCoords, endCoords, showStats, StyleGuide);
+	DrawButtonOnGrid(buttons, index, startCoords, endCoords, StyleGuide);
 }
 
 //Draws a single button on the grid
 void DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
 	buttons[index].SetBounds(CoordsToRec(startCoords, endCoords, StyleGuide));
-	DrawTextureOnGrid(*buttons.GetTexture(), StyleGuide.buttonSource, startCoords, endCoords, buttons[index].GetColor(), StyleGuide);
+	DrawTextureOnGrid(*buttons.GetTexture(), StyleGuide.buttonSource, startCoords, endCoords, WHITE, StyleGuide);
+	switch(buttons[index].GetState()) {
+		case 1://Hovered GRAY (Color){ 130, 130, 130, 100 }
+			DrawRectangleOnGrid(startCoords, endCoords, (Color){ 130, 130, 130, 100 }, StyleGuide);
+			break;
+		case 2: //Clicked DARKGRAY (Color){ 80, 80, 80, 100 }
+			DrawRectangleOnGrid(startCoords, endCoords, (Color){ 80, 80, 80, 100 }, StyleGuide);
+			break;
+		default: //Neither hover nor clicked
+			break;
+	}
 	DrawTextSWrappedOnGrid(buttons[index].GetLabel(), startCoords, endCoords, (Alignment){CENTERX, CENTERY}, StyleGuide);
 }
+
+//Draws a horizontal row of buttons on the grid
+void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
+	float buttonWidth = (endCoords.x - startCoords.x)/buttons.GetSize();
+	for (int i = 0; i < buttons.GetSize(); ++i) {
+		DrawButtonOnGrid(buttons, i, {startCoords.x + (i * buttonWidth), startCoords.y}, {startCoords.x + (i * buttonWidth) + buttonWidth, endCoords.y}, StyleGuide);
+	}
+}
+
+//Draws the whole deck of cards in a row
+void DrawCardRowOnGrid(deck &Deck, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
+	float cardWidth = ((endCoords.x - startCoords.x) - (spacing * (Deck.size() - 1)))/Deck.size();
+	float xValue;
+	for (int i = 0; i < Deck.size(); ++i) {
+		xValue = startCoords.x + (i * cardWidth) + (i * spacing);
+		DrawCardOnGrid(Deck, i, {xValue, startCoords.y}, {xValue + cardWidth, endCoords.y}, showStats, StyleGuide);
+	}
+	//DrawCircleV({startCoords.x * StyleGuide.widthSegment, startCoords.y * StyleGuide.heightSegment}, 3, BLUE);
+	//DrawCircleV({endCoords.x * StyleGuide.widthSegment, endCoords.y * StyleGuide.heightSegment}, 3, GREEN);
+}
+
+//Draws the whole deck of cards in a row
+void DrawCardButtonRowOnGrid(deck &Deck, SingleButtonGroup &buttons, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
+	float cardWidth = cardWidthSegments;
+	float spacing = ((endCoords.x - startCoords.x) - (cardWidth * Deck.size()))/(Deck.size() - 1);
+	float xValue;
+	for (int i = 0; i < Deck.size(); ++i) {
+		xValue = startCoords.x + (i * cardWidth) + (i * spacing);
+		DrawCardButtonOnGrid(Deck, buttons, i, {xValue, startCoords.y}, {xValue + cardWidth, endCoords.y}, showStats, StyleGuide);
+	}
+}
+
 
 void DrawBasicCardStats(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide) {
 	//Draw Card Details
