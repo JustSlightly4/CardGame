@@ -7,7 +7,6 @@
  
 #ifndef GLOBALSH
 #define GLOBALSH
-
 #include <iostream>
 #include <string>
 #include <vector>
@@ -22,96 +21,6 @@ Vector2 operator*(const Vector2& lhs, const int& rhs);
 Vector2 operator*(const Vector2& lhs, const float& rhs);
 bool operator==(const Vector2& lhs, const Vector2& rhs);
 bool operator!=(const Vector2& lhs, const Vector2& rhs);
-
-/*
-typedef struct DATA {
-	//Constant bases
-	Vector2 origin;
-	Vector2 const baseScreenDimensions; //x represents width, y represents height
-	float scale;
-	Vector2 const baseCardTextureSize;
-	Vector2 const baseButtonTextureSize;
-	float const baseMargin;
-	float const baseFontSize;
-	Rectangle const buttonSource;
-	Rectangle const baseRecDimensions;
-	
-	//Mutable depending on scale of bases
-	Vector2 screenDimensions;
-	Vector2 prevScreenDimensions;
-	Rectangle recDimensions;
-	Vector2 buttonTextureSize;
-	Vector2 cardTextureSize;
-	float fontSize;
-	float margin;
-	int starRadius;
-	int starLineThickness;
-	
-	//Not depending on scale of bases
-	float aspectRatio;
-	float scrollSpeed;
-	float lineSpacing; //Line spacing is the same as char spacing
-	float sentenceSpacing; 
-	float maxScroll;
-	float starRotation;
-	Color textColor;
-	Color backgroud;
-	Color starColor;
-	int numCards;
-	int numDecks;
-	int deckStrength;
-	bool deck1AI;
-	bool deck2AI;
-	
-	DATA(float screenWidth, float screenHeight) 
-	: baseScreenDimensions({(float)screenWidth, (float)screenHeight}),
-	scale(((baseScreenDimensions.x/1600) + (baseScreenDimensions.y/900))/2.0), 
-	baseCardTextureSize({100, 150}), baseButtonTextureSize({200, 100}),
-	baseMargin(10), baseFontSize(40),
-	buttonSource({0, 0, baseButtonTextureSize.x, baseButtonTextureSize.y}),
-	baseRecDimensions({
-			baseMargin, 
-			baseScreenDimensions.y - baseButtonTextureSize.y - (baseMargin * 3), 
-			baseScreenDimensions.x - (baseMargin * 2), 
-			baseButtonTextureSize.y + (baseMargin * 2)
-		}) {
-		
-		origin = {0, 0};
-		
-		//Mutable depending on scale of bases
-		screenDimensions = baseScreenDimensions;
-		prevScreenDimensions = baseScreenDimensions;
-		buttonTextureSize = baseButtonTextureSize * scale;
-		cardTextureSize = {100, 150};
-		fontSize = baseFontSize * scale;
-		margin = baseMargin * scale;
-		recDimensions = {
-			margin, 
-			screenDimensions.y - buttonTextureSize.y - (margin * 3), 
-			screenDimensions.x - (margin * 2), 
-			buttonTextureSize.y + (margin * 2)
-		};
-		starRadius = 20;
-		starLineThickness = 7;
-		
-		//Not depending on scale of bases
-		aspectRatio = baseScreenDimensions.x / baseScreenDimensions.y;
-		scrollSpeed = 50.0f;
-		lineSpacing = 1.0f; //Line spacing is the same as char spacing
-		sentenceSpacing = 20.0f; 
-		starRotation = 0.0f;
-		maxScroll = 0;
-		textColor = BLACK;
-		backgroud = RAYWHITE;
-		starColor = GOLD;
-		numCards = 5;
-		numDecks = 2;
-		deckStrength = 7;
-		deck1AI = false;
-		deck2AI = false;
-	}
-} Data;
-*/
 
 class Data {
 public:
@@ -393,5 +302,7 @@ extern std::vector<attributes> atts;
 extern std::vector<spells> spellList;
 extern std::vector<actions> actionsList;
 extern std::unordered_map<colors, colors> advantage;
+extern string gamerules;
+extern string skills;
 
 #endif

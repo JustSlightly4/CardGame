@@ -30,6 +30,12 @@ void DrawGridDots(Data &StyleGuide) {
 	}
 }
 
+//Draws the FPS on the top left of the screen
+void DrawFPSOnGrid(Data &StyleGuide) {
+	string FPS = "FPS: " + to_string(GetFPS());
+	DrawTextSOnGrid(FPS, {0, 0}, {3, 1}, {LEFTX, UPY}, StyleGuide);
+}
+
 Rectangle CoordsToRec(Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
 	return (Rectangle){startCoords.x * StyleGuide.widthSegment, startCoords.y * StyleGuide.heightSegment, 
 		(endCoords.x - startCoords.x) * StyleGuide.widthSegment, 
@@ -38,7 +44,6 @@ Rectangle CoordsToRec(Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) 
 
 //Draws a texture on a grid
 void DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords, Vector2 endCoords, Color tint, Data &StyleGuide) {
-	//void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
 	DrawTexturePro(texture, source, 
 	CoordsToRec(startCoords, endCoords, StyleGuide), 
 	StyleGuide.origin, 0.0f, tint);
@@ -46,13 +51,11 @@ void DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords
 
 //Draws a rectangle on a grid
 void DrawRectangleOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, Data &StyleGuide) {
-	//void DrawRectangleRec(Rectangle rec, Color color);
 	DrawRectangleRec(CoordsToRec(startCoords, endCoords, StyleGuide), tint);
 }
 
 //Draws Rectangle Lines on a grid
 void DrawRectangleLinesOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, int lineThickness, Data &StyleGuide) {
-	//void DrawRectangleLinesEx(Rectangle rec, float lineThick, Color color);
 	DrawRectangleLinesEx(CoordsToRec(startCoords, endCoords, StyleGuide), 
 		lineThickness, tint);
 }
@@ -62,109 +65,9 @@ void DrawStarOnGrid(Vector2 coords, Data &StyleGuide) {
 	DrawPolyLinesEx({coords.x * StyleGuide.widthSegment, coords.y * StyleGuide.heightSegment}, 4, StyleGuide.starRadius, StyleGuide.starRotation, StyleGuide.starLineThickness, GOLD);
 }
 
-//DrawTextS but on a grid
-void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness) {
-	DrawTextS(text, CoordsToRec(startCoords, endCoords, StyleGuide), 
-		StyleGuide.textColor, StyleGuide.fontSize, orientation, lineThickness);
-}
+//-------------------------
 
-//DrawTextSWrapped but on a grid
-void DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness) {
-	DrawTextSWrapped(text, {startCoords.x * StyleGuide.widthSegment, startCoords.y * StyleGuide.heightSegment, 
-		(endCoords.x - startCoords.x) * StyleGuide.widthSegment, 
-		(endCoords.y - startCoords.y) * StyleGuide.heightSegment}, 
-		StyleGuide.textColor, StyleGuide.fontSize, orientation, lineThickness);
-	//DrawCircleV({startCoords.x * StyleGuide.widthSegment, startCoords.y * StyleGuide.heightSegment}, 3, BLUE);
-	//DrawCircleV({endCoords.x * StyleGuide.widthSegment, endCoords.y * StyleGuide.heightSegment}, 3, GREEN);
-}
-
-//Draws the FPS on the top left of the screen
-void DrawFPSOnGrid(Data &StyleGuide) {
-	//void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness)
-	string FPS = "FPS: " + to_string(GetFPS());
-	DrawTextSOnGrid(FPS, {0, 0}, {3, 1}, {LEFTX, UPY}, StyleGuide);
-}
-
-//Draws a single card on the grid
-void DrawCardOnGrid(deck &Deck, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
-	//void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
-	DrawTexturePro(*Deck.GetTexture(), 
-	GetCardSourceRec(Deck[index], StyleGuide),
-	CoordsToRec(startCoords, endCoords, StyleGuide),
-	StyleGuide.origin, 0.0f, Deck[index]->GetColorRaylib());
-	
-	if (showStats) {
-		DrawTextSOnGrid(Deck[index]->GetName(), {startCoords.x, endCoords.y}, {endCoords.x, endCoords.y + 2}, {CENTERX, CENTERY}, StyleGuide);
-		DrawTextSOnGrid("P: " + to_string(Deck[index]->GetPower()) + ", M: " + to_string(Deck[index]->GetMagicalPower()), {startCoords.x, endCoords.y + 2}, {endCoords.x, endCoords.y + 4}, {CENTERX, CENTERY}, StyleGuide);
-		DrawTextSOnGrid("Health: " + to_string(Deck[index]->GetHealth()) + "/" + to_string(Deck[index]->GetHealthT()), {startCoords.x, endCoords.y + 4}, {endCoords.x, endCoords.y + 6}, {CENTERX, CENTERY}, StyleGuide);
-	}
-}
-
-//Draws a single card button on the grid
-void DrawCardButtonOnGrid(deck &Deck, SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
-	DrawCardOnGrid(Deck, index, startCoords, endCoords, showStats, StyleGuide);
-	DrawButtonOnGrid(buttons, index, startCoords, endCoords, StyleGuide);
-}
-
-//Draws a single button on the grid
-void DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
-	buttons[index].SetBounds(CoordsToRec(startCoords, endCoords, StyleGuide));
-	DrawTextureOnGrid(*buttons.GetTexture(), StyleGuide.buttonSource, startCoords, endCoords, WHITE, StyleGuide);
-	switch(buttons[index].GetState()) {
-		case 1://Hovered GRAY (Color){ 130, 130, 130, 100 }
-			DrawRectangleOnGrid(startCoords, endCoords, (Color){ 130, 130, 130, 100 }, StyleGuide);
-			break;
-		case 2: //Clicked DARKGRAY (Color){ 80, 80, 80, 100 }
-			DrawRectangleOnGrid(startCoords, endCoords, (Color){ 80, 80, 80, 100 }, StyleGuide);
-			break;
-		default: //Neither hover nor clicked
-			break;
-	}
-	DrawTextSWrappedOnGrid(buttons[index].GetLabel(), startCoords, endCoords, (Alignment){CENTERX, CENTERY}, StyleGuide);
-}
-
-//Draws a horizontal row of buttons on the grid
-void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
-	float buttonWidth = (endCoords.x - startCoords.x)/buttons.GetSize();
-	for (int i = 0; i < buttons.GetSize(); ++i) {
-		DrawButtonOnGrid(buttons, i, {startCoords.x + (i * buttonWidth), startCoords.y}, {startCoords.x + (i * buttonWidth) + buttonWidth, endCoords.y}, StyleGuide);
-	}
-}
-
-//Draws the whole deck of cards in a row
-void DrawCardRowOnGrid(deck &Deck, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
-	float cardWidth = ((endCoords.x - startCoords.x) - (spacing * (Deck.size() - 1)))/Deck.size();
-	float xValue;
-	for (int i = 0; i < Deck.size(); ++i) {
-		xValue = startCoords.x + (i * cardWidth) + (i * spacing);
-		DrawCardOnGrid(Deck, i, {xValue, startCoords.y}, {xValue + cardWidth, endCoords.y}, showStats, StyleGuide);
-	}
-	//DrawCircleV({startCoords.x * StyleGuide.widthSegment, startCoords.y * StyleGuide.heightSegment}, 3, BLUE);
-	//DrawCircleV({endCoords.x * StyleGuide.widthSegment, endCoords.y * StyleGuide.heightSegment}, 3, GREEN);
-}
-
-//Draws the whole deck of cards in a row
-void DrawCardButtonRowOnGrid(deck &Deck, SingleButtonGroup &buttons, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
-	float cardWidth = cardWidthSegments;
-	float spacing = ((endCoords.x - startCoords.x) - (cardWidth * Deck.size()))/(Deck.size() - 1);
-	float xValue;
-	for (int i = 0; i < Deck.size(); ++i) {
-		xValue = startCoords.x + (i * cardWidth) + (i * spacing);
-		DrawCardButtonOnGrid(Deck, buttons, i, {xValue, startCoords.y}, {xValue + cardWidth, endCoords.y}, showStats, StyleGuide);
-	}
-}
-
-
-void DrawBasicCardStats(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide) {
-	//Draw Card Details
-	Rectangle belowCard = {pos.x, pos.y + (StyleGuide.cardTextureSize.y * size) + (StyleGuide.margin * (size-1)), StyleGuide.cardTextureSize.x * size, StyleGuide.fontSize/2.0f};
-	DrawTextS(Deck->at(index)->GetName(), belowCard, StyleGuide.textColor, (StyleGuide.fontSize/2) * size, (Alignment){CENTERX, CENTERY});
-	belowCard.y += (StyleGuide.fontSize * size * 0.5);
-	DrawTextS("P: " + to_string(Deck->at(index)->GetPower()) + ", MP: " + to_string(Deck->at(index)->GetMagicalPower()), belowCard, StyleGuide.textColor, (StyleGuide.fontSize/2) * size, (Alignment){CENTERX, CENTERY});
-	belowCard.y += (StyleGuide.fontSize * size * 0.5);
-	DrawTextS("Health: " + to_string(Deck->at(index)->GetHealth()) + "/" + to_string(Deck->at(index)->GetHealthT()), belowCard, StyleGuide.textColor, (StyleGuide.fontSize/2) * size, (Alignment){CENTERX, CENTERY});
-}
-
+//Draw Test Super
 void DrawTextS(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness) {
 	
 	//Draw Test
@@ -187,30 +90,52 @@ void DrawTextS(string text, Rectangle dest, Color tint, float fontSize, Alignmen
 	DrawTextEx(GetFontDefault(), text.c_str(), (Vector2){dest.x, dest.y}, fontSize, 1.0f, tint); // Draw text using font and additional parameters
 }
 
+//DrawTextS but on a grid
+void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness) {
+	DrawTextS(text, CoordsToRec(startCoords, endCoords, StyleGuide), 
+		StyleGuide.textColor, StyleGuide.fontSize, orientation, lineThickness);
+}
 
-
+//Draw Text Super Wrapped on the x-axis
 float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness) {
 
 	//Splits text up into its individual words
     vector<string> words;
     stringstream ss(text);
     string tempWord;
+	
+	while (ss.peek() == '\n') { //Captures \n characters at the beginning of the text
+        ss.get();              // consume this newline
+        words.push_back("\n"); // record it
+    }
     while (ss >> tempWord) {
         words.push_back(tempWord);
+        while (ss.peek() == '\n') { //Captures \n characters after current word
+			ss.get();              // consume this newline
+			words.push_back("\n"); // record it
+		}
     }
     
     //Decides which words need to be on a new line and indexes them
     queue<int> newLineQueue;
     float sum = 0;
+    float wordWidth = 0;
     /*Add the width of each word in words until it is greater than the dest width
      * then push the index of the word that went over onto the queue to be
      * used later.
      */
     for (int i = 0; i < words.size(); ++i) {
-		sum += MeasureTextEx(GetFontDefault(), (words[i] + " ").c_str(), fontSize, 1.0f).x;
-		if (sum >= dest.width && i > 0) { //i > 0 to fix adding an empty line
+		if (words[i] != "\n") {
+			wordWidth = MeasureTextEx(GetFontDefault(), (words[i] + " ").c_str(), fontSize, 1.0f).x;
+			sum += wordWidth;
+			if (sum >= dest.width && sum > wordWidth) {
+				newLineQueue.push(i); //Marking this word as needing to start on a newline
+				sum = MeasureTextEx(GetFontDefault(), (words[i]).c_str(), fontSize, 1.0f).x;
+			}
+		} else {
+			words[i] = "";
 			newLineQueue.push(i);
-			sum = MeasureTextEx(GetFontDefault(), (words[i]).c_str(), fontSize, 1.0f).x;
+			sum = 0;
 		}
 	}
 	
@@ -239,9 +164,9 @@ float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, 
 	float blockHeight = lines.size() * lineHeight;
 
 	// Align the entire block vertically once
-	if (orientation.y == CENTERY) {
+	if (orientation.y == CENTERY) { //CENTERY
 		dest.y = (dest.y + dest.height/2) - blockHeight/2 - lineThickness; //LineThickness will need to be subtracted to counter DrawTextS() UPY
-	} else if (orientation.y == DOWNY) {
+	} else if (orientation.y == DOWNY) { //DOWNY
 		dest.y = (dest.y + dest.height) - blockHeight - (lineThickness * 2); ////LineThickness will need to be subtracted twice to counter DrawTextS() UPY
 	} else { // UPY
 		dest.y = dest.y; //Do not apply lineThickness it will be applied later in DrawTextS() using UPY
@@ -255,296 +180,128 @@ float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, 
 
 }
 
-void DrawButtonLine(SingleButtonGroup &buttons, Data &StyleGuide) {
-	DrawRectangleRec(StyleGuide.recDimensions, BLACK);
-	float startOffSet = (StyleGuide.screenDimensions.x - (buttons.GetSize() * StyleGuide.buttonTextureSize.x))/2;
+//DrawTextSWrapped but on a grid
+float DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness) {
+	return DrawTextSWrapped(text, {startCoords.x * StyleGuide.widthSegment, startCoords.y * StyleGuide.heightSegment, 
+		(endCoords.x - startCoords.x) * StyleGuide.widthSegment, 
+		(endCoords.y - startCoords.y) * StyleGuide.heightSegment}, 
+		StyleGuide.textColor, StyleGuide.fontSize, orientation, lineThickness);
+}
+
+//Draws a single card on the grid
+void DrawCardOnGrid(deck &Deck, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
+	DrawTexturePro(*Deck.GetTexture(), 
+	GetCardSourceRec(Deck[index], StyleGuide),
+	CoordsToRec(startCoords, endCoords, StyleGuide),
+	StyleGuide.origin, 0.0f, Deck[index]->GetColorRaylib());
+	
+	if (showStats) {
+		DrawTextSOnGrid(Deck[index]->GetName(), {startCoords.x, endCoords.y}, {endCoords.x, endCoords.y + 2}, {CENTERX, CENTERY}, StyleGuide);
+		DrawTextSOnGrid("P: " + to_string(Deck[index]->GetPower()) + ", M: " + to_string(Deck[index]->GetMagicalPower()), {startCoords.x, endCoords.y + 2}, {endCoords.x, endCoords.y + 4}, {CENTERX, CENTERY}, StyleGuide);
+		DrawTextSOnGrid("Health: " + to_string(Deck[index]->GetHealth()) + "/" + to_string(Deck[index]->GetHealthT()), {startCoords.x, endCoords.y + 4}, {endCoords.x, endCoords.y + 6}, {CENTERX, CENTERY}, StyleGuide);
+	}
+}
+
+//Draws a single card button on the grid
+void DrawCardButtonOnGrid(deck &Deck, SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
+	DrawCardOnGrid(Deck, index, startCoords, endCoords, showStats, StyleGuide);
+	DrawButtonOnGrid(buttons, index, startCoords, endCoords, StyleGuide);
+}
+
+//Draws a single button on the grid
+void DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
+	Rectangle buttonDest = CoordsToRec(startCoords, endCoords, StyleGuide);
+	buttons[index].SetBounds(buttonDest);
+	DrawTextureOnGrid(*buttons.GetTexture(), StyleGuide.buttonSource, startCoords, endCoords, WHITE, StyleGuide);
+	switch(buttons[index].GetState()) {
+		case 1://Hovered GRAY (Color){ 130, 130, 130, 100 }
+			DrawRectangleRec(buttonDest, (Color){ 130, 130, 130, 100 });
+			break;
+		case 2: //Clicked DARKGRAY (Color){ 80, 80, 80, 100 }
+			DrawRectangleRec(buttonDest, (Color){ 80, 80, 80, 100 });
+			break;
+		default: //Neither hover nor clicked
+			break;
+	}
+	DrawTextSWrappedOnGrid(buttons[index].GetLabel(), startCoords, endCoords, (Alignment){CENTERX, CENTERY}, StyleGuide);
+}
+
+//Draws a PlusMinus button on the grid
+void DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string value, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
+	//Calculations for a single buttons width and all three buttons destinations on screen
+	float singleButtonWidth = (endCoords.x - startCoords.x)/3;
+	vector<Rectangle> buttonDest(3);
+	buttonDest[0] = CoordsToRec(startCoords, {startCoords.x + singleButtonWidth, endCoords.y}, StyleGuide);
+	buttonDest[1] = CoordsToRec({startCoords.x + singleButtonWidth, startCoords.y}, {startCoords.x + (singleButtonWidth * 2), endCoords.y}, StyleGuide);
+	buttonDest[2] = CoordsToRec({startCoords.x + (singleButtonWidth * 2), startCoords.y}, {startCoords.x + (singleButtonWidth * 3), endCoords.y}, StyleGuide);
+	
+	//Setting the bounds on button 1 and 2
+	buttons[index].SetBounds(0, buttonDest[0]);
+	buttons[index].SetBounds(1, buttonDest[2]);
+	
+	//Drawing all three buttons
+	DrawTexturePro(*buttons.GetTexture(), StyleGuide.buttonSource, buttonDest[0], StyleGuide.origin, 0.0f, WHITE);
+	DrawTexturePro(*buttons.GetTexture(), StyleGuide.buttonSource, buttonDest[1], StyleGuide.origin, 0.0f, WHITE);
+	DrawTexturePro(*buttons.GetTexture(), StyleGuide.buttonSource, buttonDest[2], StyleGuide.origin, 0.0f, WHITE);
+	
+	//Draws grey rectangle on the left most button if needed
+	switch(buttons[index].GetState(0)) {
+		case 1://Hovered GRAY (Color){ 130, 130, 130, 100 }
+			DrawRectangleRec(buttonDest[0], (Color){ 130, 130, 130, 100 });
+			break;
+		case 2: //Clicked DARKGRAY (Color){ 80, 80, 80, 100 }
+			DrawRectangleRec(buttonDest[0], (Color){ 80, 80, 80, 100 });
+			break;
+		default: //Neither hover nor clicked
+			break;
+	}
+	
+	//Draws grey rectangle on the right most button if needed
+	switch(buttons[index].GetState(1)) {
+		case 1://Hovered GRAY (Color){ 130, 130, 130, 100 }
+			DrawRectangleRec(buttonDest[2], (Color){ 130, 130, 130, 100 });
+			break;
+		case 2: //Clicked DARKGRAY (Color){ 80, 80, 80, 100 }
+			DrawRectangleRec(buttonDest[2], (Color){ 80, 80, 80, 100 });
+			break;
+		default: //Neither hover nor clicked
+			break;
+	}
+	
+	//The label above all three buttons
+	DrawTextSOnGrid(buttons[index].GetLabel(), {startCoords.x, startCoords.y - 2}, {endCoords.x, startCoords.y}, (Alignment){CENTERX, CENTERY}, StyleGuide);
+	
+	//All three buttons values
+	DrawTextS(string(1, buttons[index].GetSymbolLabel(0)), buttonDest[0], StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
+	DrawTextS(value, buttonDest[1], StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
+	DrawTextS(string(1, buttons[index].GetSymbolLabel(1)), buttonDest[2], StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
+}
+
+//Draws a horizontal row of buttons on the grid
+void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide) {
+	float buttonWidth = (endCoords.x - startCoords.x)/buttons.GetSize();
 	for (int i = 0; i < buttons.GetSize(); ++i) {
-		DrawButton(buttons, i, (Vector2){StyleGuide.buttonTextureSize.x * i + startOffSet, StyleGuide.screenDimensions.y - StyleGuide.recDimensions.height/2.0f - StyleGuide.margin - StyleGuide.buttonTextureSize.y/2.0f}, StyleGuide);
+		DrawButtonOnGrid(buttons, i, {startCoords.x + (i * buttonWidth), startCoords.y}, {startCoords.x + (i * buttonWidth) + buttonWidth, endCoords.y}, StyleGuide);
 	}
 }
 
-void DrawSettingsButtons(PlusMinusButtonGroup &buttons, Data &StyleGuide) {
-	Rectangle textDest;
-	textDest = DrawButton(buttons, 0, (Vector2){StyleGuide.screenDimensions.x/2.0f - (StyleGuide.buttonTextureSize.x * 3.0f)/2.0f, (StyleGuide.buttonTextureSize.y * ((2.0f * 0) + 1.0f)) + StyleGuide.margin}, StyleGuide);
-	DrawTextSWrapped(to_string(StyleGuide.numCards), textDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	textDest = DrawButton(buttons, 1, (Vector2){StyleGuide.screenDimensions.x/2.0f - (StyleGuide.buttonTextureSize.x * 3.0f)/2.0f, (StyleGuide.buttonTextureSize.y * ((2.0f * 1) + 1.0f)) + StyleGuide.margin}, StyleGuide);
-	DrawTextSWrapped(to_string(StyleGuide.deckStrength), textDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	textDest = DrawButton(buttons, 2, (Vector2){StyleGuide.screenDimensions.x/2.0f - (StyleGuide.buttonTextureSize.x * 3.0f)/2.0f, (StyleGuide.buttonTextureSize.y * ((2.0f * 2) + 1.0f)) + StyleGuide.margin}, StyleGuide);
-	if (StyleGuide.deck2AI == true) DrawTextSWrapped("true", textDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	if (StyleGuide.deck2AI == false) DrawTextSWrapped("false", textDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-}
-
-void DrawRules(float &scrollOffset, Data &StyleGuide) {
-	vector<string> *gamerules = new vector<string> {
-		"Game Rules:",
-		"1: Each player gets a user defined amount of cards referred to as a deck.",
-		"2: Before play begins, each deck is shuffled and hidden from the player.",
-		"3: Each player then takes the first and last card from their deck and puts "
-			"those cards into play. The players first card is considered their main card "
-			"and the players last card is considered their support card.",
-		"4: A players main card is always the card that is taking damage or debuffs from "
-			"the opponent. The support card can not be targeted by the opponent.",
-		"5: A randomly selected player goes first and has the "
-			"option to attack, cast a spell, swap their main card out for their support card, charge up "
-			"their card, use their flask, or print the gamerules.",
-		"6: If a card's health or power falls below one, the round is ended and the "
-			"winning player recieves a point. Both main cards currently in play are then "
-			"discarded and each player's next card is played as their main. All support cards remain in "
-			"play upon a rounds end. The player who lost the last round gets to go first on the next round.",
-		"7: Upon attacking, the card in play has a 5% chance to either land a "
-			"critical hit for 20% more damage or miss their attack entirely. A cards base damage is always that "
-			"cards amount of physical power.", 
-		"8: Upon casting a spell, the card in play will cast their chosen spell at the opponent for various effects. "
-			"In general, the spells power will be a random value between one and the cards magical power.",
-		"9: Upon swapping, the player swaps their main card out for their support card/ "
-			"Swapping can only be done twice per round and can not be "
-			"done on the last round of the game.",
-		"10: Upon charging up, the players card receives an increase to their health and "
-			"power. If a card powers up twice, the card uses their special ability.",
-		"11: Upon using the flask, the players card will be fully healed. The "
-			"flask does not use up the players turn and they may take another action. "
-			"However, the flask may only be used twice per game.",
-		"12: Upon printing the gamerules, the gamerules will be displayed on screen. "
-			"Printing the gamerules does not use up the players turn and they may take "
-			"another action.",
-	};
-	DrawStringVector(*gamerules, scrollOffset, StyleGuide);
-	delete gamerules;
-}
-
-void DrawSkills(float &scrollOffset, Data &StyleGuide) {
-	vector<string> *skills = new vector<string> {
-		"Card Abilities:",
-		"-Pure Mimicry: If the user's color is the same as the opponents color or if either card is colored white, the user copies the opponents card exactly.",
-		"-Discolored Mimicry: If the user's colors is not the same as the opponents color and neither card is colored white, the user copies the opponents card as if it were newly created.",
-		"-Heavy Handed: Increases the users power.",
-		"-Faithful: Increases users critical hit chance.",
-		"-Fast Hand: Gives the user an extra action.",
-		"-Healthy Mind: Increases the users health.",
-		"-Terror: Decreases the opponents power.",
-		"-Resistant: Increases the users physicalResistance.",
-		"-Magic Immunity: The user becomes completely immune to all magical attacks",
-		"-Holy Presence: Charges up the next card in the users deck by one if the next card is not already charged.",
-		"-Evil Presence: Charges down the next card in the opponents deck by one if the next card is not already charged.",
-		"-Accurate: Increases the users critical hit chance and decreases the users miss chance.",
-		"-Inner Gate: The user can only either critical hit or miss an attack.",
-		"-Necromancy: Revives the most powerful fallen card in the users deck and puts that card into play. If there are no fallen cards in the users deck then the user gains power instead.",
-		"-Divine Help: The gods strike the users opponent.",
-		"-Nullify: If the opponent has not used their ability yet, the user will prevent the opponent from ever using their ability. Otherwise, the user will attempt to reverse the oppponents ability.",
-		"-Made in Heaven: The user will reset the opponents charge back to zero. Does not affect already used abilities.",
-		"-Chaos: The user will use a random ability.",
-		"-Strategic Fire: The user will pick an ability depending on various game factors.",
-		" ",
-		" ",
-		"Card Spells:",
-		"-Force: Attack the opponent for a random value between one and the users magical power",
-		"-Drain: Attacks the opponent power for a random value between one and the users magical power divided by two",
-		"-Weaken: Reduces the opponents resistance for a random percentage between one and the user magical power",
-		"-Heal: Heals the caster for a random value between one and the users magical power.",
-	};
-	DrawStringVector(*skills, scrollOffset, StyleGuide);
-	delete skills;
-}
-
-void DrawStringVector(const vector<string> &sentences, const float &scrollOffset, Data &StyleGuide) {
-    float heightIncrease = 0;
-	for (size_t i = 0; i < sentences.size(); ++i) {
-		heightIncrease += DrawTextSWrapped(sentences[i], (Rectangle){StyleGuide.margin, StyleGuide.margin + heightIncrease - scrollOffset, StyleGuide.screenDimensions.x - (StyleGuide.margin * 2), StyleGuide.fontSize}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){LEFTX, UPY, false});
-		heightIncrease += StyleGuide.sentenceSpacing;
-	}
-	StyleGuide.maxScroll = heightIncrease - StyleGuide.screenDimensions.y + StyleGuide.recDimensions.height + (StyleGuide.margin * 3);
-	if (StyleGuide.maxScroll < 0) StyleGuide.maxScroll = 0;
-}
-
-//Prints all cards out in a line
-void DrawCardLine(deck *Deck, SingleButtonGroup &buttons, Vector2 startPos, int spacing, Data &StyleGuide) {
-	Vector2 pos = startPos;
-	//Rectangle buttonDest = {pos.x, pos.y, StyleGuide.cardTextureSize.x, StyleGuide.cardTextureSize.y};
-	for (int i = 0; i < Deck->GetCardAmt(); ++i) {
-		pos.x = (startPos.x + (StyleGuide.cardTextureSize.x * i)) + (spacing * i);
-		//buttonDest.x = pos.x;
-		DrawCardButton(i, Deck, buttons, pos, 1, StyleGuide);
-		//buttons[i].SetBounds(buttonDest);
-		//DrawTexturePro(*buttons.GetTexture(), (Rectangle){0, 0, StyleGuide.cardTextureSize.x, StyleGuide.cardTextureSize.y}, buttonDest, StyleGuide.origin, 0, buttons[i].GetColor());
+//Draws the whole deck of cards in a row
+void DrawCardRowOnGrid(deck &Deck, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
+	float cardWidth = ((endCoords.x - startCoords.x) - (spacing * (Deck.size() - 1)))/Deck.size();
+	float xValue;
+	for (int i = 0; i < Deck.size(); ++i) {
+		xValue = startCoords.x + (i * cardWidth) + (i * spacing);
+		DrawCardOnGrid(Deck, i, {xValue, startCoords.y}, {xValue + cardWidth, endCoords.y}, showStats, StyleGuide);
 	}
 }
 
-void DrawCard(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide) {
-	
-	//Draw Card Texture		
-	DrawTexturePro(*Deck->GetTexture(), (Rectangle){GetCardSourceX(Deck->at(index), StyleGuide), 
-			0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y}, 
-			(Rectangle){pos.x, pos.y, StyleGuide.cardTextureSize.x * size, StyleGuide.cardTextureSize.y * size}, 
-			StyleGuide.origin, 0, Deck->at(index)->GetColorRaylib());
-	
-	//Draw Card Details
-	DrawBasicCardStats(index, Deck, pos, size, StyleGuide);
-}
-
-void DrawCardWithStats(int index, deck *Deck, Vector2 pos, float size, Data &StyleGuide) {
-	
-	Rectangle cardDest = {pos.x, pos.y, StyleGuide.cardTextureSize.x * size, StyleGuide.cardTextureSize.y * size};
-	//Draw Card Texture		
-	DrawTexturePro(*Deck->GetTexture(), (Rectangle){GetCardSourceX(Deck->at(index), StyleGuide), 
-			0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y}, 
-			cardDest, StyleGuide.origin, 0, Deck->at(index)->GetColorRaylib());
-	
-	//Draw Card Details
-	ostringstream ss;
-	Rectangle textDest = {cardDest.x + (StyleGuide.cardTextureSize.x * size) + StyleGuide.margin, cardDest.y, cardDest.width * 2, cardDest.height};
-	textDest.y += DrawTextSWrapped(Deck->at(index)->GetName(), textDest, StyleGuide.textColor, (StyleGuide.fontSize/2) * size, (Alignment){LEFTX, UPY});
-	textDest.y += DrawTextSWrapped("Power: " + to_string(Deck->at(index)->GetPower()), textDest, StyleGuide.textColor, (StyleGuide.fontSize/2) * size, (Alignment){LEFTX, UPY});
-	textDest.y += DrawTextSWrapped("Magical Power: " + to_string(Deck->at(index)->GetMagicalPower()), textDest, StyleGuide.textColor, (StyleGuide.fontSize/2) * size, (Alignment){LEFTX, UPY});
-	textDest.y += DrawTextSWrapped("Health: " + to_string(Deck->at(index)->GetHealth()) + "/" + to_string(Deck->at(index)->GetHealthT()), textDest, StyleGuide.textColor, (StyleGuide.fontSize/2) * size, (Alignment){LEFTX, UPY});
-	ss << "Physical Resistance: " << setprecision(2) << Deck->at(index)->GetPhysicalResistance();
-	textDest.y += DrawTextSWrapped((ss.str()).c_str(), textDest, StyleGuide.textColor, (StyleGuide.fontSize/2) * size, (Alignment){LEFTX, UPY});
-	ss.str(""); ss << "Magical Resistance: " << setprecision(2) << Deck->at(index)->GetMagicalResistance();
-	textDest.y += DrawTextSWrapped((ss.str()).c_str(), textDest, StyleGuide.textColor, (StyleGuide.fontSize/2) * size, (Alignment){LEFTX, UPY});
-	textDest.y += DrawTextSWrapped("Ability: " + Deck->at(index)->GetAbilityStr(), textDest, StyleGuide.textColor, (StyleGuide.fontSize/2) * size, (Alignment){LEFTX, UPY});
-}
-
-void DrawCardButton(int index, deck *Deck, SingleButtonGroup &buttons, Vector2 pos, float size, Data &StyleGuide) {
-	
-	buttons[index].SetBounds((Rectangle){pos.x, pos.y, StyleGuide.cardTextureSize.x, StyleGuide.cardTextureSize.y});
-	//Draw Card Texture
-	
-	Color cardColor;
-	if (buttons[index].GetState() == 0) { //Card color when it's not highlighted
-		cardColor = Deck->at(index)->GetColorRaylib();
-	} else { //Card color when it is highlighted
-		cardColor = buttons[index].GetColor();
+//Draws the whole deck of cards in a row
+void DrawCardButtonRowOnGrid(deck &Deck, SingleButtonGroup &buttons, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
+	float cardWidth = cardWidthSegments;
+	float spacing = ((endCoords.x - startCoords.x) - (cardWidth * Deck.size()))/(Deck.size() - 1);
+	float xValue;
+	for (int i = 0; i < Deck.size(); ++i) {
+		xValue = startCoords.x + (i * cardWidth) + (i * spacing);
+		DrawCardButtonOnGrid(Deck, buttons, i, {xValue, startCoords.y}, {xValue + cardWidth, endCoords.y}, showStats, StyleGuide);
 	}
-	DrawTexturePro(
-		*Deck->GetTexture(), 
-		(Rectangle){GetCardSourceX(Deck->at(index), StyleGuide), 0, 100, 150}, 
-		(Rectangle){pos.x, pos.y, StyleGuide.cardTextureSize.x * size, StyleGuide.cardTextureSize.y * size}, 
-		StyleGuide.origin, 0, cardColor
-	);
-	
-	//Draw Card Details
-	DrawBasicCardStats(index, Deck, pos, size, StyleGuide);
-}
-
-void DrawGame(deck *deck1, deck *deck2, GameVars &gameVars, Data &StyleGuide, Flags &flags) {
-	int size = 2;
-	
-	//Draw Game Info
-	Rectangle roundDest = {StyleGuide.recDimensions.height + (StyleGuide.margin * 2), StyleGuide.margin, StyleGuide.screenDimensions.x - (StyleGuide.recDimensions.height * 2) - (StyleGuide.margin * 4), StyleGuide.fontSize};
-	Rectangle turnDest = {roundDest.x, roundDest.y + StyleGuide.fontSize, roundDest.width, roundDest.height};
-	Rectangle whoDest = {roundDest.x, (roundDest.y + turnDest.y)/2, roundDest.width, roundDest.height};
-	DrawTextS("Round: " + to_string(gameVars.round+1), roundDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	DrawTextS("Turn: " + to_string(gameVars.turn+1), turnDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	if (gameVars.playerInPlay == 0) DrawTextS("Player 1 Turn", whoDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){LEFTX, CENTERY});
-	if (gameVars.playerInPlay == 1) DrawTextS("Player 2 Turn", whoDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){RIGHTX, CENTERY});
-	
-	
-	//Draw both Cards currently in play
-	float offSet = StyleGuide.cardTextureSize.x/2;
-	Vector2 player1MainDest = {StyleGuide.screenDimensions.x/2 - (2 *(StyleGuide.cardTextureSize.x * size)) - offSet, StyleGuide.screenDimensions.y/2 - StyleGuide.cardTextureSize.y/2 - (StyleGuide.recDimensions.height * 2)};
-	Vector2 player2MainDest = {StyleGuide.screenDimensions.x/2 + ((3 * (StyleGuide.cardTextureSize.x * size))/2) - offSet, StyleGuide.screenDimensions.y/2 - StyleGuide.cardTextureSize.y/2 - (StyleGuide.recDimensions.height * 2)};
-	DrawCard(gameVars.round, deck1, player1MainDest, size, StyleGuide);
-	DrawCard(gameVars.round, deck2, player2MainDest, size, StyleGuide);
-	
-	//Draws the card that the player is able to swap out with
-	Vector2 player1SupportDest = {StyleGuide.screenDimensions.x/2.0f - (StyleGuide.cardTextureSize.x * size/2) - offSet, StyleGuide.screenDimensions.y/2 - (StyleGuide.recDimensions.height)};
-	Vector2 player2SupportDest = {StyleGuide.screenDimensions.x/2.0f + (StyleGuide.cardTextureSize.x * size/2) - offSet, StyleGuide.screenDimensions.y/2 - (StyleGuide.recDimensions.height)};
-	if (gameVars.round < deck1->GetCardAmt() - 1) {
-		DrawCard(deck1->GetCardAmt() - 1, deck1, player1SupportDest, size/2, StyleGuide);
-		DrawCard(deck1->GetCardAmt() - 1, deck2, player2SupportDest, size/2, StyleGuide);
-	}
-	
-	//Draws the dialog box
-	Rectangle outerBounds = {StyleGuide.margin, StyleGuide.screenDimensions.y - StyleGuide.recDimensions.height * 2 - StyleGuide.margin * 2, StyleGuide.recDimensions.width, StyleGuide.recDimensions.height};
-	Rectangle innerBounds = {outerBounds.x + StyleGuide.margin, outerBounds.y + (StyleGuide.margin * 2), outerBounds.width - (StyleGuide.margin * 2), outerBounds.height - (StyleGuide.margin * 4)};
-	DrawRectangleLinesEx(outerBounds, StyleGuide.margin, StyleGuide.textColor);
-	DrawTextSWrapped(gameVars.dialog, innerBounds, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	
-	//Draws the scoring columns
-	Rectangle leftColumn = {StyleGuide.margin, StyleGuide.margin, StyleGuide.recDimensions.height, StyleGuide.screenDimensions.y - StyleGuide.recDimensions.height - outerBounds.height - (StyleGuide.margin*4)};
-	Rectangle rightColumn = {StyleGuide.screenDimensions.x - leftColumn.width - StyleGuide.margin, StyleGuide.margin, StyleGuide.recDimensions.height, StyleGuide.screenDimensions.y - StyleGuide.recDimensions.height - outerBounds.height - (StyleGuide.margin*4)};
-	DrawRectangleLinesEx(leftColumn, StyleGuide.margin, StyleGuide.textColor); 
-	DrawRectangleLinesEx(rightColumn, StyleGuide.margin, StyleGuide.textColor);
-	
-	Rectangle leftMeter = {leftColumn.x + StyleGuide.margin, leftColumn.y + StyleGuide.margin + leftColumn.height - ((leftColumn.height/StyleGuide.numCards) * gameVars.player1Score), 
-		leftColumn.width - (StyleGuide.margin * 2), ((leftColumn.height/StyleGuide.numCards) * gameVars.player1Score) - (StyleGuide.margin * 2)};
-	Rectangle rightMeter = {rightColumn.x + StyleGuide.margin, rightColumn.y + StyleGuide.margin + rightColumn.height - ((rightColumn.height/StyleGuide.numCards) * gameVars.player2Score), 
-		leftColumn.width - (StyleGuide.margin * 2), ((rightColumn.height/StyleGuide.numCards) * gameVars.player2Score) - (StyleGuide.margin * 2)};
-	DrawRectangleRec(leftMeter, RED);
-	DrawRectangleRec(rightMeter, BLUE);
-	
-	//Draw Star on who is playing
-	if (gameVars.playerInPlay == PLAYER1) {
-		if (gameVars.currCardRole == C_MAIN) DrawPolyLinesEx(player1MainDest, 4, StyleGuide.starRadius, StyleGuide.starRotation, StyleGuide.starLineThickness, GOLD);
-		else DrawPolyLinesEx(player1SupportDest, 4, StyleGuide.starRadius, StyleGuide.starRotation, StyleGuide.starLineThickness, GOLD);
-	} else {
-		if (gameVars.currCardRole == C_MAIN) DrawPolyLinesEx(player2MainDest + (Vector2){StyleGuide.cardTextureSize.x * size, 0}, 4, StyleGuide.starRadius, StyleGuide.starRotation, StyleGuide.starLineThickness, GOLD);
-		else DrawPolyLinesEx(player2SupportDest + (Vector2){StyleGuide.cardTextureSize.x, 0}, 4, StyleGuide.starRadius, StyleGuide.starRotation, StyleGuide.starLineThickness, GOLD); 
-	}
-}
-
-void DrawButton(SingleButtonGroup &buttons, int index, Vector2 position, Data &StyleGuide) {
-	Rectangle dest;
-	dest.x = position.x;
-	dest.y = position.y;
-	dest.width = StyleGuide.buttonTextureSize.x;
-	dest.height = StyleGuide.buttonTextureSize.y;
-	buttons[index].SetBounds(dest);
-	DrawTexturePro(*buttons.GetTexture(), StyleGuide.buttonSource, dest, (Vector2){0, 0}, 0, buttons[index].GetColor()); // Draw a part of a texture defined by a rectangle with 'pro' parameters
-	DrawTextSWrapped(buttons[index].GetLabel(), dest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-}
-
-Rectangle DrawButton(PlusMinusButtonGroup &buttons, int index, Vector2 position, Data &StyleGuide) {
-	buttons[index].SetBounds(0, (Rectangle){position.x, position.y, StyleGuide.buttonTextureSize.x, StyleGuide.buttonTextureSize.y});
-	Rectangle middleDest = {position.x + StyleGuide.buttonTextureSize.x, position.y, StyleGuide.buttonTextureSize.x, StyleGuide.buttonTextureSize.y};
-	buttons[index].SetBounds(1, (Rectangle){position.x + (StyleGuide.buttonTextureSize.x * 2), position.y, StyleGuide.buttonTextureSize.x, StyleGuide.buttonTextureSize.y});
-	
-	//Draw left most button
-	DrawTexturePro(*buttons.GetTexture(), StyleGuide.buttonSource, buttons[index].GetBounds(0), (Vector2){0, 0}, 0, buttons[index].GetColor(0)); // Draw a part of a texture defined by a rectangle with 'pro' parameters
-	DrawTextSWrapped(string(1, buttons[index].GetSymbolLabel(0)), buttons[index].GetBounds(0), StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	
-	//Draw middle button that displays text
-	DrawTexturePro(*buttons.GetTexture(), StyleGuide.buttonSource, middleDest, (Vector2){0, 0}, 0, WHITE); // Draw a part of a texture defined by a rectangle with 'pro' 
-	
-	//Draw right most button
-	DrawTexturePro(*buttons.GetTexture(), StyleGuide.buttonSource, buttons[index].GetBounds(1), (Vector2){0, 0}, 0, buttons[index].GetColor(1)); // Draw a part of a texture defined by a rectangle with 'pro' parameters
-	DrawTextSWrapped(string(1, buttons[index].GetSymbolLabel(1)), buttons[index].GetBounds(1), StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	
-	//Draw Text above all three buttons to describe what these buttons do
-	DrawTextS(buttons[index].GetLabel(), (Rectangle){middleDest.x, middleDest.y - StyleGuide.fontSize * 2, middleDest.width, middleDest.height}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	return middleDest;
-}
-
-void DrawButtonTopLabel(SingleButtonGroup &buttons, int index, Vector2 position, string variable, Data &StyleGuide) {
-	Rectangle dest;
-	dest.x = position.x;
-	dest.y = position.y;
-	dest.width = StyleGuide.buttonTextureSize.x;
-	dest.height = StyleGuide.buttonTextureSize.y;
-	buttons[index].SetBounds(dest);
-	DrawTexturePro(*buttons.GetTexture(), StyleGuide.buttonSource, dest, (Vector2){0, 0}, 0, buttons[index].GetColor()); // Draw a part of a texture defined by a rectangle with 'pro' parameters
-	DrawTextSWrapped(buttons[index].GetLabel(), (Rectangle){dest.x, dest.y - StyleGuide.buttonTextureSize.y, dest.width, dest.height}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	DrawTextSWrapped(variable, (Rectangle){dest.x, dest.y, dest.width, dest.height}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-}
-
-void DrawCardEditScreen(PlusMinusButtonGroup &buttons, CardEditVars &cardEditVars, deck *Deck, deck *dummyDeck, Data &StyleGuide) {
-	//Dummy deck acts as temp card so that the user can disregard the changes if they want to
-	//Feature has not been implemented fully yet
-	int size = 2;
-	int i = cardEditVars.cardClickedOn;
-	DrawCardWithStats(i, dummyDeck, (Vector2){StyleGuide.margin + (StyleGuide.cardTextureSize.x * size * 0.5f), (StyleGuide.screenDimensions.y - (StyleGuide.cardTextureSize.y * size))/2 - StyleGuide.recDimensions.height - (StyleGuide.margin * 2)}, size, StyleGuide);
-	Vector2 dest = {((3 * StyleGuide.screenDimensions.x)/4) - (((StyleGuide.buttonTextureSize.x * 3)/2)), (1 * (StyleGuide.screenDimensions.y - StyleGuide.recDimensions.height - (StyleGuide.margin * 2) - (StyleGuide.buttonTextureSize.y/2) - (StyleGuide.fontSize * 2))/4)};
-	
-	//Card Control Buttons
-	Rectangle textDest;
-	textDest = DrawButton(buttons, 0, dest, StyleGuide);
-	DrawTextSWrapped(dummyDeck->at(i)->GetColorStr(), textDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	textDest = DrawButton(buttons, 1, (Vector2){dest.x, dest.y * 2}, StyleGuide);
-	DrawTextSWrapped(dummyDeck->at(i)->GetAttributeStr(), textDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	textDest = DrawButton(buttons, 2, (Vector2){dest.x, dest.y * 3}, StyleGuide);
-	DrawTextSWrapped(to_string(dummyDeck->at(i)->GetNumber()), textDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	textDest = DrawButton(buttons, 3, (Vector2){dest.x, dest.y * 4}, StyleGuide);
-	DrawTextSWrapped(dummyDeck->at(i)->GetSpellStr(), textDest, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
-	
-	//Point amount up top
-	DrawTextS("Points Left " + to_string(cardEditVars.remainingPoints) + "/" + to_string(Deck->GetTotalPoints()), (Rectangle){0, StyleGuide.margin, StyleGuide.screenDimensions.x, StyleGuide.fontSize}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
 }

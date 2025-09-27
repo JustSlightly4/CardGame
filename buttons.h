@@ -4,7 +4,8 @@
  * For CardGameUI
  * Button Classes/Functions are written here
  */
- 
+#ifndef BUTTONSH
+#define BUTTONSH
 #include <iostream>
 #include <string>
 #include <vector>
@@ -14,9 +15,6 @@
 #include "raylib.h"
 #include "globals.h"
 using namespace std;
- 
-#ifndef BUTTONSH
-#define BUTTONSH
 
 class PlusMinusButton {
 	protected:

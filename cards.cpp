@@ -606,9 +606,23 @@ double card::GetPhysicalResistance() const {
 	return physicalResistance;
 }
 
+//Return a cards physicalResistance as string
+string card::GetPhysicalResistanceStr(int precision) const {
+	ostringstream out;
+    out << fixed << setprecision(precision) << physicalResistance;
+    return out.str();
+}
+
 //Return a cards magical resistance
 double card::GetMagicalResistance() const {
 	return magicalResistance;
+}
+
+//Return a cards magical resistance as string
+string card::GetMagicalResistanceStr(int precision) const {
+	ostringstream out;
+    out << fixed << setprecision(precision) << magicalResistance;
+    return out.str();
 }
 
 //Return a cards ID

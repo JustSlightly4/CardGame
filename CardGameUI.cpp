@@ -3,7 +3,7 @@
  * 09/21/2025
  * Build Command: g++ -Wall -o out CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp cards.pp deckofcards.cpp globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
  * Web Build Command: cmd /c em++ -Wall CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp cards.cpp deckofcards.cpp globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 --preload-file textures@/textures
- * Web Execute Local Command: 
+ * Web Execute Local Command: emrun --port 8080
  * Make Command: mingw32-make
  */
  
@@ -530,36 +530,54 @@ int main(void)
 				case SETUP: {
 					
 					//Draws both decks on the screen
-					DrawCardButtonRowOnGrid(*deck1, deck1EditButtons, 4, {3, 1}, {61, 13}, true, StyleGuide);
-					DrawCardButtonRowOnGrid(*deck2, deck2EditButtons, 4, {3, 23}, {61, 35}, true, StyleGuide);
+					DrawTextSOnGrid("Deck 1", {3, 1}, {61, 3}, (Alignment){CENTERX, UPY}, StyleGuide); //Deck 1 Label
+					DrawCardButtonRowOnGrid(*deck1, deck1EditButtons, 4, {3, 3}, {61, 15}, true, StyleGuide); //Deck 1
+					DrawTextSOnGrid("Deck 2", {3, 25}, {61, 27}, (Alignment){CENTERX, UPY}, StyleGuide); //Deck 2 Label
+					DrawCardButtonRowOnGrid(*deck2, deck2EditButtons, 4, {3, 27}, {61, 39}, true, StyleGuide); //Deck 2
 					
 					//Draws the setup buttons at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide);
-					DrawButtonRowOnGrid(setupButtons, {2, 55}, {62, 62}, StyleGuide);
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Rectangle behind buttons
+					DrawButtonRowOnGrid(setupButtons, {2, 55}, {62, 62}, StyleGuide); //Setup buttons
 					
 					break;
 				}
 				case RULES: {
-					DrawRules(scrollOffset, StyleGuide);
-					DrawButtonLine(singleBackButton, StyleGuide);
+					//float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness)
+					StyleGuide.maxScroll = DrawTextSWrapped(gamerules, {0, -scrollOffset, 63 * StyleGuide.widthSegment, StyleGuide.screenDimensions.y}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){LEFTX, UPY}, 5)
+						- (StyleGuide.screenDimensions.y - (11 * StyleGuide.heightSegment));
+					
+					//Draws the back button at the bottom of the screen
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Rectangle behind button
+					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}, StyleGuide); //back button
 					break;
 				}
 				case SKILLS: {
-					DrawSkills(scrollOffset, StyleGuide);
-					DrawButtonLine(singleBackButton, StyleGuide);
+					//float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness)
+					StyleGuide.maxScroll = DrawTextSWrapped(skills, {0, -scrollOffset, 63 * StyleGuide.widthSegment, StyleGuide.screenDimensions.y}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){LEFTX, UPY}, 5)
+						- (StyleGuide.screenDimensions.y - (11 * StyleGuide.heightSegment));
+					
+					//Draws the back button at the bottom of the screen
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Rectangle behind button
+					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}, StyleGuide); //back button
 					break;
 				}
 				case SETTINGS: {
-					DrawSettingsButtons(settingsButtons, StyleGuide);
-					DrawButtonLine(singleBackButton, StyleGuide);
+					//Draws the settings buttons
+					DrawButtonOnGrid(settingsButtons, 0, to_string(StyleGuide.numCards), {24, 9}, {40, 16}, StyleGuide);
+					DrawButtonOnGrid(settingsButtons, 1, to_string(StyleGuide.deckStrength), {24, 20}, {40, 27}, StyleGuide);
+					if (StyleGuide.deck2AI) DrawButtonOnGrid(settingsButtons, 2, "true", {24, 31}, {40, 38}, StyleGuide);
+					else DrawButtonOnGrid(settingsButtons, 2, "false", {24, 31}, {40, 38}, StyleGuide);
+					
+					//Draws the back button at the bottom of the screen
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Rectangle behind button
+					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}, StyleGuide); //back button
 					break;
 				}
 				case GAME: {
 					DrawRectangleLinesOnGrid({7, 1}, {57, 7}, BLACK, 5, StyleGuide); //Turn Counter Box
 					DrawTextSOnGrid("Round: " + to_string(gameVars.round+1), {7, 1}, {57, 4}, (Alignment){CENTERX, CENTERY}, StyleGuide, 5); //Round #
 					DrawTextSOnGrid("Turn: " + to_string(gameVars.turn+1), {7, 4}, {57, 7}, (Alignment){CENTERX, CENTERY}, StyleGuide, 5); //Turn #
-					if (gameVars.playerInPlay == 0) DrawTextSOnGrid("Player 1 Turn", {7, 1}, {57, 7}, (Alignment){LEFTX, CENTERY}, StyleGuide, 6); //Shows if it's P1's turn
-					if (gameVars.playerInPlay == 1) DrawTextSOnGrid("Player 2 Turn", {7, 1}, {57, 7}, (Alignment){RIGHTX, CENTERY}, StyleGuide, 6); //Shows if it's P2's turn
+					DrawTextSOnGrid(gameVars.playerInPlay == 0 ? "Player 1 Turn" : "Player 2 Turn", {7, 1}, {57, 7}, (Alignment){gameVars.playerInPlay == 0 ? LEFTX : RIGHTX, CENTERY}, StyleGuide, 6);
 					DrawCardOnGrid(*deck1, gameVars.round, {7, 8}, {17, 38}, true, StyleGuide); //deck1 main card
 					DrawCardOnGrid(*deck2, gameVars.round, {47, 8}, {57, 38}, true, StyleGuide); //deck2 main card
 					if (gameVars.round < deck1->size() - 1) { //Only draws support cards if not the last round
@@ -585,9 +603,33 @@ int main(void)
 					break;
 				}
 				case(EDITCARD): {
-					if (cardEditVars.playerEditing == 0) DrawCardEditScreen(cardEditButtons, cardEditVars, deck1, dummyDeck, StyleGuide);
-					if (cardEditVars.playerEditing == 1) DrawCardEditScreen(cardEditButtons, cardEditVars, deck2, dummyDeck, StyleGuide);
-					DrawButtonLine(cardEditScreenButtons, StyleGuide);
+					
+					//String for stats
+					string stats = "Power: " + to_string(dummyDeck->at(cardEditVars.cardClickedOn)->GetPower()) +
+						"\nMagical Power: " + to_string(dummyDeck->at(cardEditVars.cardClickedOn)->GetMagicalPower()) +
+						"\nHealth: " + to_string(dummyDeck->at(cardEditVars.cardClickedOn)->GetHealth()) + "/" + to_string(dummyDeck->at(cardEditVars.cardClickedOn)->GetHealthT()) +
+						"\nPhysical Resistance: " + dummyDeck->at(cardEditVars.cardClickedOn)->GetPhysicalResistanceStr(2) +
+						"\nMagical Resistance: " + dummyDeck->at(cardEditVars.cardClickedOn)->GetMagicalResistanceStr(2) +
+						"\nAbility: " + dummyDeck->at(cardEditVars.cardClickedOn)->GetAbilityStr();
+						
+					//Draws the card on the screen and its stats
+					DrawCardOnGrid(*dummyDeck, cardEditVars.cardClickedOn, {7, 8}, {17, 38}, true, StyleGuide);
+					DrawTextSOnGrid(stats, {18, 8}, {25, 20}, (Alignment){LEFTX, CENTERY}, StyleGuide);
+					
+					//Draw how many points the deck has on the screen
+					DrawTextSOnGrid("Points Left " + to_string(cardEditVars.remainingPoints) + "/" +  to_string((cardEditVars.playerEditing == 0 ? deck1 : deck2)->GetTotalPoints()), 
+					{7, 1}, {57, 7}, (Alignment){CENTERX, CENTERY}, StyleGuide, 5);
+					
+					//Draws the settings buttons
+					DrawButtonOnGrid(cardEditButtons, 0, dummyDeck->at(cardEditVars.cardClickedOn)->GetColorStr(), {41, 10}, {57, 17}, StyleGuide);
+					DrawButtonOnGrid(cardEditButtons, 1, dummyDeck->at(cardEditVars.cardClickedOn)->GetAttributeStr(), {41, 19}, {57, 26}, StyleGuide);
+					DrawButtonOnGrid(cardEditButtons, 2, to_string(dummyDeck->at(cardEditVars.cardClickedOn)->GetNumber()), {41, 28}, {57, 35}, StyleGuide);
+					DrawButtonOnGrid(cardEditButtons, 3, dummyDeck->at(cardEditVars.cardClickedOn)->GetSpellStr(), {41, 37}, {57, 44}, StyleGuide);
+					
+					//Draws the back button at the bottom of the screen
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Rectangle behind button
+					DrawButtonRowOnGrid(cardEditScreenButtons, {2, 55}, {62, 62}, StyleGuide); //back button
+					
 					break;
 				}
 			};

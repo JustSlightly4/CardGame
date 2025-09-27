@@ -8,6 +8,7 @@
 #include "functions.h"
 
 void scrollLogic(float &scrollOffset, Data &StyleGuide) {
+	if (StyleGuide.maxScroll < 0) StyleGuide.maxScroll = 0;
 	if (IsKeyDown(KEY_DOWN) || GetMouseWheelMove() < 0) scrollOffset += StyleGuide.scrollSpeed;
 	if (IsKeyDown(KEY_UP) || GetMouseWheelMove() > 0) scrollOffset -= StyleGuide.scrollSpeed;
 	if (scrollOffset < 0) scrollOffset = 0;

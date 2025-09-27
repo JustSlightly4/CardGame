@@ -78,7 +78,9 @@ class card {
 	int GetCharge() const; //Return a cards charge
 	int GetNumActions() const; //Return amount of actions
 	double GetPhysicalResistance() const; //Return a cards physicalResistance
+	string GetPhysicalResistanceStr(int precision) const;
 	double GetMagicalResistance() const; //Return a cards magical resistance
+	string GetMagicalResistanceStr(int precision) const;
 	int GetID() const; //Return a cards ID
 	enum colors GetColor() const; //Return a cards color as enum
 	string GetColorStr() const; //Return a cards color as a str
