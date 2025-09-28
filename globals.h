@@ -25,134 +25,31 @@ bool operator!=(const Vector2& lhs, const Vector2& rhs);
 class Data {
 public:
     // Constant bases
-    Vector2 origin;
-    Vector2 const baseScreenDimensions; // x = width, y = height
-    Vector2 const baseCardTextureSize;
-    Vector2 const baseButtonTextureSize;
-    float const baseMargin;
-    float const baseFontSize;
-    Rectangle const buttonSource;
-    Rectangle const baseRecDimensions;
-
-    // Mutable depending on scale
+    static constexpr Vector2 origin = {0, 0};
+    static constexpr Rectangle cardSource = {0, 0, 100, 150};
+    static constexpr Rectangle buttonSource = {0, 0, 200, 100};
+    static constexpr int segments = 64;
+    static constexpr Color textColor = BLACK;
+    static constexpr Color background = RAYWHITE;
+    static constexpr Color starColor = GOLD;
+    static constexpr int starRadius = 20;
+    static constexpr int starLineThickness = 7;
+    static constexpr float scrollSpeed = 50.0f;
+	
+	//Mutable
     Vector2 screenDimensions;
-    Vector2 prevScreenDimensions;
-    Rectangle recDimensions;
-    Vector2 buttonTextureSize;
-    Vector2 cardTextureSize;
     float fontSize;
-    float margin;
-    int starRadius;
-    int starLineThickness;
-    float scaleX;
-    float scaleY;
-
-    // Not depending on scale
-    float aspectRatio;
-    float scrollSpeed;
-    float lineSpacing; // Line spacing is the same as char spacing
-    float sentenceSpacing;
     float maxScroll;
     float starRotation;
-    Color textColor;
-    Color background;
-    Color starColor;
     int numCards;
-    int numDecks;
     int deckStrength;
     bool deck1AI;
     bool deck2AI;
-    int segments;
     float widthSegment;
     float heightSegment;
 
-    Data() : 
-        baseScreenDimensions{1600, 900}, // example values
-        baseCardTextureSize{100, 150},
-        baseButtonTextureSize{200, 100},
-        baseMargin(10.0f),
-        baseFontSize(24.0f),
-        buttonSource{0, 0, 200, 100},
-        baseRecDimensions{0, 0, 400, 300}
-    {
-        // Initialize screen dimensions
-        screenDimensions = {(float)GetScreenWidth(), (float)GetScreenHeight()};
-        prevScreenDimensions = screenDimensions;
-
-        // Compute scale factors
-        scaleX = screenDimensions.x / baseScreenDimensions.x;
-        scaleY = screenDimensions.y / baseScreenDimensions.y;
-
-        // Scale dependent values
-        buttonTextureSize = { baseButtonTextureSize.x * scaleX, baseButtonTextureSize.y * scaleY };
-        cardTextureSize   = { baseCardTextureSize.x * scaleX, baseCardTextureSize.y * scaleY };
-        fontSize          = baseFontSize * scaleY;   // font usually tied to height
-        margin            = baseMargin * scaleX;     // horizontal margin usually tied to width
-        recDimensions = {
-            margin,
-            screenDimensions.y - buttonTextureSize.y - (margin * 3),
-            screenDimensions.x - (margin * 2),
-            buttonTextureSize.y + (margin * 2)
-        };
-
-        starRadius = 20;
-        starLineThickness = 7;
-
-        // Not depending on scale
-        aspectRatio = baseScreenDimensions.x / baseScreenDimensions.y;
-        scrollSpeed = 50.0f;
-        lineSpacing = 1.0f;
-        sentenceSpacing = 20.0f;
-        starRotation = 0.0f;
-        maxScroll = 0;
-        textColor = BLACK;
-        background = RAYWHITE;
-        starColor = GOLD;
-        numCards = 5;
-        numDecks = 2;
-        deckStrength = 7;
-        deck1AI = false;
-        deck2AI = false;
-        segments = 64;
-        widthSegment = screenDimensions.x/segments;
-        heightSegment = screenDimensions.y/segments;
-        Update();
-    }
-
-    void Update() {
-        // Update screen dimensions
-        screenDimensions.x = GetScreenWidth();
-        screenDimensions.y = GetScreenHeight();
-
-        // Star rotation animation
-        starRotation += 20 * GetFrameTime();
-        if (starRotation > 360.0f) starRotation = 0.0f;
-
-        // Recompute scale if screen changed
-        if (screenDimensions.x != prevScreenDimensions.x || screenDimensions.y != prevScreenDimensions.y) {
-            scaleX = screenDimensions.x / baseScreenDimensions.x;
-            scaleY = screenDimensions.y / baseScreenDimensions.y;
-
-            // Update dependent dimensions
-            fontSize = baseFontSize * scaleY;
-            margin   = baseMargin * scaleX;
-
-            buttonTextureSize = { baseButtonTextureSize.x * scaleX, baseButtonTextureSize.y * scaleY };
-            cardTextureSize   = { baseCardTextureSize.x * scaleX, baseCardTextureSize.y * scaleY };
-
-            recDimensions = {
-                margin,
-                screenDimensions.y - buttonTextureSize.y - (margin * 3),
-                screenDimensions.x - (margin * 2),
-                buttonTextureSize.y + (margin * 2)
-            };
-
-			widthSegment = screenDimensions.x/segments;
-			heightSegment = screenDimensions.y/segments;
-			
-            prevScreenDimensions = screenDimensions;
-        }
-    }
+    Data();
+    void Update();
 };
 
 enum GameScreen {
@@ -163,6 +60,7 @@ enum GameScreen {
 	SETTINGS = 4,
 	GAME = 5,
 	EDITCARD = 6,
+	VIEWCARD = 7,
 };
 
 enum AlignmentX {
@@ -210,18 +108,18 @@ enum abilities {
 	HEALTHY_MIND = 4, //Adds 10 health
 	TERROR = 5, //Decreases opponents power by 3
 	RESISTANT = 6, //Take half damage against physical attacks
-	HOLY_PRESENCE = 7, //Charge up next card in Deck
-	EVIL_PRESENCE = 8, //Charge down the next card in opponents Deck
+	HOLY_PRESENCE = 7, //Charge up next Card in deck
+	EVIL_PRESENCE = 8, //Charge down the next Card in opponents deck
 	ACCURATE = 9, //Can never miss and crit hit chance is increased
 	INNERGATE = 10, //Can only miss or crit hit
-	NECROMANCY = 11, //Swap yourself with a dead card in the deck
+	NECROMANCY = 11, //Swap yourself with a dead Card in the Deck
 	MAGIC_IMMUNITY = 12, //Take no damage against magical attacks
 	DIVINEHELP = 13, //The divine strikes your foe for 10 points
 	NULLIFY = 14, //Nullifies an opponents ability
-	MADE_IN_HEAVEN = 15, //Resets the opponents card
+	MADE_IN_HEAVEN = 15, //Resets the opponents Card
 	//REALITYSHIFTER = 97, //Gives you a choice of three abilities to use
 	CHAOS = 98, //Chooses a random ability
-	STRATEGICFIRE = 99, //Gives ability based on position in deck
+	STRATEGICFIRE = 99, //Gives ability based on position in Deck
 };
 
 enum spells {
@@ -266,6 +164,11 @@ typedef struct CARDEDITVARS {
     spells chosenSpell = FORCE;
 } CardEditVars;
 
+typedef struct VIEWCARDVARS {
+	int cardIndex;
+	int deckNum;
+} ViewCardVars;
+
 //Flags for global purposes
 typedef struct FLAGS {
 	bool cardEdited = false;
@@ -274,11 +177,11 @@ typedef struct FLAGS {
 
 //Flags and variables for game specific purposes
 typedef struct GAMEVARS {
-	int who = 0; //This is the index for the card in play
+	int who = 0; //This is the index for the Card in play
 	int turn = 0;
 	int round = 0;
-	players playerInPlay = PLAYER1; //This is the deck that is in play
-	cardRoles currCardRole = C_MAIN; //This is the role that the current card is in
+	players playerInPlay = PLAYER1; //This is the Deck that is in play
+	cardRoles currCardRole = C_MAIN; //This is the role that the current Card is in
 	int player1Score = 0;
 	int player2Score = 0;
 	string dialog = "";

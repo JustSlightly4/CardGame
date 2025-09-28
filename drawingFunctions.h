@@ -36,13 +36,12 @@ void DrawTextS(string text, Rectangle dest, Color tint, float fontSize, Alignmen
 void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness = 0);
 float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness = 0);
 float DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, Data &StyleGuide, int lineThickness = 0);
-
-void DrawCardOnGrid(deck &Deck, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
-void DrawCardButtonOnGrid(deck &Deck, SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
+void DrawCardOnGrid(Deck &deck, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
+void DrawCardButtonOnGrid(Deck &deck, SingleButtonGroup &buttons, int cardIndex, int buttonIndex, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
 void DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
 void DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string value, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
 void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords, Data &StyleGuide);
-void DrawCardRowOnGrid(deck &Deck, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
-void DrawCardButtonRowOnGrid(deck &Deck, SingleButtonGroup &buttons, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
+void DrawCardRowOnGrid(Deck &deck, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
+void DrawCardButtonRowOnGrid(Deck &deck, SingleButtonGroup &buttons, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide);
 
 #endif

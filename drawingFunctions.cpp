@@ -188,24 +188,24 @@ float DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords
 		StyleGuide.textColor, StyleGuide.fontSize, orientation, lineThickness);
 }
 
-//Draws a single card on the grid
-void DrawCardOnGrid(deck &Deck, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
-	DrawTexturePro(*Deck.GetTexture(), 
-	GetCardSourceRec(Deck[index], StyleGuide),
+//Draws a single Card on the grid
+void DrawCardOnGrid(Deck &deck, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
+	DrawTexturePro(*deck.GetTexture(), 
+	GetCardSourceRec(deck[index], StyleGuide),
 	CoordsToRec(startCoords, endCoords, StyleGuide),
-	StyleGuide.origin, 0.0f, Deck[index]->GetColorRaylib());
+	StyleGuide.origin, 0.0f, deck[index]->GetColorRaylib());
 	
 	if (showStats) {
-		DrawTextSOnGrid(Deck[index]->GetName(), {startCoords.x, endCoords.y}, {endCoords.x, endCoords.y + 2}, {CENTERX, CENTERY}, StyleGuide);
-		DrawTextSOnGrid("P: " + to_string(Deck[index]->GetPower()) + ", M: " + to_string(Deck[index]->GetMagicalPower()), {startCoords.x, endCoords.y + 2}, {endCoords.x, endCoords.y + 4}, {CENTERX, CENTERY}, StyleGuide);
-		DrawTextSOnGrid("Health: " + to_string(Deck[index]->GetHealth()) + "/" + to_string(Deck[index]->GetHealthT()), {startCoords.x, endCoords.y + 4}, {endCoords.x, endCoords.y + 6}, {CENTERX, CENTERY}, StyleGuide);
+		DrawTextSOnGrid(deck[index]->GetName(), {startCoords.x, endCoords.y}, {endCoords.x, endCoords.y + 2}, {CENTERX, CENTERY}, StyleGuide);
+		DrawTextSOnGrid("P: " + to_string(deck[index]->GetPower()) + ", M: " + to_string(deck[index]->GetMagicalPower()), {startCoords.x, endCoords.y + 2}, {endCoords.x, endCoords.y + 4}, {CENTERX, CENTERY}, StyleGuide);
+		DrawTextSOnGrid("Health: " + to_string(deck[index]->GetHealth()) + "/" + to_string(deck[index]->GetHealthT()), {startCoords.x, endCoords.y + 4}, {endCoords.x, endCoords.y + 6}, {CENTERX, CENTERY}, StyleGuide);
 	}
 }
 
-//Draws a single card button on the grid
-void DrawCardButtonOnGrid(deck &Deck, SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
-	DrawCardOnGrid(Deck, index, startCoords, endCoords, showStats, StyleGuide);
-	DrawButtonOnGrid(buttons, index, startCoords, endCoords, StyleGuide);
+//Draws a single Card button on the grid
+void DrawCardButtonOnGrid(Deck &deck, SingleButtonGroup &buttons, int cardIndex, int buttonIndex, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
+	DrawCardOnGrid(deck, cardIndex, startCoords, endCoords, showStats, StyleGuide);
+	DrawButtonOnGrid(buttons, buttonIndex, startCoords, endCoords, StyleGuide);
 }
 
 //Draws a single button on the grid
@@ -285,23 +285,23 @@ void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector
 	}
 }
 
-//Draws the whole deck of cards in a row
-void DrawCardRowOnGrid(deck &Deck, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
-	float cardWidth = ((endCoords.x - startCoords.x) - (spacing * (Deck.size() - 1)))/Deck.size();
+//Draws the whole Deck of cards in a row
+void DrawCardRowOnGrid(Deck &deck, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
+	float cardWidth = ((endCoords.x - startCoords.x) - (spacing * (deck.size() - 1)))/deck.size();
 	float xValue;
-	for (int i = 0; i < Deck.size(); ++i) {
+	for (int i = 0; i < deck.size(); ++i) {
 		xValue = startCoords.x + (i * cardWidth) + (i * spacing);
-		DrawCardOnGrid(Deck, i, {xValue, startCoords.y}, {xValue + cardWidth, endCoords.y}, showStats, StyleGuide);
+		DrawCardOnGrid(deck, i, {xValue, startCoords.y}, {xValue + cardWidth, endCoords.y}, showStats, StyleGuide);
 	}
 }
 
-//Draws the whole deck of cards in a row
-void DrawCardButtonRowOnGrid(deck &Deck, SingleButtonGroup &buttons, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
+//Draws the whole Deck of cards in a row
+void DrawCardButtonRowOnGrid(Deck &deck, SingleButtonGroup &buttons, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats, Data &StyleGuide) {
 	float cardWidth = cardWidthSegments;
-	float spacing = ((endCoords.x - startCoords.x) - (cardWidth * Deck.size()))/(Deck.size() - 1);
+	float spacing = ((endCoords.x - startCoords.x) - (cardWidth * deck.size()))/(deck.size() - 1);
 	float xValue;
-	for (int i = 0; i < Deck.size(); ++i) {
+	for (int i = 0; i < deck.size(); ++i) {
 		xValue = startCoords.x + (i * cardWidth) + (i * spacing);
-		DrawCardButtonOnGrid(Deck, buttons, i, {xValue, startCoords.y}, {xValue + cardWidth, endCoords.y}, showStats, StyleGuide);
+		DrawCardButtonOnGrid(deck, buttons, i, i, {xValue, startCoords.y}, {xValue + cardWidth, endCoords.y}, showStats, StyleGuide);
 	}
 }

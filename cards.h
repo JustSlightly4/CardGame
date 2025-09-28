@@ -2,7 +2,7 @@
  * Eric Ryan Montgomery
  * 09/21/2025
  * For CardGameUI
- * Functions for a single card without the use of raylib are written here
+ * Functions for a single Card without the use of raylib are written here
  */
  
 #ifndef CARDSH
@@ -21,12 +21,12 @@
 #include "globals.h"
 using namespace std;
 	
-class card {
+class Card {
 	protected:
 	//User Defined Variables:
-	colors color; //Color of the card
-	attributes attribute; //Attribute of the card
-	int number; //Power level of the card
+	colors color; //Color of the Card
+	attributes attribute; //Attribute of the Card
+	int number; //Power level of the Card
 	
 	//Calculated Variables:
 	int power; //Power depends on color, attribute, and number
@@ -42,8 +42,8 @@ class card {
 	int const healthMod = 1; //Used to scale a cards health
 	
 	//Other Variables
-	int charge; //Number of times a card has charged up
-	int numActions; //Number of actions a card can take in one turn
+	int charge; //Number of times a Card has charged up
+	int numActions; //Number of actions a Card can take in one turn
 	double physicalResistance; //Physical Resistance to incoming damage
 	double magicalResistance; //Magical Resistance to incoming damage
 	int upperDice; //Highest Dice Roll for positive effects
@@ -67,8 +67,8 @@ class card {
 	
 	public:
 	//Public Functions:
-	card (enum colors color, enum attributes attribute, int number); //Constructor
-	void operator=(const card &rhs);//Overload =
+	Card (enum colors color, enum attributes attribute, int number); //Constructor
+	void operator=(const Card &rhs);//Overload =
 	string GetName() const; //Return a cards name
 	int GetNumber() const; //Return a cards number
 	int GetPower() const; //Return a cards physical power
@@ -89,9 +89,9 @@ class card {
 	string GetAttributeStr() const; //Return a cards attribute as a string
 	enum abilities GetAbility() const; //Return a cards ability as enum
 	string GetAbilityStr() const; //Return a cards ability as a string
-	enum attackActions RollDiceEnum(); //Rolls the dice for a card return enum
-	int RollDiceInt(int limit); //Rolls the dice for a card return int
-	ostringstream Print(); //Print Card Details
+	enum attackActions RollDiceEnum(); //Rolls the dice for a Card return enum
+	int RollDiceInt(int limit); //Rolls the dice for a Card return int
+	ostringstream Print(); //Print card Details
 	bool ChangeAbility(int ability); //Changes a cards ability
 	void ChangeAbility(abilities ab); //Changes a cards ability
 	bool GetAbilityUsed(); //Returns if the cards ability is used or not
@@ -103,14 +103,14 @@ class card {
 	void SetSpell(spells s); //Sets a cards spell
 	
 	//Public Debuf Functions
-	string ChargeUp(); //Charges up card
+	string ChargeUp(); //Charges up Card
 	void ChargeDown(); //Decreases a cards charge
 	string AddPower(int amount); //Increases the cards power
 	string AddMagicalPower(int amount); //Increase the cards power
 	string AddHealth(int amount); //Increases the cards health
 	void SetHealth(int amount); //Sets the cards healths
 	string Heal(int amount); //Heals the cards by an amount
-	string FullHeal(); //Fully heals the card
+	string FullHeal(); //Fully heals the Card
 	string DecPower(int amount); //Decreases a cards power
 	string DecBothHealth(int amount); //Dec's health and totalHealth
 	string DecTotalHealth(int amount); //Dec's totalHeath

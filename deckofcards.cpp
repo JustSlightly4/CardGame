@@ -2,13 +2,13 @@
  * Eric Ryan Montgomery
  * 09/21/2025
  * For CardGameUI
- * Functions for a deck of cards without the use of raylib are written here
+ * Functions for a Deck of cards without the use of raylib are written here
  */
 #include "deckofcards.h"
 
-//----------------------------------------------- Deck Class
+//----------------------------------------------- deck Class
 //Constructor
-deck::deck(int cardLimit, shared_ptr<Texture2D> texture, bool random, bool ai, int deckStrength) : cardTexture(texture) {
+Deck::Deck(int cardLimit, shared_ptr<Texture2D> texture, bool random, bool ai, int deckStrength) : cardTexture(texture) {
 	this->amtCards = 0;
 	this->timesUsedFlask = 0;
 	this->timesSwapped = 0;
@@ -24,30 +24,30 @@ deck::deck(int cardLimit, shared_ptr<Texture2D> texture, bool random, bool ai, i
 }
 
 //Deconstructor
-deck::~deck() {
-	for (card *c : Cards) {
+Deck::~Deck() {
+	for (Card *c : Cards) {
 		delete c;
 	}
 	Cards.clear();
 }
 
 // Copy Constructor
-deck::deck(const deck &other) : cardTexture(other.cardTexture) {
+Deck::Deck(const Deck &other) : cardTexture(other.cardTexture) {
 	this->ai = other.ai;
 	this->cardLimit = other.cardLimit;
 	this->timesUsedFlask = other.timesUsedFlask;
 	this->timesSwapped = other.timesSwapped;
 	this->totalPoints = other.totalPoints;
 	this->remainingPoints = other.remainingPoints;
-	this->amtCards = 0; //For safety reasons set amtCards equal to zero and add a card through the AddCard function
+	this->amtCards = 0; //For safety reasons set amtCards equal to zero and add a Card through the AddCard function
 	for (int i = 0; i < amtCards; ++i) {
-		card *temp = new card(*other.Cards[i]);
+		Card *temp = new Card(*other.Cards[i]);
 		this->AddCard(temp);
 	}
 }
 
 //Overload = operator so that two decks can be set equal to each other
-void deck::operator=(const deck &rhs) {
+void Deck::operator=(const Deck &rhs) {
 	vector<spells> appliedSpells;
 	for (int i = 0; i < this->amtCards; ++i) {
 		delete this->Cards[i];
@@ -59,16 +59,16 @@ void deck::operator=(const deck &rhs) {
 	this->ai = rhs.ai;
 	this->totalPoints = rhs.totalPoints;
 	this->remainingPoints = rhs.remainingPoints;
-	this->amtCards = 0; //For safety reasons set amtCards equal to zero and add a card through the AddCard function
+	this->amtCards = 0; //For safety reasons set amtCards equal to zero and add a Card through the AddCard function
 	for (int i = 0; i < rhs.amtCards; ++i) {
-		card *temp = new card(*rhs.Cards[i]);
+		Card *temp = new Card(*rhs.Cards[i]);
 		this->AddCard(temp);
 	}
 	this->cardTexture = rhs.cardTexture;
 }
 
-//Creates a Random Deck with a point limit
-void deck::CreateRandomCards() {
+//Creates a Random deck with a point limit
+void Deck::CreateRandomCards() {
 	
 	//Colors array and initialization
 	//colors colorChoice[cardLimit];
@@ -99,12 +99,12 @@ void deck::CreateRandomCards() {
 	}
 	
 	
-	//Randomly choose an aspect of a random card and increase it by one until
+	//Randomly choose an aspect of a random Card and increase it by one until
 	//all points are used.
 	int indexChosen;
 	int aspectChosen;
 	for (int i = 0; i < totalPoints; ++i) {
-		indexChosen = rand() % cardLimit; //Choose a random card in the deck
+		indexChosen = rand() % cardLimit; //Choose a random Card in the Deck
 		aspectChosen = rand() % 3; //Choice either color, attribute, or power level to upgrade
 		switch(aspectChosen) {
 			case(0):
@@ -122,7 +122,7 @@ void deck::CreateRandomCards() {
 		};
 	}
 	
-	//Add all the cards with there chosen aspects to the deck
+	//Add all the cards with there chosen aspects to the Deck
 	for (int i = 0; i < cardLimit; ++i) {
 		this->AddCard(colorChoice[i], attChoice[i], powerLevel[i]);
 		Cards[i]->SetSpell(chosenSpells[i]);
@@ -131,49 +131,49 @@ void deck::CreateRandomCards() {
 	remainingPoints = 0;
 }
 
-void deck::CreateBlankCards() {
+void Deck::CreateBlankCards() {
 	for (int i = 0; i < cardLimit; ++i) {
 		this->AddCard(C_WHITE, C_MIMIC, 0);
 		Cards[i]->SetSpell(FORCE);
 	}
 }
 
-//Adds a card to the deck
-bool deck::AddCard(card *newCard) {
+//Adds a Card to the Deck
+bool Deck::AddCard(Card *newCard) {
 	if (amtCards >= cardLimit) return false;
 	Cards.push_back(newCard);
 	this->amtCards = this->amtCards + 1;
 	return true;
 }
 
-//Adds card to the deck
-bool deck::AddCard(enum colors col, enum attributes att, int num) {
+//Adds Card to the Deck
+bool Deck::AddCard(enum colors col, enum attributes att, int num) {
 	if (amtCards >= cardLimit) {
 		cout << "here" << endl;
 		return false;
 	}
-	card *newCard = new card(col, att, num);
+	Card *newCard = new Card(col, att, num);
 	Cards.push_back(newCard);
 	this->amtCards = this->amtCards + 1;
 	return true;
 }
 
-//Checks if the deck is full or not
-bool deck::IsDeckFull() {
+//Checks if the Deck is full or not
+bool Deck::Isdeck_Full() {
 	if (amtCards >= cardLimit) return true;
 	return false;
 }
 
-//Removes a card from the deck by position
-bool deck::RemoveCard(int pos) {
+//Removes a Card from the Deck by position
+bool Deck::RemoveCard(int pos) {
 	if (pos < 0 || pos > amtCards-1) return false;
 	delete Cards[pos];
 	Cards.erase(Cards.begin() + pos);
 	return true;
 }
 
-//Get a card from the deck
-card* deck::at(int const index) const {
+//Get a Card from the Deck
+Card* Deck::at(int const index) const {
 	if (index > amtCards-1) {
 		cout << "Indexing Failure!" << endl;
 		return nullptr;
@@ -182,7 +182,7 @@ card* deck::at(int const index) const {
 }
 
 //Overload the [] operator returns pointer
-card* deck::operator[](int const index) const {
+Card* Deck::operator[](int const index) const {
 	if (index > amtCards-1) {
 		cout << "Indexing Failure!" << endl;
 		return nullptr;
@@ -191,7 +191,7 @@ card* deck::operator[](int const index) const {
 }
 
 //Overload << without pointer
-ostream &operator<<(ostream& os, const deck &rhs) {
+ostream &operator<<(ostream& os, const Deck &rhs) {
 	for (int i = 0; i < rhs.GetCardAmt(); ++i) {
 		cout << rhs[i];
 		cout << endl;
@@ -199,50 +199,50 @@ ostream &operator<<(ostream& os, const deck &rhs) {
 	return os;
 }
 
-//Gets the Card Limit in a Deck
-int deck::GetCardLimit() const {
+//Gets the card Limit in a deck
+int Deck::GetCardLimit() const {
 	return cardLimit;
 }
 
-//Gets the current amount of cards in a deck
-int deck::GetCardAmt() const {
+//Gets the current amount of cards in a Deck
+int Deck::GetCardAmt() const {
 	return amtCards;
 }
 
-//Gets the current amount of cards in a deck
-int deck::size() const {
+//Gets the current amount of cards in a Deck
+int Deck::size() const {
 	return amtCards;
 }
 
 //Sets flaskAmt to a user defined value
-void deck::SetFlaskAmt(int amt) {
+void Deck::SetFlaskAmt(int amt) {
 	timesUsedFlask = amt;
 }
 
 //Sets timesSwapped to a user defined value
-void deck::SetTimesSwapped(int amt) {
+void Deck::SetTimesSwapped(int amt) {
 	timesSwapped = amt;
 }
 
 //Return Flask Amount
-int deck::GetFlaskAmt() {
+int Deck::GetFlaskAmt() {
 	return timesUsedFlask;
 }
 
 //Return Times Swapped
-int deck::GetTimesSwapped() const {
+int Deck::GetTimesSwapped() const {
 	return timesSwapped;
 }
 
 //Checks to see if a string is comprised of only integers
-bool deck::CheckIfNumber(string &number) {
+bool Deck::CheckIfNumber(string &number) {
 	for (char &c : number) {
 		if (isdigit(c) == false) return false;
 	}
 	return true;
 }
 
-std::string deck::Swap(int i, int j) {
+std::string Deck::Swap(int i, int j) {
     std::ostringstream oss;
     
     if (i >= amtCards || j >= amtCards || i == j) 
@@ -259,7 +259,7 @@ std::string deck::Swap(int i, int j) {
 }
 
 //Fisher-Yates Algorithm to shuffle cards
-void deck::ShuffleDeck() {
+void Deck::ShuffleDeck() {
 	for (int i = amtCards - 1; i > 0; --i) {
 		int j = rand() % (i + 1);
 		// Swap arr[i] with arr[j]
@@ -268,7 +268,7 @@ void deck::ShuffleDeck() {
 }
 
 //Uses a flask
-string deck::UseFlask(int &pos) {
+string Deck::UseFlask(int &pos) {
 	ostringstream oss;
 	oss << Cards[pos]->FullHeal();
 	++timesUsedFlask;
@@ -277,7 +277,7 @@ string deck::UseFlask(int &pos) {
 
 /*
 //AI move calculator
-actions deck::MakeAIDecision(deck const &opponent, int const &pos, 
+actions Deck::MakeAIDecision(Deck const &opponent, int const &pos, 
 int const &turn) {
 	actions nextChoice = ERROR;
 	
@@ -372,16 +372,16 @@ int const &turn) {
 */
 
 //Check if bot or not
-bool deck::IsAI() {
+bool Deck::IsAI() {
 	return ai;
 }
 
 //Set if bot or not
-void deck::SetAI(bool b) {
+void Deck::SetAI(bool b) {
 	ai = b;
 }
 
-void deck::RestoreDeck() {
+void Deck::RestoreDeck() {
     // Use vectors to store data dynamically
     std::vector<colors> cardColors(amtCards);
     std::vector<attributes> cardAttributes(amtCards);
@@ -395,7 +395,7 @@ void deck::RestoreDeck() {
     }
 
     // Delete existing cards
-    for (card* c : Cards) {
+    for (Card* c : Cards) {
         delete c;
     }
     Cards.clear();
@@ -406,30 +406,30 @@ void deck::RestoreDeck() {
     // Restore cards using stored attributes
     for (int i = 0; i < amtCardsToRestore; ++i) {
         if (!AddCard(cardColors[i], cardAttributes[i], cardPowerLevels[i])) {
-			cout << "Card Adding Failure while Restoring Deck!" << endl;
+			cout << "card Adding Failure while Restoring deck!" << endl;
 		}
     }
     
-    cout << "Amount Cards in Deck: " << amtCards << endl;
+    cout << "Amount Cards in deck: " << amtCards << endl;
 
     // Reset counters
     timesSwapped = 0;
     timesUsedFlask = 0;
 }
 
-shared_ptr<Texture2D> &deck::GetTexture() {
+shared_ptr<Texture2D> &Deck::GetTexture() {
 	return cardTexture;
 }
 
-int deck::GetTotalPoints() {
+int Deck::GetTotalPoints() {
 	return totalPoints;
 }
 
-int deck::GetRemainingPoints() {
+int Deck::GetRemainingPoints() {
 	return remainingPoints;
 }
 
-void deck::SetRemainingPoints(int amt) {
+void Deck::SetRemainingPoints(int amt) {
 	if (amt > totalPoints) amt = totalPoints;
 	if (amt < 0) amt = 0;
 	remainingPoints = amt;

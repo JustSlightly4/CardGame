@@ -2,13 +2,13 @@
  * Eric Ryan Montgomery
  * 09/21/2025
  * For CardGameUI
- * Functions for a single card without the use of raylib are written here
+ * Functions for a single Card without the use of raylib are written here
  */
 #include "cards.h"
 
-//----------------------------------------------- Card Class
+//----------------------------------------------- card Class
 //Constructor
-card::card(enum colors color, enum attributes attribute, int number) {
+Card::Card(enum colors color, enum attributes attribute, int number) {
 	this->color = color;
 	this->attribute = attribute;
 	this->number = number;
@@ -30,7 +30,7 @@ card::card(enum colors color, enum attributes attribute, int number) {
 }
 
 //Overload =
-void card::operator=(const card &rhs) {
+void Card::operator=(const Card &rhs) {
 	this->ID = rhs.ID;
 	this->color = rhs.color;
 	this->attribute = rhs.attribute;
@@ -53,21 +53,21 @@ void card::operator=(const card &rhs) {
 }
 
 //Overload << with pointer
-ostream &operator<<(ostream &os, const card *rhs) {
+ostream &operator<<(ostream &os, const Card *rhs) {
 	os << rhs->GetName() << " (P: " << rhs->GetPower() << 
 		", H: " << rhs->GetHealth() << ")";
 	return os;
 }
 
 //Overload << without pointer
-ostream &operator<<(ostream &os, const card &rhs) {
+ostream &operator<<(ostream &os, const Card &rhs) {
 	os << rhs.GetName() << " (P: " << rhs.GetPower() << 
 		", H: " << rhs.GetHealth() << ")";
 	return os;
 }
 
 //Power Calculator
-void card::CalcPhysicalPower() {
+void Card::CalcPhysicalPower() {
 	power = 0;
 	
 	//Colors
@@ -126,12 +126,12 @@ void card::CalcPhysicalPower() {
 	power *= powerMod;
 }
 
-void card::CalcMagicalPower() {
+void Card::CalcMagicalPower() {
 	magicalPower = number * 2;
 }
 
 //Health Calculator
-void card::CalcHealth() {
+void Card::CalcHealth() {
 	health = 0;
 	
 	//Colors
@@ -193,7 +193,7 @@ void card::CalcHealth() {
 }
 
 //Name Calculator
-void card::CalcName() {
+void Card::CalcName() {
 	name = "Fatal Error";
 	
 	switch(ID) {
@@ -202,16 +202,16 @@ void card::CalcName() {
 			name = "Plain Mimic";
 			break;
 		case (102): //Str
-			name = "Weighty Card";
+			name = "Weighty card";
 			break;
 		case (103): //FTH
-			name = "Holy Card";
+			name = "Holy card";
 			break;
 		case (104): //DEX
-			name = "Speedy Card";
+			name = "Speedy card";
 			break;
 		case (105): //INT
-			name = "Brillant Card";
+			name = "Brillant card";
 			break;
 		case (106): //ARC
 			name = "Arcane Sigil";
@@ -320,13 +320,13 @@ void card::CalcName() {
 			
 		//If no other
 		default:
-			name = "Blank Card";
+			name = "Blank card";
 			break;
 	}
 }
 
 //Ability Calculator
-void card::CalcAbility() {
+void Card::CalcAbility() {
 	
 	switch(ID) {
 		//White
@@ -437,7 +437,7 @@ void card::CalcAbility() {
 }
 
 //ID Calculator
-void card::CalcID() {
+void Card::CalcID() {
 	ID = 0;
 	
 	//Colors
@@ -492,7 +492,7 @@ void card::CalcID() {
 }
 
 //Changes a cards ability
-bool card::ChangeAbility(int ability) {
+bool Card::ChangeAbility(int ability) {
 	vector<abilities> list {
 		MIMICRY,
 		HEAVY_HANDED,
@@ -513,12 +513,12 @@ bool card::ChangeAbility(int ability) {
 	return true;
 }
 
-void card::ChangeAbility(abilities ab) {
+void Card::ChangeAbility(abilities ab) {
 	ability = ab;
 }
 
 //Return a cards ability as a string
-string card::GetAbilityStr() const {
+string Card::GetAbilityStr() const {
 	switch (ability) {
 		case (MIMICRY):
 			return "Mimicry";
@@ -562,81 +562,81 @@ string card::GetAbilityStr() const {
 }
 
 //Return a cards name
-string card::GetName() const {
+string Card::GetName() const {
 	return name;
 }
 
 //Return a cards number
-int card::GetNumber() const {
+int Card::GetNumber() const {
 	return number;
 }
 
 //Return a cards power
-int card::GetPower() const {
+int Card::GetPower() const {
 	return power;
 }
 
 //Return a cards magical power
-int card::GetMagicalPower() const {
+int Card::GetMagicalPower() const {
 	return magicalPower;
 }
 
 //Return a cards health
-int card::GetHealth() const {
+int Card::GetHealth() const {
 	return health;
 }
 
 //Return a cards total health
-int card::GetHealthT() const {
+int Card::GetHealthT() const {
 	return totalHealth;
 }
 
 //Return a cards charge
-int card::GetCharge() const {
+int Card::GetCharge() const {
 	return charge;
 }
 
 //Return amount of actions
-int card::GetNumActions() const {
+int Card::GetNumActions() const {
 	return numActions;
 }
 
 //Return a cards physicalResistance
-double card::GetPhysicalResistance() const {
+double Card::GetPhysicalResistance() const {
 	return physicalResistance;
 }
 
 //Return a cards physicalResistance as string
-string card::GetPhysicalResistanceStr(int precision) const {
+string Card::GetPhysicalResistanceStr(int precision) const {
 	ostringstream out;
     out << fixed << setprecision(precision) << physicalResistance;
     return out.str();
 }
 
 //Return a cards magical resistance
-double card::GetMagicalResistance() const {
+double Card::GetMagicalResistance() const {
 	return magicalResistance;
 }
 
 //Return a cards magical resistance as string
-string card::GetMagicalResistanceStr(int precision) const {
+string Card::GetMagicalResistanceStr(int precision) const {
 	ostringstream out;
     out << fixed << setprecision(precision) << magicalResistance;
     return out.str();
 }
 
 //Return a cards ID
-int card::GetID() const {
+int Card::GetID() const {
 	return ID;
 }
 
 //Return a cards color as enum
-enum colors card::GetColor() const {
+enum colors Card::GetColor() const {
 	return color;
 }
 
 //Return a cards color as a string
-string card::GetColorStr() const {
+string Card::GetColorStr() const {
 	switch (color) {
 		case (C_WHITE):
 			return "White";
@@ -656,7 +656,7 @@ string card::GetColorStr() const {
 }
 
 //Return a cards color as a Raylib color
-Color card::GetColorRaylib() const {
+Color Card::GetColorRaylib() const {
 	switch (color) {
 		case (C_WHITE):
 			return WHITE;
@@ -676,12 +676,12 @@ Color card::GetColorRaylib() const {
 }
 
 //Return a cards attribute as enum
-enum attributes card::GetAttribute() const {
+enum attributes Card::GetAttribute() const {
 	return attribute;
 }
 
 //Return a cards attrubute as a string
-string card::GetAttributeStr() const {
+string Card::GetAttributeStr() const {
 	switch (attribute) {
 		case (C_MIMIC):
 			return "Mimic";
@@ -701,12 +701,12 @@ string card::GetAttributeStr() const {
 }
 
 //Return a cards ability as enum
-enum abilities card::GetAbility() const {
+enum abilities Card::GetAbility() const {
 	return ability;
 }
 
-//Charges up card
-string card::ChargeUp() {
+//Charges up Card
+string Card::ChargeUp() {
 	ostringstream oss;
 	if (charge < 0) {
 		charge = 0;
@@ -725,7 +725,7 @@ string card::ChargeUp() {
 }
 
 //Decreases a cards charge only if it is zero
-void card::ChargeDown() {
+void Card::ChargeDown() {
 	switch(charge) {
 		case(0):
 			name += '-';
@@ -737,7 +737,7 @@ void card::ChargeDown() {
 }
 
 //Increases the cards power
-string card::AddPower(int amount) {
+string Card::AddPower(int amount) {
 	ostringstream oss;
 	this->power += amount;
 	oss << name << "'s power was increased by "
@@ -746,7 +746,7 @@ string card::AddPower(int amount) {
 }
 
 //Increases the cards magical power
-string card::AddMagicalPower(int amount) {
+string Card::AddMagicalPower(int amount) {
 	ostringstream oss;
 	this->magicalPower += amount;
 	oss << name << "'s magical power was increased by "
@@ -755,7 +755,7 @@ string card::AddMagicalPower(int amount) {
 }
 
 //Increases the cards health
-string card::AddHealth(int amount) {
+string Card::AddHealth(int amount) {
 	ostringstream oss;
 	this->health += amount;
 	this->totalHealth += amount;
@@ -765,7 +765,7 @@ string card::AddHealth(int amount) {
 }
 
 //Heals the cards by an amount
-string card::Heal(int amount) {
+string Card::Heal(int amount) {
 	ostringstream oss;
 	this->health += amount;
 	if (health > totalHealth) {
@@ -778,8 +778,8 @@ string card::Heal(int amount) {
 	return oss.str();
 }
 
-//Fully heals the card
-string card::FullHeal() {
+//Fully heals the Card
+string Card::FullHeal() {
 	ostringstream oss;
 	health = totalHealth;
 	oss << name << " was fully healed!";
@@ -787,7 +787,7 @@ string card::FullHeal() {
 }
 
 //Decreases a cards power
-string card::DecPower(int amount) {
+string Card::DecPower(int amount) {
 	ostringstream oss;
 	power -= amount;
 	if (power < 1) {
@@ -801,7 +801,7 @@ string card::DecPower(int amount) {
 }
 
 //Decreases a cards health and total health
-string card::DecBothHealth(int amount) {
+string Card::DecBothHealth(int amount) {
 	ostringstream oss;
 	health -= amount;
 	totalHealth -= amount;
@@ -815,7 +815,7 @@ string card::DecBothHealth(int amount) {
 }
 
 //Decreases a cards total health
-string card::DecTotalHealth(int amount) {
+string Card::DecTotalHealth(int amount) {
 	ostringstream oss;
 	totalHealth -= amount;
 	if (health > totalHealth) health = totalHealth;
@@ -829,7 +829,7 @@ string card::DecTotalHealth(int amount) {
 }
 
 //Decreases a cards health
-string card::DecHealth(int amount) {
+string Card::DecHealth(int amount) {
 	ostringstream oss;
 	health -= amount;
 	if (health < 1) {
@@ -842,7 +842,7 @@ string card::DecHealth(int amount) {
 }
 
 //Increases a cards physicalResistance
-string card::AddPhysicalResistance(double amount) {
+string Card::AddPhysicalResistance(double amount) {
 	ostringstream oss;
 	physicalResistance -= amount;
 	if (physicalResistance < 0.1) {
@@ -857,7 +857,7 @@ string card::AddPhysicalResistance(double amount) {
 }
 
 //Decreases a cards physicalResistance
-string card::DecPhysicalResistance(double amount) {
+string Card::DecPhysicalResistance(double amount) {
 	ostringstream oss;
 	physicalResistance += amount;
 	if (physicalResistance > 2) {
@@ -872,7 +872,7 @@ string card::DecPhysicalResistance(double amount) {
 }
 
 //Increases a cards physicalResistance
-string card::AddMagicalResistance(double amount) {
+string Card::AddMagicalResistance(double amount) {
 	ostringstream oss;
 	magicalResistance -= amount;
 	if (magicalResistance < 0.1) {
@@ -887,7 +887,7 @@ string card::AddMagicalResistance(double amount) {
 }
 
 //Decreases a cards physicalResistance
-string card::DecMagicalResistance(double amount) {
+string Card::DecMagicalResistance(double amount) {
 	ostringstream oss;
 	magicalResistance += amount;
 	if (magicalResistance > 2) {
@@ -902,7 +902,7 @@ string card::DecMagicalResistance(double amount) {
 }
 
 //Increases Upper Dice thus decreasing # of crit hits
-string card::AddUpperDice(int amount) {
+string Card::AddUpperDice(int amount) {
 	ostringstream oss;
 	upperDice += amount;
 	if (upperDice > 21) {
@@ -916,7 +916,7 @@ string card::AddUpperDice(int amount) {
 }
 
 //Decreases Upper Dice thus increasing # of crit hits
-string card::DecUpperDice(int amount) {
+string Card::DecUpperDice(int amount) {
 	ostringstream oss;
 	upperDice -= amount;
 	if (upperDice < 10) {
@@ -930,7 +930,7 @@ string card::DecUpperDice(int amount) {
 }
 
 //Increases Lower Dice thus increasing # of missed hits
-string card::AddLowerDice(int amount) {
+string Card::AddLowerDice(int amount) {
 	ostringstream oss;
 	lowerDice += amount;
 	if (lowerDice > 10) {
@@ -944,7 +944,7 @@ string card::AddLowerDice(int amount) {
 }
 
 //Decreases Lower Dice thus decreasing # of missed hits
-string card::DecLowerDice(int amount) {
+string Card::DecLowerDice(int amount) {
 	ostringstream oss;
 	lowerDice -= amount;
 	if (lowerDice < 0) {
@@ -958,7 +958,7 @@ string card::DecLowerDice(int amount) {
 }
 
 //Increases a cards number of actions
-string card::AddNumActions(int amount) {
+string Card::AddNumActions(int amount) {
 	numActions += amount;
 	ostringstream oss;
 	oss << name << " gained " << amount
@@ -967,7 +967,7 @@ string card::AddNumActions(int amount) {
 }
 
 //Decreases a cards number of actions
-string card::DecNumActions(int amount) {
+string Card::DecNumActions(int amount) {
 	ostringstream oss;
 	numActions -= amount;
 	
@@ -986,7 +986,7 @@ string card::DecNumActions(int amount) {
 }
 
 //Rolls a Dice and Returns a HIT, MISS, OR CRITHIT
-enum attackActions card::RollDiceEnum() {
+enum attackActions Card::RollDiceEnum() {
 	int roll = (rand() % 20) + 1;
 	if (roll <= lowerDice) return MISS;
 	if (roll >= upperDice) return CRITHIT;
@@ -994,42 +994,42 @@ enum attackActions card::RollDiceEnum() {
 }
 
 //Rolls a Dice and returns an integer between 1 and 20
-int card::RollDiceInt(int limit) {
+int Card::RollDiceInt(int limit) {
 	return (rand() % limit) + 1;
 }
 
-//Kills Card
-void card::Kill() {
+//Kills card
+void Card::Kill() {
 	health = 0;
 }
 
 //Returns if the cards ability is used or not
-bool card::GetAbilityUsed() {
+bool Card::GetAbilityUsed() {
 	return abilityUsed;
 }
 
 //Sets if a cards ability is used or not
-void card::SetAbilityUsed(bool b) {
+void Card::SetAbilityUsed(bool b) {
 	abilityUsed = b;
 }
 
 //Returns if the cards ability is active or not
-bool card::GetAbilitiesActive() {
+bool Card::GetAbilitiesActive() {
 	return abilitiesActive;
 }
 
 //Sets if a cards ability is active or not
-void card::SetAbilitiesActive(bool b) {
+void Card::SetAbilitiesActive(bool b) {
 	abilitiesActive = b;
 }
 
 //Gets a cards spell
-spells card::GetSpell() {
+spells Card::GetSpell() {
 	return spell;
 }
 
 //Gets a cards spell as a string
-string card::GetSpellStr() {
+string Card::GetSpellStr() {
 	switch(spell) {
 		case (FORCE):
 			return "Force";
@@ -1045,17 +1045,17 @@ string card::GetSpellStr() {
 }
 
 //Sets a cards spell
-void card::SetSpell(spells s) {
+void Card::SetSpell(spells s) {
 	spell = s;
 }
 
 //Push new action into the AI's action queue
-void card::PushAction(actions a) {
+void Card::PushAction(actions a) {
 	this->actionQueue.push(a);
 }
 
 //Remove the next action from the AI's action queue
-actions card::PopAction() {
+actions Card::PopAction() {
 	if (!actionQueue.empty()) {
 		actions temp = actionQueue.front();
 		actionQueue.pop();
@@ -1065,7 +1065,7 @@ actions card::PopAction() {
 }
 
 //Gets the next action in the action queue
-actions card::GetNextAction() {
+actions Card::GetNextAction() {
 	if (!actionQueue.empty()) {
 		return actionQueue.front();
 	}
@@ -1073,18 +1073,18 @@ actions card::GetNextAction() {
 }
 
 //Check if cards action queue is empty
-bool card::IsActionQueueEmpty() {
+bool Card::IsActionQueueEmpty() {
 	return actionQueue.empty();
 }
 
 //Completely removes all elements from action queue
-void card::ClearActionQueue() {
+void Card::ClearActionQueue() {
 	while(!actionQueue.empty()) {
 		actionQueue.pop();
 	}
 }
 
 //Returns the action queues current size
-size_t card::GetActionQueueSize() {
+size_t Card::GetActionQueueSize() {
 	return actionQueue.size();
 }

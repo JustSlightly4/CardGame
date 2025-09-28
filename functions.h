@@ -20,18 +20,18 @@
 #include "globals.h"
 using namespace std;
 
-void RegularGame(deck &deck1, deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide);
-void RegularGameTurn(deck &player, deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide);
+void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide);
+void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide);
 void scrollLogic(float &scrollOffset, Data &StyleGuide);
-float GetCardSourceX(card *Card, Data &StyleGuide);
-Rectangle GetCardSourceRec(card *Card, Data &StyleGuide);
+float GetCardSourceX(Card *card, Data &StyleGuide);
+Rectangle GetCardSourceRec(Card *card, Data &StyleGuide);
 Flags ResetFlags();
 GameVars ResetGameVars();
 CardEditVars ResetCardEditVars();
-string ApplyAbility(deck &player, deck &opponent, int pos, int mainPos);
-string NullifyOpponentsAbility(card &player, card &opponent);
-string PhysicalAttack(card *player, card *opponent, card *mainCard);
-string MagicalAttack(card *player, card *opponent, card *mainCard);
-actions MakeAIDecisionDumb(deck &player, deck &opponent, GameVars &gameVars);
+string ApplyAbility(Deck &player, Deck &opponent, int pos, int mainPos);
+string NullifyOpponentsAbility(Card &player, Card &opponent);
+string PhysicalAttack(Card *player, Card *opponent, Card *mainCard);
+string MagicalAttack(Card *player, Card *opponent, Card *mainCard);
+actions MakeAIDecisionDumb(Deck &player, Deck &opponent, GameVars &gameVars);
 
 #endif

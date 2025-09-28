@@ -15,49 +15,49 @@ void scrollLogic(float &scrollOffset, Data &StyleGuide) {
 	if (scrollOffset >= StyleGuide.maxScroll) scrollOffset = StyleGuide.maxScroll;
 }
 
-//Gets the correct card source texture data based on its attribute
-float GetCardSourceX(card *Card, Data &StyleGuide) {
-	switch(Card->GetAttribute()) {
+//Gets the correct Card source texture data based on its attribute
+float GetCardSourceX(Card *card, Data &StyleGuide) {
+	switch(card->GetAttribute()) {
 		case(C_MIMIC):
-			return StyleGuide.baseCardTextureSize.x * 4;
+			return StyleGuide.cardSource.width * 4;
 		case(C_STR):
-			return StyleGuide.baseCardTextureSize.x * 0;
+			return StyleGuide.cardSource.width * 0;
 		case(C_FTH):
-			return StyleGuide.baseCardTextureSize.x * 2;
+			return StyleGuide.cardSource.width * 2;
 		case(C_DEX):
-			return StyleGuide.baseCardTextureSize.x * 1;
+			return StyleGuide.cardSource.width * 1;
 		case(C_INT):
-			return StyleGuide.baseCardTextureSize.x * 3;
+			return StyleGuide.cardSource.width * 3;
 		case(C_ARC):
-			return StyleGuide.baseCardTextureSize.x * 5;
+			return StyleGuide.cardSource.width * 5;
 		default:
-			return StyleGuide.baseCardTextureSize.x * 4;
+			return StyleGuide.cardSource.width * 4;
 	}
 }
 
-//Gets the correct card source texture data based on its attribute
+//Gets the correct Card source texture data based on its attribute
 //and returns it as a rectangle
-Rectangle GetCardSourceRec(card *Card, Data &StyleGuide) {
-	switch(Card->GetAttribute()) {
+Rectangle GetCardSourceRec(Card *card, Data &StyleGuide) {
+	switch(card->GetAttribute()) {
 		case(C_MIMIC):
-			return {StyleGuide.baseCardTextureSize.x * 4, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+			return {StyleGuide.cardSource.width * 4, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
 		case(C_STR):
-			return {StyleGuide.baseCardTextureSize.x * 0, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+			return {StyleGuide.cardSource.width * 0, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
 		case(C_FTH):
-			return {StyleGuide.baseCardTextureSize.x * 2, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+			return {StyleGuide.cardSource.width * 2, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
 		case(C_DEX):
-			return {StyleGuide.baseCardTextureSize.x * 1, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+			return {StyleGuide.cardSource.width * 1, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
 		case(C_INT):
-			return {StyleGuide.baseCardTextureSize.x * 3, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+			return {StyleGuide.cardSource.width * 3, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
 		case(C_ARC):
-			return {StyleGuide.baseCardTextureSize.x * 5, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+			return {StyleGuide.cardSource.width * 5, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
 		default:
-			return {StyleGuide.baseCardTextureSize.x * 4, 0, StyleGuide.baseCardTextureSize.x, StyleGuide.baseCardTextureSize.y};
+			return {StyleGuide.cardSource.width * 4, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
 	}
 }
 
 //Logic for the ENTIRE GAME NOT AN INDIVIDUAL TURN
-void RegularGame(deck &deck1, deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide) {
+void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide) {
 	
 	//Correctly Initialize Starting Variables
 	if (gameVars.gameStarted == false) {
@@ -110,7 +110,7 @@ void RegularGame(deck &deck1, deck &deck2, GameVars &gameVars, Flags &flags, Sin
 			return;
 		}
 		
-		//Reset card variables for next round
+		//Reset Card variables for next round
 		deck1.SetTimesSwapped(0);
 		deck2.SetTimesSwapped(0);
 		gameVars.turn = 0;
@@ -126,19 +126,19 @@ void RegularGame(deck &deck1, deck &deck2, GameVars &gameVars, Flags &flags, Sin
 		++gameVars.turn;
 		
 		switch(gameVars.currCardRole) {
-			case(C_SUPPORT): { //If support card was in play and is done
+			case(C_SUPPORT): { //If support Card was in play and is done
 				
-				//Switch players and reset to main card
+				//Switch players and reset to main Card
 				if (gameVars.playerInPlay == PLAYER1) gameVars.playerInPlay = PLAYER2;
 				else gameVars.playerInPlay = PLAYER1;
 				gameVars.currCardRole = C_MAIN;
 				
-				//Give the correct number of actions to whichever card is playing
+				//Give the correct number of actions to whichever Card is playing
 				if (gameVars.playerInPlay == PLAYER1 ) gameVars.amtActions = deck1[gameVars.round]->GetNumActions();
 				else gameVars.amtActions = deck2[gameVars.round]->GetNumActions();
 				break;
 			}
-			case(C_MAIN): { //If main card was in play and is done
+			case(C_MAIN): { //If main Card was in play and is done
 				
 				//Switch to support if not the last round
 				if (gameVars.round < deck1.size()-1) {
@@ -148,7 +148,7 @@ void RegularGame(deck &deck1, deck &deck2, GameVars &gameVars, Flags &flags, Sin
 					else gameVars.playerInPlay = PLAYER1;
 				}
 				
-				//Give the correct number of actions to whichever card is playing
+				//Give the correct number of actions to whichever Card is playing
 				if (gameVars.playerInPlay == PLAYER1 ) gameVars.amtActions = deck1[deck1.size()-1]->GetNumActions();
 				else gameVars.amtActions = deck2[deck2.size()-1]->GetNumActions();
 				break;
@@ -159,9 +159,9 @@ void RegularGame(deck &deck1, deck &deck2, GameVars &gameVars, Flags &flags, Sin
 }
 
 //LOGIC FOR AN INDIVIDUAL TURN IN A GAME
-void RegularGameTurn(deck &player, deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide) {
+void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide) {
 	
-	//Decide if main or support card is playing
+	//Decide if main or support Card is playing
 	if (gameVars.currCardRole == C_MAIN) gameVars.who = gameVars.round;
 	else gameVars.who = player.size()-1;
 	
@@ -170,7 +170,7 @@ void RegularGameTurn(deck &player, deck &opponent, GameVars &gameVars, Flags &fl
 	//Once on the second frame, then wait a few seconds and make a decision
 	actions AIDecision = ERROR;
 	if (player.IsAI() == true && flags.firstTurnFrame == false) {
-		WaitTime(3.0);
+		WaitTime(1.5);
 		AIDecision = MakeAIDecisionDumb(player, opponent, gameVars);
 	}
 	
@@ -194,7 +194,7 @@ void RegularGameTurn(deck &player, deck &opponent, GameVars &gameVars, Flags &fl
 		buttons[5].SetFunctionality(false);
 	}
 	
-	//Disable attack button if support card
+	//Disable attack button if support Card
 	if (gameVars.currCardRole == C_SUPPORT) {
 		buttons[1].SetFunctionality(false);
 	}
@@ -266,7 +266,7 @@ CardEditVars ResetCardEditVars() {
 }
 
 //Applies a cards ability
-string ApplyAbility(deck &player, deck &opponent, int pos, int mainPos) {
+string ApplyAbility(Deck &player, Deck &opponent, int pos, int mainPos) {
 	ostringstream oss;
 	if (player[pos]->GetAbilitiesActive() == false) {
 		oss << player[pos]->GetName() << " could not used their ability!" << endl;
@@ -288,10 +288,10 @@ string ApplyAbility(deck &player, deck &opponent, int pos, int mainPos) {
 			player[pos]->ChangeAbility(rand() % 13);
 			break;
 		case (STRATEGICFIRE):
-			if (mainPos == 0 && player.GetCardLimit() > 1) { //If first and there are more cards in the deck, use Holy or Evil Presence
+			if (mainPos == 0 && player.GetCardLimit() > 1) { //If first and there are more cards in the Deck, use Holy or Evil Presence
 				if (rand() % 2) player[pos]->ChangeAbility(HOLY_PRESENCE);
 				else player[pos]->ChangeAbility(EVIL_PRESENCE);
-			} else if (mainPos == player.GetCardLimit()-1 && player.GetCardLimit() > 1) { //If last and there are more cards in the deck, use Necromancy
+			} else if (mainPos == player.GetCardLimit()-1 && player.GetCardLimit() > 1) { //If last and there are more cards in the Deck, use Necromancy
 				player[pos]->ChangeAbility(NECROMANCY);
 			} else if (opponent[mainPos]->GetAbilityUsed() == false) { //If the opponent hasn't used their ability nullify it
 				player[pos]->ChangeAbility(NULLIFY);
@@ -311,7 +311,7 @@ string ApplyAbility(deck &player, deck &opponent, int pos, int mainPos) {
 				oss << player[pos]->GetName() << " used pure mimicry!";
 				(*player[pos]) = (*opponent[mainPos]);
 			} else {
-				card newCard(opponent[mainPos]->GetColor(), opponent[mainPos]->GetAttribute(), opponent[mainPos]->GetNumber());
+				Card newCard(opponent[mainPos]->GetColor(), opponent[mainPos]->GetAttribute(), opponent[mainPos]->GetNumber());
 				oss << player[pos]->GetName() << " used discolored mimicry!";
 				(*player[pos]) = newCard;
 			}
@@ -385,7 +385,7 @@ string ApplyAbility(deck &player, deck &opponent, int pos, int mainPos) {
 				oss << "Fallen souls strengthen " << player[pos]->GetName() << endl;
 				player[pos]->ChargeUp();
 			} else {
-				//Finds the card with the most power in the deck before current card
+				//Finds the Card with the most power in the Deck before current Card
 				int maxPowerIndex = 0;
 				int maxPower = 0;
 				for (int j = 0; j < mainPos-1; ++j) {
@@ -396,7 +396,7 @@ string ApplyAbility(deck &player, deck &opponent, int pos, int mainPos) {
 				}
 				(*player[pos]) = (*player[maxPowerIndex]);
 				
-				player[pos]->FullHeal(); //Heals the card back to full health
+				player[pos]->FullHeal(); //Heals the Card back to full health
 				
 				//Changes ability to prevent nullify from nullifing
 				//abilities that may have been used in previous rounds
@@ -432,7 +432,7 @@ string ApplyAbility(deck &player, deck &opponent, int pos, int mainPos) {
 		}
 		case (MADE_IN_HEAVEN): {
 			tempHealth = opponent[mainPos]->GetHealth();
-			card newCard(opponent[mainPos]->GetColor(), opponent[mainPos]->GetAttribute(), opponent[mainPos]->GetNumber());
+			Card newCard(opponent[mainPos]->GetColor(), opponent[mainPos]->GetAttribute(), opponent[mainPos]->GetNumber());
 				oss << player[pos]->GetName() << " used Made In Heaven and reset their opponent!";
 				(*opponent[mainPos]) = newCard;
 			if (opponent[mainPos]->GetHealth() > tempHealth) {
@@ -449,7 +449,7 @@ string ApplyAbility(deck &player, deck &opponent, int pos, int mainPos) {
 }
 
 //Tries to undo whatever the opponents ability did
-string NullifyOpponentsAbility(card &player, card &opponent) {
+string NullifyOpponentsAbility(Card &player, Card &opponent) {
 	ostringstream oss;
 	switch(opponent.GetAbility()) {
 		case (HEAVY_HANDED):
@@ -483,7 +483,7 @@ string NullifyOpponentsAbility(card &player, card &opponent) {
 }
 
 //Physically Attack an Opponent
-string PhysicalAttack(card *player, card *opponent, card *mainCard) {
+string PhysicalAttack(Card *player, Card *opponent, Card *mainCard) {
 	ostringstream oss;
 	attackActions action = player->RollDiceEnum();
 	switch (action) {
@@ -505,7 +505,7 @@ string PhysicalAttack(card *player, card *opponent, card *mainCard) {
 }
 
 //Magically Attack an Opponent
-string MagicalAttack(card *player, card *opponent, card *mainCard) {
+string MagicalAttack(Card *player, Card *opponent, Card *mainCard) {
 	ostringstream oss;
 	
 	if (player->GetMagicalPower() <= 0) {
@@ -519,7 +519,7 @@ string MagicalAttack(card *player, card *opponent, card *mainCard) {
 	//Apply damage and crits
 	switch(player->GetSpell()) {
 		case (FORCE): { //Does physical damage
-			//If the opponents color is the same as the card advantage then critical hit
+			//If the opponents color is the same as the Card advantage then critical hit
 			if (advantage[player->GetColor()] == opponent->GetColor()) {
 				amt *= 1.2;
 				oss << player->GetName() << " critically cast Force on " << opponent->GetName() << " for " << amt << " points!";
@@ -535,7 +535,7 @@ string MagicalAttack(card *player, card *opponent, card *mainCard) {
 		case (DRAIN): { //Does power damage
 			if (amt > 1) amt = amt * 0.5; //Drain Spell nerf but can't miss
 			
-			//If the opponents color is the same as the card advantage then critical hit
+			//If the opponents color is the same as the Card advantage then critical hit
 			if (advantage[player->GetColor()] == opponent->GetColor()) {
 				amt *= 1.2;
 				oss << player->GetName() << " critically cast Drain on " << opponent->GetName() << " for " << amt << " points!";
@@ -549,7 +549,7 @@ string MagicalAttack(card *player, card *opponent, card *mainCard) {
 			break;
 		}
 		case(WEAKEN): {
-			//If the opponents color is the same as the card advantage then critical hit
+			//If the opponents color is the same as the Card advantage then critical hit
 			if (advantage[player->GetColor()] == opponent->GetColor()) {
 				double amt = 0.2;
 				oss << player->GetName() << " critically cast Weaken on " << opponent->GetName() << "!" << endl;
@@ -564,7 +564,7 @@ string MagicalAttack(card *player, card *opponent, card *mainCard) {
 			break;
 		}
 		case(HEAL): {
-			//If mains color is the same as the card advantage then Greater Heal
+			//If mains color is the same as the Card advantage then Greater Heal
 			if (advantage[player->GetColor()] == mainCard->GetColor()) {
 				oss << player->GetName() << " cast Greater Heal for " << int (amt * 1.2) << " points!";
 				mainCard->Heal(amt * 1.2);
@@ -580,49 +580,19 @@ string MagicalAttack(card *player, card *opponent, card *mainCard) {
 	return oss.str();
 }
 
-actions MakeAIDecisionDumb(deck &player, deck &opponent, GameVars &gameVars) {
+actions MakeAIDecisionDumb(Deck &player, Deck &opponent, GameVars &gameVars) {
 	
-	//Remove Charges if can't charge anymore
-	if (player[gameVars.who]->GetCharge() >= gameVars.maxCharges && player[gameVars.who]->GetNextAction() == CHARGE) {
-		while (player[gameVars.who]->GetNextAction() == CHARGE) player[gameVars.who]->PopAction();
-	}
+	//Make a list of the actions that are allowed
+	vector<actions> allowableActions = {CASTSPELL};
 	
-	//Remove Swaps if can't swap anymore
-	if (player.GetTimesSwapped() >= gameVars.maxSwaps && player[gameVars.who]->GetNextAction() == SWAP) {
-		while (player[gameVars.who]->GetNextAction() == SWAP) player[gameVars.who]->PopAction();
-	}
+	//Go through checks to add which actions are allowed
+	if (player[gameVars.who]->GetCharge() < gameVars.maxCharges) allowableActions.push_back(CHARGE);
+	if (player.GetTimesSwapped() < gameVars.maxSwaps) allowableActions.push_back(SWAP);
+	if (player.GetFlaskAmt() < gameVars.maxFlasks) allowableActions.push_back(FLASK);
+	if (gameVars.currCardRole == C_MAIN) allowableActions.push_back(ATTACK);
 	
-	//Remove flask usage if has no more flask
-	if (player.GetFlaskAmt() >= gameVars.maxFlasks && player[gameVars.who]->GetNextAction() == FLASK) {
-		while (player[gameVars.who]->GetNextAction() == FLASK) player[gameVars.who]->PopAction();
-	}
-	
-	/*
-	//Remove spell usage if MP has lowered to zero or below
-	if (player[gameVars.who]->GetMagicalPower() <= 0 && player[gameVars.who]->GetMagicalPower() == CASTSPELL) {
-		while (player[gameVars.who]->GetNextAction() == CASTSPELL) player[gameVars.who]->PopAction();
-	}
-	*/
-	
-	
-	
-	//Instant win
-	if ((player[gameVars.who]->GetPower() >= opponent[gameVars.round]->GetHealth())) {
-		player[gameVars.who]->PushAction(ATTACK);
-	}
-	
-	//Self Preservation
-	if (player[gameVars.who]->GetHealth() <= int(player[gameVars.who]->GetHealthT() * 0.3) && player.GetFlaskAmt() < 2) {
-		player[gameVars.who]->PushAction(FLASK);
-	}
-	
-	//Basic Startup Strat
-	if (gameVars.round == 0 && player[gameVars.who]->GetCharge() < 2) {
-		player[gameVars.who]->PushAction(CHARGE);
-	}
-	
-	//Base Case if there is nothing in the queue
-	if (player[gameVars.who]->IsActionQueueEmpty()) player[gameVars.who]->PushAction(ATTACK);
+	//Push a completely random chosen action to the queue
+	player[gameVars.who]->PushAction(allowableActions[rand() % allowableActions.size()]);
 	
 	//Remove action from queue and return it
 	return player[gameVars.who]->PopAction();
