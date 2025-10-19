@@ -25,8 +25,9 @@ class PlusMinusButton {
 		Rectangle bounds[2];
 		Color tint[2];
 		string label;
+		string buttonLabel;
 	public:
-		PlusMinusButton(string &text);
+		PlusMinusButton(string text, string defaultButtonLabel);
 		void SetButtonState(int index, int state);
 		void SetButtonAction(int index, bool action);
 		void SetBounds(int index, Rectangle dest);
@@ -37,6 +38,8 @@ class PlusMinusButton {
 		Color GetColor(int index);
 		void SetLabel(string text);
 		string GetLabel();
+		void SetButtonLabel(string text);
+		string GetButtonLabel();
 		char GetSymbolLabel(int index);
 		void SetFunctionality(int index, bool b);
 		bool GetFunctionality(int index);
@@ -47,10 +50,9 @@ class PlusMinusButtonGroup {
 		std::shared_ptr<Texture2D> buttonTexture;
 		int size;
 		vector<PlusMinusButton> buttons;
-		Data &StyleGuide;
 	public:
-		PlusMinusButtonGroup(shared_ptr<Texture2D>& texture, Data &data);
-		void AddButton(string label);
+		PlusMinusButtonGroup(shared_ptr<Texture2D>& texture);
+		void AddButton(string label, string buttonLabel);
 		int GetSize();
 		PlusMinusButton& operator[](int index);
 		void AnimationLogic(Vector2 &mousePoint);
@@ -87,9 +89,8 @@ class SingleButtonGroup {
 		std::shared_ptr<Texture2D> buttonTexture;
 		int size;
 		vector<SingleButton> buttons;
-		Data &StyleGuide;
 	public:
-		SingleButtonGroup(shared_ptr<Texture2D>& texture, Data &data);
+		SingleButtonGroup(shared_ptr<Texture2D>& texture);
 		void AddButton(string label);
 		void ClearAllButtons();
 		int GetSize();

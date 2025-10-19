@@ -22,7 +22,13 @@ Vector2 operator*(const Vector2& lhs, const float& rhs);
 bool operator==(const Vector2& lhs, const Vector2& rhs);
 bool operator!=(const Vector2& lhs, const Vector2& rhs);
 
-class Data {
+typedef struct NAMEDFONT {
+	string name;
+	Font font;
+	int fontSize;
+} NamedFont;
+
+class StyleGuide {
 public:
     // Constant bases
     static constexpr Vector2 origin = {0, 0};
@@ -35,10 +41,14 @@ public:
     static constexpr int starRadius = 20;
     static constexpr int starLineThickness = 7;
     static constexpr float scrollSpeed = 50.0f;
+    
+    // Drawing Constants
+    static constexpr Vector2 REC_START = {1, 54};
+    static constexpr Vector2 REC_END = {63, 63};
+    static constexpr Color REC_COLOR = BLACK;
 	
 	//Mutable
     Vector2 screenDimensions;
-    float fontSize;
     float maxScroll;
     float starRotation;
     int numCards;
@@ -47,8 +57,9 @@ public:
     bool deck2AI;
     float widthSegment;
     float heightSegment;
+    std::vector<NamedFont>::iterator currentFont;
 
-    Data();
+    StyleGuide();
     void Update();
 };
 
@@ -205,6 +216,8 @@ extern std::vector<attributes> atts;
 extern std::vector<spells> spellList;
 extern std::vector<actions> actionsList;
 extern std::unordered_map<colors, colors> advantage;
+extern StyleGuide styleGuide;
+extern vector<NamedFont> fonts;
 extern string gamerules;
 extern string skills;
 

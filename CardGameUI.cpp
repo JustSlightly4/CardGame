@@ -2,7 +2,7 @@
  * Eric Ryan Montgomery
  * 09/21/2025
  * Build Command: g++ -Wall -o out CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp cards.pp deckofcards.cpp globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
- * Web Build Command: cmd /c em++ -Wall CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp cards.cpp deckofcards.cpp globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 --preload-file textures@/textures
+ * Web Build Command: cmd /c em++ -Wall CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp cards.cpp deckofcards.cpp globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 --preload-file textures@/textures --preload-file fonts@/fonts
  * Web Execute Local Command: emrun --port 8080
  * Make Command: mingw32-make
  */
@@ -17,8 +17,8 @@
 #include "deckofcards.h"
 #include "cards.h"
 #include "buttons.h"
-#include "raylib.h"
 #include "globals.h"
+#include "raylib.h"
 using namespace std;
 
 int main(void)
@@ -28,7 +28,6 @@ int main(void)
     srand(static_cast<unsigned>(time(nullptr)));
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(1600, 900, "card Game");
-    Data StyleGuide;
     Flags flags;
     GameVars gameVars;
     CardEditVars cardEditVars;
@@ -50,8 +49,16 @@ int main(void)
 	shared_ptr<Texture2D> cardTexture = make_shared<Texture2D>(LoadTexture("textures/cardTextures.png"));
 	shared_ptr<Texture2D> invisTexture = make_shared<Texture2D>(LoadTexture("textures/invisTexture.png"));
 	
+	//Font Definitions
+	fonts.push_back({"Montserrat", LoadFont("fonts/MontserratExtrabold.ttf"), 24});
+	fonts.push_back({"Super Shiny", LoadFont("fonts/SuperShiny.ttf"), 20});
+	fonts.push_back({"Akieir", LoadFont("fonts/Akieir.ttf"), 26});
+	fonts.push_back({"Lilita One", LoadFont("fonts/LilitaOne.ttf"), 24});
+	styleGuide.currentFont = fonts.begin();
+	
+	
 	//Button Definitions
-    SingleButtonGroup setupButtons(buttonTexture, StyleGuide);
+    SingleButtonGroup setupButtons(buttonTexture);
 		setupButtons.AddButton("Rules");
 		setupButtons.AddButton("Info");
 		setupButtons.AddButton("Settings");
@@ -59,13 +66,14 @@ int main(void)
 		setupButtons.AddButton("Create Deck 2");
 		setupButtons.AddButton("Start");
 		setupButtons.AddButton("Exit");
-    SingleButtonGroup singleBackButton(buttonTexture, StyleGuide);
+    SingleButtonGroup singleBackButton(buttonTexture);
 		singleBackButton.AddButton("Back");
-    PlusMinusButtonGroup settingsButtons(buttonTexture, StyleGuide);
-		settingsButtons.AddButton("Cards:");
-		settingsButtons.AddButton("Deck Strength:");
-		settingsButtons.AddButton("Is Player 2 AI?");
-	SingleButtonGroup gameButtons(buttonTexture, StyleGuide);
+    PlusMinusButtonGroup settingsButtons(buttonTexture);
+		settingsButtons.AddButton("Cards:", to_string(styleGuide.numCards));
+		settingsButtons.AddButton("Deck Strength:", to_string(styleGuide.deckStrength));
+		settingsButtons.AddButton("Is Player 2 AI?", "false");
+		settingsButtons.AddButton("Font", "Montserrat");
+	SingleButtonGroup gameButtons(buttonTexture);
 		gameButtons.AddButton("Rules");
 		gameButtons.AddButton("Attack");
 		gameButtons.AddButton("Cast Spell");
@@ -73,22 +81,22 @@ int main(void)
 		gameButtons.AddButton("Charge");
 		gameButtons.AddButton("Use Flask");
 		gameButtons.AddButton("Main Menu");
-	SingleButtonGroup deck1EditButtons(invisTexture, StyleGuide);
-	SingleButtonGroup deck2EditButtons(invisTexture, StyleGuide);
-		for (int i = 0; i < StyleGuide.numCards; ++i) {
+	SingleButtonGroup deck1EditButtons(invisTexture);
+	SingleButtonGroup deck2EditButtons(invisTexture);
+		for (int i = 0; i < styleGuide.numCards; ++i) {
 			deck1EditButtons.AddButton("");
 			deck2EditButtons.AddButton("");
 		}
-	SingleButtonGroup viewCardButtons(invisTexture, StyleGuide);
+	SingleButtonGroup viewCardButtons(invisTexture);
 		for (int i = 0; i < 4; ++i) {
 			viewCardButtons.AddButton("");
 		}
-	PlusMinusButtonGroup cardEditButtons(buttonTexture, StyleGuide);
-		cardEditButtons.AddButton("Color: ");
-		cardEditButtons.AddButton("Attribute: ");
-		cardEditButtons.AddButton("Power Level: ");
-		cardEditButtons.AddButton("Spell: ");
-	SingleButtonGroup cardEditScreenButtons(buttonTexture, StyleGuide);
+	PlusMinusButtonGroup cardEditButtons(buttonTexture);
+		cardEditButtons.AddButton("Color: ", "");
+		cardEditButtons.AddButton("Attribute: ", "");
+		cardEditButtons.AddButton("Power Level: ", "");
+		cardEditButtons.AddButton("Spell: ", "");
+	SingleButtonGroup cardEditScreenButtons(buttonTexture);
 		cardEditScreenButtons.AddButton("Rules");
 		cardEditScreenButtons.AddButton("Abilities");
 		cardEditScreenButtons.AddButton("Wipe");
@@ -97,9 +105,9 @@ int main(void)
     
     //Deck and card Definitions
     //Dummy Deck has to be defined instead of just a single Card because decks handle textures
-    Deck dummyDeck(StyleGuide.numCards, cardTexture);
-    Deck deck1(StyleGuide.numCards, cardTexture, false, false, StyleGuide.deckStrength);
-    Deck deck2(StyleGuide.numCards, cardTexture, false, false, StyleGuide.deckStrength);
+    Deck dummyDeck(styleGuide.numCards, cardTexture);
+    Deck deck1(styleGuide.numCards, cardTexture, false, false, styleGuide.deckStrength);
+    Deck deck2(styleGuide.numCards, cardTexture, false, false, styleGuide.deckStrength);
     Deck deck1Copy(0, cardTexture);
     Deck deck2Copy(0, cardTexture);
     
@@ -109,7 +117,7 @@ int main(void)
     {
 		//UpdateStyleGuide(StyleGuide);
 		mousePoint = GetMousePosition(); //Gets current mouse position
-		StyleGuide.Update();
+		styleGuide.Update();
 		
 		//Input
 		switch(currentScreen) {
@@ -181,10 +189,10 @@ int main(void)
 					previousScreen = SETUP;
 				}
 				if (setupButtons[3].GetAction() == true || IsKeyPressed(KEY_ONE)) { //Create Deck 1
-					deck1 = Deck(StyleGuide.numCards, cardTexture, true, StyleGuide.deck1AI, StyleGuide.deckStrength);
+					deck1 = Deck(styleGuide.numCards, cardTexture, true, styleGuide.deck1AI, styleGuide.deckStrength);
 				}
 				if (setupButtons[4].GetAction() == true || IsKeyPressed(KEY_TWO)) { //Create Deck 2
-					deck2 = Deck(StyleGuide.numCards, cardTexture, true, StyleGuide.deck2AI, StyleGuide.deckStrength);
+					deck2 = Deck(styleGuide.numCards, cardTexture, true, styleGuide.deck2AI, styleGuide.deckStrength);
 				}
 				if ((setupButtons[5].GetAction() == true || IsKeyPressed(KEY_ENTER))) { //Start Game
 					deck1Copy = deck1;
@@ -201,7 +209,7 @@ int main(void)
 			}
 			case RULES: {
 				//Enables scrolling
-				scrollLogic(scrollOffset, StyleGuide);
+				scrollLogic(scrollOffset);
 				
 				//Enables the logic for the back button
 				singleBackButton.AnimationLogic(mousePoint);
@@ -216,7 +224,7 @@ int main(void)
 			}
 			case SKILLS: {
 				//Enables scrolling
-				scrollLogic(scrollOffset, StyleGuide);
+				scrollLogic(scrollOffset);
 				
 				//Enables the logic for the back button
 				singleBackButton.AnimationLogic(mousePoint);
@@ -235,6 +243,12 @@ int main(void)
 				singleBackButton.AnimationLogic(mousePoint);
 				settingsButtons.AnimationLogic(mousePoint);
 				
+				//Reset Button On/Off Logic
+				for (int i = 0; i < cardEditButtons.GetSize(); ++i) {
+					settingsButtons[i].SetFunctionality(0, true);
+					settingsButtons[i].SetFunctionality(1, true);
+				}
+				
 				//Goes back to previous screen
                 if (singleBackButton[0].GetAction() == true || IsKeyPressed(KEY_BACKSPACE) || IsKeyPressed(KEY_B)) {
 					currentScreen = previousScreen;
@@ -243,11 +257,11 @@ int main(void)
 					
 					//If the settings were changed reset the decks
 					if (settingsChanged == true) {
-						deck1 = Deck(StyleGuide.numCards, cardTexture, false, StyleGuide.deck1AI, StyleGuide.deckStrength);
-						deck2 = Deck(StyleGuide.numCards, cardTexture, false, StyleGuide.deck1AI, StyleGuide.deckStrength);
+						deck1 = Deck(styleGuide.numCards, cardTexture, false, styleGuide.deck1AI, styleGuide.deckStrength);
+						deck2 = Deck(styleGuide.numCards, cardTexture, false, styleGuide.deck1AI, styleGuide.deckStrength);
 						deck1EditButtons.ClearAllButtons(); //Clears and resets cardButtons
 						deck2EditButtons.ClearAllButtons();
-						for (int i = 0; i < StyleGuide.numCards; ++i) {
+						for (int i = 0; i < styleGuide.numCards; ++i) {
 							deck1EditButtons.AddButton("");
 							deck2EditButtons.AddButton("");
 						}
@@ -259,40 +273,59 @@ int main(void)
 				//Increases or decreases the number of cards
 				if (settingsButtons[0].GetAllActions() == true) {
 					if (settingsButtons[0].GetAction(0) == true) {
-						++StyleGuide.numCards;
-						if (StyleGuide.numCards > 7) StyleGuide.numCards = 7;
+						++styleGuide.numCards;
+						if (styleGuide.numCards > 7) styleGuide.numCards = 7;
 					}
 					if (settingsButtons[0].GetAction(1) == true) {
-						--StyleGuide.numCards;
-						if (StyleGuide.numCards < 3) StyleGuide.numCards = 3;
+						--styleGuide.numCards;
+						if (styleGuide.numCards < 3) styleGuide.numCards = 3;
 					}
+					settingsButtons[0].SetButtonLabel(to_string(styleGuide.numCards));
 					settingsChanged = true;
 				}
 				
 				//Increases or decreases the strength of the cards
 				if (settingsButtons[1].GetAllActions() == true) {
 					if (settingsButtons[1].GetAction(0) == true) {
-						++StyleGuide.deckStrength;
-						if (StyleGuide.deckStrength > 10) StyleGuide.deckStrength = 10;
+						++styleGuide.deckStrength;
+						if (styleGuide.deckStrength > 10) styleGuide.deckStrength = 10;
 					}
 					if (settingsButtons[1].GetAction(1) == true) {
-						--StyleGuide.deckStrength;
-						if (StyleGuide.deckStrength < 1) StyleGuide.deckStrength = 1;
+						--styleGuide.deckStrength;
+						if (styleGuide.deckStrength < 1) styleGuide.deckStrength = 1;
 					}
+					settingsButtons[1].SetButtonLabel(to_string(styleGuide.deckStrength));
 					settingsChanged = true;
 				}
 				
 				//Change Deck2 to be ai or not
 				if (settingsButtons[2].GetAllActions() == true) {
 					if (settingsButtons[2].GetAction(0) == true) {
-						StyleGuide.deck2AI = true;
+						styleGuide.deck2AI = true;
 						deck2.SetAI(true);
+						settingsButtons[2].SetButtonLabel("true");
 					}
 					if (settingsButtons[2].GetAction(1) == true) {
-						StyleGuide.deck2AI = false;
+						styleGuide.deck2AI = false;
 						deck2.SetAI(false);
+						settingsButtons[2].SetButtonLabel("false");
 					}
 				}
+				
+				//Changes the font ++
+				if (settingsButtons[3].GetAction(0) == true) {
+					++styleGuide.currentFont;
+					if (styleGuide.currentFont == fonts.end()) styleGuide.currentFont = fonts.begin(); // wrap around
+					settingsButtons[3].SetButtonLabel(styleGuide.currentFont->name);
+				}
+				
+				//Changes the font --
+				if (settingsButtons[3].GetAction(1) == true) {
+					if (styleGuide.currentFont == fonts.begin()) styleGuide.currentFont = fonts.end();
+					--styleGuide.currentFont;
+					settingsButtons[3].SetButtonLabel(styleGuide.currentFont->name);
+				}
+				
 				break;
 			}
 			case GAME: {
@@ -310,7 +343,7 @@ int main(void)
 				for (int i = 0; i < 4; ++i) {
 					if (viewCardButtons[i].GetAction() == true) {
 						if (i == 0 || i == 3) viewCardVars.cardIndex = gameVars.round;
-						else viewCardVars.cardIndex = StyleGuide.numCards - 1;
+						else viewCardVars.cardIndex = styleGuide.numCards - 1;
 						if (i == 0 || i == 1) viewCardVars.deckNum = 1;
 						else viewCardVars.deckNum = 2;
 						currentScreen = VIEWCARD;
@@ -319,12 +352,12 @@ int main(void)
 				}
 				
 				//Turns off the swap button if last round
-				if (gameVars.round >= StyleGuide.numCards - 1) {
+				if (gameVars.round >= styleGuide.numCards - 1) {
 					gameButtons[3].SetFunctionality(false);
 				}
 				
 				//Play Game if not the end of a game
-				if (gameVars.gameEnded == false) RegularGame(deck1, deck2, gameVars, flags, gameButtons, StyleGuide);
+				if (gameVars.gameEnded == false) RegularGame(deck1, deck2, gameVars, flags, gameButtons);
 				
 				//Go back to the setup
 				if (gameButtons[6].GetAction() == true || IsKeyPressed(KEY_BACKSPACE)) {
@@ -348,7 +381,7 @@ int main(void)
 				cardEditScreenButtons.AnimationLogic(mousePoint);
 				cardEditButtons.AnimationLogic(mousePoint);
 				
-				//Button On/Off Logic
+				//Reset Button On/Off Logic
 				for (int i = 0; i < cardEditButtons.GetSize(); ++i) {
 					cardEditButtons[i].SetFunctionality(0, true);
 					cardEditButtons[i].SetFunctionality(1, true);
@@ -494,7 +527,7 @@ int main(void)
 						*deck2[cardEditVars.cardClickedOn] = *dummyDeck[cardEditVars.cardClickedOn];
 						deck2.SetRemainingPoints(cardEditVars.remainingPoints);
 					}
-					dummyDeck = Deck(StyleGuide.numCards, cardTexture);
+					dummyDeck = Deck(styleGuide.numCards, cardTexture);
 					cardEditVars = ResetCardEditVars();
 				}
 				
@@ -503,7 +536,7 @@ int main(void)
 					currentScreen = SETUP;
 					previousScreen = EDITCARD;
 					scrollOffset = 0;
-					dummyDeck = Deck(StyleGuide.numCards, cardTexture);
+					dummyDeck = Deck(styleGuide.numCards, cardTexture);
 					cardEditVars = ResetCardEditVars();
 				}
 				break;
@@ -525,85 +558,86 @@ int main(void)
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
-            DrawFPSOnGrid(StyleGuide);
+            DrawFPSOnGrid();
             
             switch(currentScreen) {
 				case TITLE: {
-					DrawTextS("Press Enter to Start", (Rectangle){0, 0, StyleGuide.screenDimensions.x, StyleGuide.screenDimensions.y}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){CENTERX, CENTERY});
+					DrawTextS("Press Enter to Start", (Rectangle){0, 0, styleGuide.screenDimensions.x, styleGuide.screenDimensions.y}, styleGuide.textColor, styleGuide.currentFont->fontSize, (Alignment){CENTERX, CENTERY});
 					break;
 				}
 				case SETUP: {
 					
 					//Draws both decks on the screen
-					DrawTextSOnGrid("Deck 1", {3, 1}, {61, 3}, (Alignment){CENTERX, UPY}, StyleGuide); //Deck 1 Label
-					DrawCardButtonRowOnGrid(deck1, deck1EditButtons, 4, {3, 3}, {61, 15}, true, StyleGuide); //Deck 1
-					DrawTextSOnGrid("Deck 2", {3, 25}, {61, 27}, (Alignment){CENTERX, UPY}, StyleGuide); //Deck 2 Label
-					DrawCardButtonRowOnGrid(deck2, deck2EditButtons, 4, {3, 27}, {61, 39}, true, StyleGuide); //Deck 2
+					DrawTextSOnGrid("Deck 1", {3, 1}, {61, 3}, (Alignment){CENTERX, UPY}); //Deck 1 Label
+					DrawCardButtonRowOnGrid(deck1, deck1EditButtons, 4, {3, 3}, {61, 15}, true); //Deck 1
+					DrawTextSOnGrid("Deck 2", {3, 25}, {61, 27}, (Alignment){CENTERX, UPY}); //Deck 2 Label
+					DrawCardButtonRowOnGrid(deck2, deck2EditButtons, 4, {3, 27}, {61, 39}, true); //Deck 2
 					
 					//Draws the setup buttons at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Rectangle behind buttons
-					DrawButtonRowOnGrid(setupButtons, {2, 55}, {62, 62}, StyleGuide); //Setup buttons
+					DrawRectangleOnGrid(styleGuide.REC_START, styleGuide.REC_END, styleGuide.REC_COLOR); //Rectangle behind buttons
+					DrawButtonRowOnGrid(setupButtons, {2, 55}, {62, 62}); //Setup buttons
 					
 					break;
 				}
 				case RULES: {
 					//float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness)
-					StyleGuide.maxScroll = DrawTextSWrapped(gamerules, {0, -scrollOffset, 63 * StyleGuide.widthSegment, StyleGuide.screenDimensions.y}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){LEFTX, UPY}, 5)
-						- (StyleGuide.screenDimensions.y - (11 * StyleGuide.heightSegment));
+					styleGuide.maxScroll = DrawTextSWrapped(gamerules, {0, -scrollOffset, 63 * styleGuide.widthSegment, styleGuide.screenDimensions.y}, styleGuide.textColor, styleGuide.currentFont->fontSize, (Alignment){LEFTX, UPY}, 5)
+						- (styleGuide.screenDimensions.y - (11 * styleGuide.heightSegment));
 					
 					//Draws the back button at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Rectangle behind button
-					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}, StyleGuide); //back button
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Rectangle behind button
+					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}); //back button
 					break;
 				}
 				case SKILLS: {
 					//float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness)
-					StyleGuide.maxScroll = DrawTextSWrapped(skills, {0, -scrollOffset, 63 * StyleGuide.widthSegment, StyleGuide.screenDimensions.y}, StyleGuide.textColor, StyleGuide.fontSize, (Alignment){LEFTX, UPY}, 5)
-						- (StyleGuide.screenDimensions.y - (11 * StyleGuide.heightSegment));
+					styleGuide.maxScroll = DrawTextSWrapped(skills, {0, -scrollOffset, 63 * styleGuide.widthSegment, styleGuide.screenDimensions.y}, styleGuide.textColor, styleGuide.currentFont->fontSize, (Alignment){LEFTX, UPY}, 5)
+						- (styleGuide.screenDimensions.y - (11 * styleGuide.heightSegment));
 					
 					//Draws the back button at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Rectangle behind button
-					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}, StyleGuide); //back button
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Rectangle behind button
+					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}); //back button
 					break;
 				}
 				case SETTINGS: {
 					//Draws the settings buttons
-					DrawButtonOnGrid(settingsButtons, 0, to_string(StyleGuide.numCards), {24, 9}, {40, 16}, StyleGuide);
-					DrawButtonOnGrid(settingsButtons, 1, to_string(StyleGuide.deckStrength), {24, 20}, {40, 27}, StyleGuide);
-					if (StyleGuide.deck2AI) DrawButtonOnGrid(settingsButtons, 2, "true", {24, 31}, {40, 38}, StyleGuide);
-					else DrawButtonOnGrid(settingsButtons, 2, "false", {24, 31}, {40, 38}, StyleGuide);
+					//DrawButtonOnGrid(settingsButtons, 0, to_string(styleGuide.numCards), {24, 9}, {40, 16});
+					//DrawButtonOnGrid(settingsButtons, 1, to_string(styleGuide.deckStrength), {24, 20}, {40, 27});
+					//DrawButtonOnGrid(settingsButtons, 2, settingsButtons[2].GetButtonLabel(), {24, 31}, {40, 38});
+					//DrawButtonOnGrid(settingsButtons, 3, settingsButtons[3].GetButtonLabel(), {24, 42}, {40, 49});
+					DrawButtonColumnOnGrid(settingsButtons, {24, 9}, {40, 49});
 					
 					//Draws the back button at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Rectangle behind button
-					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}, StyleGuide); //back button
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Rectangle behind button
+					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}); //back button
 					break;
 				}
 				case GAME: {
-					DrawRectangleLinesOnGrid({7, 1}, {57, 7}, BLACK, 5, StyleGuide); //Turn Counter Box
-					DrawTextSOnGrid("Round: " + to_string(gameVars.round+1), {7, 1}, {57, 4}, (Alignment){CENTERX, CENTERY}, StyleGuide, 5); //Round #
-					DrawTextSOnGrid("Turn: " + to_string(gameVars.turn+1), {7, 4}, {57, 7}, (Alignment){CENTERX, CENTERY}, StyleGuide, 5); //Turn #
-					DrawTextSOnGrid(gameVars.playerInPlay == 0 ? "Player 1 Turn" : "Player 2 Turn", {7, 1}, {57, 7}, (Alignment){gameVars.playerInPlay == 0 ? LEFTX : RIGHTX, CENTERY}, StyleGuide, 6);
-					DrawCardButtonOnGrid(deck1, viewCardButtons, gameVars.round, 0, {7, 8}, {17, 38}, true, StyleGuide); //deck1 main Card
-					DrawCardButtonOnGrid(deck2, viewCardButtons, gameVars.round, 3, {47, 8}, {57, 38}, true, StyleGuide); //deck2 main Card
+					DrawRectangleLinesOnGrid({7, 1}, {57, 7}, BLACK, 5); //Turn Counter Box
+					DrawTextSOnGrid("Round: " + to_string(gameVars.round+1), {7, 1}, {57, 4}, (Alignment){CENTERX, CENTERY}, 5); //Round #
+					DrawTextSOnGrid("Turn: " + to_string(gameVars.turn+1), {7, 4}, {57, 7}, (Alignment){CENTERX, CENTERY}, 5); //Turn #
+					DrawTextSOnGrid(gameVars.playerInPlay == 0 ? "Player 1 Turn" : "Player 2 Turn", {7, 1}, {57, 7}, (Alignment){gameVars.playerInPlay == 0 ? LEFTX : RIGHTX, CENTERY}, 6);
+					DrawCardButtonOnGrid(deck1, viewCardButtons, gameVars.round, 0, {7, 8}, {17, 38}, true); //deck1 main Card
+					DrawCardButtonOnGrid(deck2, viewCardButtons, gameVars.round, 3, {47, 8}, {57, 38}, true); //deck2 main Card
 					if (gameVars.round < deck1.size() - 1) { //Only draws support cards if not the last round
-						DrawCardButtonOnGrid(deck1, viewCardButtons, deck1.size() - 1, 1, {18, 14}, {26, 38}, true, StyleGuide); //deck1 support Card
-						DrawCardButtonOnGrid(deck2, viewCardButtons, deck1.size() - 1, 2, {38, 14}, {46, 38}, true, StyleGuide); //deck2 support Card
+						DrawCardButtonOnGrid(deck1, viewCardButtons, deck1.size() - 1, 1, {18, 14}, {26, 38}, true); //deck1 support Card
+						DrawCardButtonOnGrid(deck2, viewCardButtons, deck1.size() - 1, 2, {38, 14}, {46, 38}, true); //deck2 support Card
 					}
-					DrawRectangleOnGrid({1, 43.0f - ((42.0f/deck1.size()) * gameVars.player1Score)}, {6, 43}, RED, StyleGuide); //Left Score Column
-					DrawRectangleOnGrid({58, 43.0f - ((42.0f/deck1.size()) * gameVars.player2Score)}, {63, 43}, BLUE, StyleGuide); //Right Score Column Outline
-					DrawRectangleLinesOnGrid({1, 1}, {6, 43}, BLACK, 5, StyleGuide); //Left Score Column Outline
-					DrawRectangleLinesOnGrid({58, 1}, {63, 43}, BLACK, 5, StyleGuide); //Right Score Column Outline
-					DrawRectangleLinesOnGrid({1, 44}, {63, 53}, BLACK, 5, StyleGuide); //Text Box
-					DrawTextSWrappedOnGrid(gameVars.dialog, {1, 44}, {63, 53}, (Alignment){CENTERX, CENTERY}, StyleGuide, 5); //Dialog in Text Box
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Behind Buttons
-					DrawButtonRowOnGrid(gameButtons, {2, 55}, {62, 62}, StyleGuide); //Buttons
+					DrawRectangleOnGrid({1, 43.0f - ((42.0f/deck1.size()) * gameVars.player1Score)}, {6, 43}, RED); //Left Score Column
+					DrawRectangleOnGrid({58, 43.0f - ((42.0f/deck1.size()) * gameVars.player2Score)}, {63, 43}, BLUE); //Right Score Column Outline
+					DrawRectangleLinesOnGrid({1, 1}, {6, 43}, BLACK, 5); //Left Score Column Outline
+					DrawRectangleLinesOnGrid({58, 1}, {63, 43}, BLACK, 5); //Right Score Column Outline
+					DrawRectangleLinesOnGrid({1, 44}, {63, 53}, BLACK, 5); //Text Box
+					DrawTextSWrappedOnGrid(gameVars.dialog, {1, 44}, {63, 53}, (Alignment){CENTERX, CENTERY}, 5); //Dialog in Text Box
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Behind Buttons
+					DrawButtonRowOnGrid(gameButtons, {2, 55}, {62, 62}); //Buttons
 					//Draw Star on who is playing
 					if (gameVars.playerInPlay == PLAYER1) {
-						if (gameVars.currCardRole == C_MAIN) DrawStarOnGrid({7, 8}, StyleGuide);
-						else DrawStarOnGrid({18, 14}, StyleGuide);
+						if (gameVars.currCardRole == C_MAIN) DrawStarOnGrid({7, 8});
+						else DrawStarOnGrid({18, 14});
 					} else {
-						if (gameVars.currCardRole == C_MAIN) DrawStarOnGrid({57, 8}, StyleGuide);
-						else DrawStarOnGrid({46, 14}, StyleGuide);
+						if (gameVars.currCardRole == C_MAIN) DrawStarOnGrid({57, 8});
+						else DrawStarOnGrid({46, 14});
 					}
 					break;
 				}
@@ -619,22 +653,22 @@ int main(void)
 						"\nSpell: " + dummyDeck[cardEditVars.cardClickedOn]->GetSpellStr();
 						
 					//Draws the Card on the screen and its stats
-					DrawCardOnGrid(dummyDeck, cardEditVars.cardClickedOn, {7, 8}, {17, 38}, true, StyleGuide);
-					DrawTextSOnGrid(stats, {18, 8}, {25, 38}, (Alignment){LEFTX, CENTERY}, StyleGuide);
+					DrawCardOnGrid(dummyDeck, cardEditVars.cardClickedOn, {7, 8}, {17, 38}, true);
+					DrawTextSOnGrid(stats, {18, 8}, {25, 38}, (Alignment){LEFTX, CENTERY});
 					
 					//Draw how many points the Deck has on the screen
 					DrawTextSOnGrid("Points Left " + to_string(cardEditVars.remainingPoints) + "/" +  to_string((cardEditVars.playerEditing == 0 ? deck1 : deck2).GetTotalPoints()), 
-					{7, 1}, {57, 7}, (Alignment){CENTERX, CENTERY}, StyleGuide, 5);
+					{7, 1}, {57, 7}, (Alignment){CENTERX, CENTERY}, 5);
 					
 					//Draws the settings buttons
-					DrawButtonOnGrid(cardEditButtons, 0, dummyDeck[cardEditVars.cardClickedOn]->GetColorStr(), {41, 10}, {57, 17}, StyleGuide);
-					DrawButtonOnGrid(cardEditButtons, 1, dummyDeck[cardEditVars.cardClickedOn]->GetAttributeStr(), {41, 19}, {57, 26}, StyleGuide);
-					DrawButtonOnGrid(cardEditButtons, 2, to_string(dummyDeck[cardEditVars.cardClickedOn]->GetNumber()), {41, 28}, {57, 35}, StyleGuide);
-					DrawButtonOnGrid(cardEditButtons, 3, dummyDeck[cardEditVars.cardClickedOn]->GetSpellStr(), {41, 37}, {57, 44}, StyleGuide);
+					DrawButtonOnGrid(cardEditButtons, 0, dummyDeck[cardEditVars.cardClickedOn]->GetColorStr(), {41, 10}, {57, 17});
+					DrawButtonOnGrid(cardEditButtons, 1, dummyDeck[cardEditVars.cardClickedOn]->GetAttributeStr(), {41, 19}, {57, 26});
+					DrawButtonOnGrid(cardEditButtons, 2, to_string(dummyDeck[cardEditVars.cardClickedOn]->GetNumber()), {41, 28}, {57, 35});
+					DrawButtonOnGrid(cardEditButtons, 3, dummyDeck[cardEditVars.cardClickedOn]->GetSpellStr(), {41, 37}, {57, 44});
 					
 					//Draws the back button at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Rectangle behind button
-					DrawButtonRowOnGrid(cardEditScreenButtons, {2, 55}, {62, 62}, StyleGuide); //back button
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Rectangle behind button
+					DrawButtonRowOnGrid(cardEditScreenButtons, {2, 55}, {62, 62}); //back button
 					
 					break;
 				}
@@ -653,12 +687,12 @@ int main(void)
 						"\nSpell: " + deck->at(viewCardVars.cardIndex)->GetSpellStr();
 						
 					//Draws the Card on the screen and its stats
-					DrawCardOnGrid(*deck, viewCardVars.cardIndex, {7, 8}, {17, 38}, true, StyleGuide);
-					DrawTextSOnGrid(stats, {18, 8}, {25, 38}, (Alignment){LEFTX, CENTERY}, StyleGuide);
+					DrawCardOnGrid(*deck, viewCardVars.cardIndex, {7, 8}, {17, 38}, true);
+					DrawTextSOnGrid(stats, {18, 8}, {25, 38}, (Alignment){LEFTX, CENTERY});
 					
 					//Draws the back button at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK, StyleGuide); //Rectangle behind button
-					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}, StyleGuide); //back button
+					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Rectangle behind button
+					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}); //back button
 					break;
 				}
 			};
@@ -672,6 +706,9 @@ int main(void)
     //--------------------------------------------------------------------------------------
     UnloadTexture(*buttonTexture);
     UnloadTexture(*cardTexture);
+    for (int i = 0; i < fonts.size(); ++i) {
+		UnloadFont(fonts[i].font);
+	}
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 

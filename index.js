@@ -1,4 +1,41 @@
 // include: shell.js
+// include: minimum_runtime_check.js
+(function() {
+  // "30.0.0" -> 300000
+  function humanReadableVersionToPacked(str) {
+    str = str.split('-')[0]; // Remove any trailing part from e.g. "12.53.3-alpha"
+    var vers = str.split('.').slice(0, 3);
+    while(vers.length < 3) vers.push('00');
+    vers = vers.map((n, i, arr) => n.padStart(2, '0'));
+    return vers.join('');
+  }
+  // 300000 -> "30.0.0"
+  var packedVersionToHumanReadable = n => [n / 10000 | 0, (n / 100 | 0) % 100, n % 100].join('.');
+
+  var TARGET_NOT_SUPPORTED = 2147483647;
+
+  var currentNodeVersion = typeof process !== 'undefined' && process?.versions?.node ? humanReadableVersionToPacked(process.versions.node) : TARGET_NOT_SUPPORTED;
+  if (currentNodeVersion < 160000) {
+    throw new Error(`This emscripten-generated code requires node v${ packedVersionToHumanReadable(160000) } (detected v${packedVersionToHumanReadable(currentNodeVersion)})`);
+  }
+
+  var currentSafariVersion = typeof navigator !== 'undefined' && navigator?.userAgent?.includes("Safari/") && navigator.userAgent.match(/Version\/(\d+\.?\d*\.?\d*)/) ? humanReadableVersionToPacked(navigator.userAgent.match(/Version\/(\d+\.?\d*\.?\d*)/)[1]) : TARGET_NOT_SUPPORTED;
+  if (currentSafariVersion < 150000) {
+    throw new Error(`This emscripten-generated code requires Safari v${ packedVersionToHumanReadable(150000) } (detected v${currentSafariVersion})`);
+  }
+
+  var currentFirefoxVersion = typeof navigator !== 'undefined' && navigator?.userAgent?.match(/Firefox\/(\d+(?:\.\d+)?)/) ? parseFloat(navigator.userAgent.match(/Firefox\/(\d+(?:\.\d+)?)/)[1]) : TARGET_NOT_SUPPORTED;
+  if (currentFirefoxVersion < 79) {
+    throw new Error(`This emscripten-generated code requires Firefox v79 (detected v${currentFirefoxVersion})`);
+  }
+
+  var currentChromeVersion = typeof navigator !== 'undefined' && navigator?.userAgent?.match(/Chrome\/(\d+(?:\.\d+)?)/) ? parseFloat(navigator.userAgent.match(/Chrome\/(\d+(?:\.\d+)?)/)[1]) : TARGET_NOT_SUPPORTED;
+  if (currentChromeVersion < 85) {
+    throw new Error(`This emscripten-generated code requires Chrome v85 (detected v${currentChromeVersion})`);
+  }
+})();
+
+// end include: minimum_runtime_check.js
 // The Module object: Our interface to the outside world. We import
 // and export values on it. There are various ways Module can be used:
 // 1. Not defined. We create it here
@@ -18,16 +55,16 @@ var Module = typeof Module != 'undefined' ? Module : {};
 // setting the ENVIRONMENT setting at compile time (see settings.js).
 
 // Attempt to auto-detect the environment
-var ENVIRONMENT_IS_WEB = typeof window == 'object';
-var ENVIRONMENT_IS_WORKER = typeof WorkerGlobalScope != 'undefined';
+var ENVIRONMENT_IS_WEB = !!globalThis.window;
+var ENVIRONMENT_IS_WORKER = !!globalThis.WorkerGlobalScope;
 // N.b. Electron.js environment is simultaneously a NODE-environment, but
 // also a web environment.
-var ENVIRONMENT_IS_NODE = typeof process == 'object' && process.versions?.node && process.type != 'renderer';
+var ENVIRONMENT_IS_NODE = globalThis.process?.versions?.node && globalThis.process?.type != 'renderer';
 var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: C:\Users\ryanm\AppData\Local\Temp\tmpij0lm2dd.js
+// include: /tmp/tmpqufzyqby.js
 
   Module['expectedDataFileDownloads'] ??= 0;
   Module['expectedDataFileDownloads']++;
@@ -36,7 +73,7 @@ var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIR
     var isPthread = typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD;
     var isWasmWorker = typeof ENVIRONMENT_IS_WASM_WORKER != 'undefined' && ENVIRONMENT_IS_WASM_WORKER;
     if (isPthread || isWasmWorker) return;
-    var isNode = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';
+    var isNode = globalThis.process?.versions?.node && globalThis.process?.type != 'renderer';
     async function loadPackage(metadata) {
 
       var PACKAGE_PATH = '';
@@ -116,6 +153,7 @@ var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIR
       function assert(check, msg) {
         if (!check) throw new Error(msg);
       }
+Module['FS_createPath']("/", "fonts", true, true);
 Module['FS_createPath']("/", "textures", true, true);
 
       for (var file of metadata['files']) {
@@ -156,25 +194,25 @@ Module['FS_createPath']("/", "textures", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/textures/ArcCard.png", "start": 0, "end": 6856}, {"filename": "/textures/BlankCard.png", "start": 6856, "end": 13487}, {"filename": "/textures/DexCard.png", "start": 13487, "end": 20239}, {"filename": "/textures/FthCard.png", "start": 20239, "end": 25769}, {"filename": "/textures/IntCard.png", "start": 25769, "end": 32121}, {"filename": "/textures/MimicCard.png", "start": 32121, "end": 38711}, {"filename": "/textures/StrCard.png", "start": 38711, "end": 45272}, {"filename": "/textures/button.png", "start": 45272, "end": 46142}, {"filename": "/textures/cardTextures.png", "start": 46142, "end": 61052}, {"filename": "/textures/invisTexture.png", "start": 61052, "end": 61645}, {"filename": "/textures/old.png", "start": 61645, "end": 80946}, {"filename": "/textures/old2.png", "start": 80946, "end": 102240}, {"filename": "/textures/whiteCard.png", "start": 102240, "end": 102668}], "remote_package_size": 102668});
+    loadPackage({"files": [{"filename": "/fonts/Akieir.ttf", "start": 0, "end": 12624}, {"filename": "/fonts/LilitaOne.ttf", "start": 12624, "end": 36968}, {"filename": "/fonts/MontserratExtrabold.ttf", "start": 36968, "end": 314320}, {"filename": "/fonts/SuperShiny.ttf", "start": 314320, "end": 462116}, {"filename": "/textures/ArcCard.png", "start": 462116, "end": 468972}, {"filename": "/textures/BlankCard.png", "start": 468972, "end": 475603}, {"filename": "/textures/DexCard.png", "start": 475603, "end": 482355}, {"filename": "/textures/FthCard.png", "start": 482355, "end": 487885}, {"filename": "/textures/IntCard.png", "start": 487885, "end": 494237}, {"filename": "/textures/MimicCard.png", "start": 494237, "end": 500827}, {"filename": "/textures/StrCard.png", "start": 500827, "end": 507388}, {"filename": "/textures/button.png", "start": 507388, "end": 508258}, {"filename": "/textures/cardTextures.png", "start": 508258, "end": 523168}, {"filename": "/textures/invisTexture.png", "start": 523168, "end": 523761}, {"filename": "/textures/old.png", "start": 523761, "end": 543062}, {"filename": "/textures/old2.png", "start": 543062, "end": 564356}, {"filename": "/textures/whiteCard.png", "start": 564356, "end": 564784}], "remote_package_size": 564784});
 
   })();
 
-// end include: C:\Users\ryanm\AppData\Local\Temp\tmpij0lm2dd.js
-// include: C:\Users\ryanm\AppData\Local\Temp\tmpv8ve_43b.js
+// end include: /tmp/tmpqufzyqby.js
+// include: /tmp/tmpb3l3q35p.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if ((typeof ENVIRONMENT_IS_WASM_WORKER != 'undefined' && ENVIRONMENT_IS_WASM_WORKER) || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD) || (typeof ENVIRONMENT_IS_AUDIO_WORKLET != 'undefined' && ENVIRONMENT_IS_AUDIO_WORKLET)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: C:\Users\ryanm\AppData\Local\Temp\tmpv8ve_43b.js
-// include: C:\Users\ryanm\AppData\Local\Temp\tmp6vu3cpbu.js
+  // end include: /tmp/tmpb3l3q35p.js
+// include: /tmp/tmprz1zmp22.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach((task) => {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: C:\Users\ryanm\AppData\Local\Temp\tmp6vu3cpbu.js
+  // end include: /tmp/tmprz1zmp22.js
 
 
 var arguments_ = [];
@@ -185,7 +223,7 @@ var quit_ = (status, toThrow) => {
 
 // In MODULARIZE mode _scriptName needs to be captured already at the very top of the page immediately when the page is parsed, so it is generated there
 // before the page load. In non-MODULARIZE modes generate it here.
-var _scriptName = typeof document != 'undefined' ? document.currentScript?.src : undefined;
+var _scriptName = globalThis.document?.currentScript?.src;
 
 if (typeof __filename != 'undefined') { // Node
   _scriptName = __filename;
@@ -207,15 +245,8 @@ function locateFile(path) {
 var readAsync, readBinary;
 
 if (ENVIRONMENT_IS_NODE) {
-  const isNode = typeof process == 'object' && process.versions?.node && process.type != 'renderer';
+  const isNode = globalThis.process?.versions?.node && globalThis.process?.type != 'renderer';
   if (!isNode) throw new Error('not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)');
-
-  var nodeVersion = process.versions.node;
-  var numericVersion = nodeVersion.split('.').slice(0, 3);
-  numericVersion = (numericVersion[0] * 10000) + (numericVersion[1] * 100) + (numericVersion[2].split('-')[0] * 1);
-  if (numericVersion < 160000) {
-    throw new Error('This emscripten-generated code requires node v16.0.0 (detected v' + nodeVersion + ')');
-  }
 
   // These modules will usually be used on Node.js. Load them eagerly to avoid
   // the complexity of lazy-loading.
@@ -259,9 +290,6 @@ readAsync = async (filename, binary = true) => {
 } else
 if (ENVIRONMENT_IS_SHELL) {
 
-  const isNode = typeof process == 'object' && process.versions?.node && process.type != 'renderer';
-  if (isNode || typeof window == 'object' || typeof WorkerGlobalScope != 'undefined') throw new Error('not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)');
-
 } else
 
 // Note that this includes Node.js workers when relevant (pthreads is enabled).
@@ -275,7 +303,7 @@ if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
     // infer anything from them.
   }
 
-  if (!(typeof window == 'object' || typeof WorkerGlobalScope != 'undefined')) throw new Error('not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)');
+  if (!(globalThis.window || globalThis.WorkerGlobalScope)) throw new Error('not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)');
 
   {
 // include: web_or_worker_shell_read.js
@@ -356,7 +384,7 @@ assert(!ENVIRONMENT_IS_SHELL, 'shell environment detected but not enabled at bui
 
 var wasmBinary;
 
-if (typeof WebAssembly != 'object') {
+if (!globalThis.WebAssembly) {
   err('no native wasm support detected');
 }
 
@@ -501,7 +529,7 @@ function isExportedByForceFilesystem(name) {
  * are never placed in the global scope.
  */
 function hookGlobalSymbolAccess(sym, func) {
-  if (typeof globalThis != 'undefined' && !Object.getOwnPropertyDescriptor(globalThis, sym)) {
+  if (!Object.getOwnPropertyDescriptor(globalThis, sym)) {
     Object.defineProperty(globalThis, sym, {
       configurable: true,
       get() {
@@ -555,16 +583,13 @@ function unexportedRuntimeSymbol(sym) {
           msg += '. Alternatively, forcing filesystem support (-sFORCE_FILESYSTEM) can export this for you';
         }
         abort(msg);
-      }
+      },
     });
   }
 }
 
 // end include: runtime_debug.js
 // Memory management
-
-var wasmMemory;
-
 var
 /** @type {!Int8Array} */
   HEAP8,
@@ -612,7 +637,7 @@ function updateMemoryViews() {
 // include: memoryprofiler.js
 // end include: memoryprofiler.js
 // end include: runtime_common.js
-assert(typeof Int32Array != 'undefined' && typeof Float64Array !== 'undefined' && Int32Array.prototype.subarray != undefined && Int32Array.prototype.set != undefined,
+assert(globalThis.Int32Array && globalThis.Float64Array && Int32Array.prototype.subarray && Int32Array.prototype.set,
        'JS engine does not provide full typed array support');
 
 function preRun() {
@@ -819,12 +844,10 @@ async function createWasm() {
 
     
 
-    wasmMemory = wasmExports['memory'];
-    
-    assert(wasmMemory, 'memory not found in wasm exports');
+    assignWasmExports(wasmExports);
+
     updateMemoryViews();
 
-    assignWasmExports(wasmExports);
     removeRunDependency('wasm-instantiate');
     return wasmExports;
   }
@@ -856,8 +879,8 @@ async function createWasm() {
   if (Module['instantiateWasm']) {
     return new Promise((resolve, reject) => {
       try {
-        Module['instantiateWasm'](info, (mod, inst) => {
-          resolve(receiveInstance(mod, inst));
+        Module['instantiateWasm'](info, (inst, mod) => {
+          resolve(receiveInstance(inst, mod));
         });
       } catch(e) {
         err(`Module.instantiateWasm callback failed with error: ${e}`);
@@ -936,7 +959,7 @@ async function createWasm() {
       assert(id, 'addRunDependency requires an ID')
       assert(!runDependencyTracking[id]);
       runDependencyTracking[id] = 1;
-      if (runDependencyWatcher === null && typeof setInterval != 'undefined') {
+      if (runDependencyWatcher === null && globalThis.setInterval) {
         // Check for missing dependencies every few seconds
         runDependencyWatcher = setInterval(() => {
           if (ABORT) {
@@ -1013,7 +1036,7 @@ async function createWasm() {
   var noExitRuntime = true;
 
   var ptrToString = (ptr) => {
-      assert(typeof ptr === 'number');
+      assert(typeof ptr === 'number', `ptrToString expects a number, got ${typeof ptr}`);
       // Convert to 32-bit unsigned value
       ptr >>>= 0;
       return '0x' + ptr.toString(16).padStart(8, '0');
@@ -1054,7 +1077,7 @@ async function createWasm() {
       }
     };
 
-  var UTF8Decoder = typeof TextDecoder != 'undefined' ? new TextDecoder() : undefined;
+  var UTF8Decoder = globalThis.TextDecoder && new TextDecoder();
   
   var findStringEnd = (heapOrArray, idx, maxBytesToRead, ignoreNul) => {
       var maxIdx = idx + maxBytesToRead;
@@ -1441,8 +1464,7 @@ async function createWasm() {
             result = buf.slice(0, bytesRead).toString('utf-8');
           }
         } else
-        if (typeof window != 'undefined' &&
-          typeof window.prompt == 'function') {
+        if (globalThis.window?.prompt) {
           // Browser.
           result = window.prompt('Input: ');  // returns null on cancel
           if (result !== null) {
@@ -3603,7 +3625,7 @@ async function createWasm() {
       },
   forceLoadFile(obj) {
         if (obj.isDevice || obj.isFolder || obj.link || obj.contents) return true;
-        if (typeof XMLHttpRequest != 'undefined') {
+        if (globalThis.XMLHttpRequest) {
           abort("Lazy loading should have been performed (contents set) in createLazyFile, but it was not. Lazy loading only works in web workers. Use --embed-file or --preload-file in emcc on the main thread.");
         } else { // Command-line.
           try {
@@ -3706,7 +3728,7 @@ async function createWasm() {
           }
         }
   
-        if (typeof XMLHttpRequest != 'undefined') {
+        if (globalThis.XMLHttpRequest) {
           if (!ENVIRONMENT_IS_WORKER) abort('Cannot do synchronous binary XHRs outside webworkers in modern browsers. Use --embed-file or --preload-file in emcc');
           var lazyArray = new LazyUint8Array();
           var properties = { isDevice: false, contents: lazyArray };
@@ -7081,7 +7103,6 @@ async function createWasm() {
       target = findEventTarget(target);
       if (!target) return -4;
   
-      // Unprefixed Fullscreen API shipped in Chromium 71 (https://bugs.chromium.org/p/chromium/issues/detail?id=383813)
       // As of Safari 13.0.3 on macOS Catalina 10.15.1 still ships with prefixed webkitfullscreenchange. TODO: revisit this check once Safari ships unprefixed version.
       registerFullscreenChangeEventCallback(target, userData, useCapture, callbackfunc, 19, "webkitfullscreenchange", targetThread);
   
@@ -8121,6 +8142,7 @@ async function createWasm() {
 
 
 
+
   
   
   
@@ -8199,8 +8221,10 @@ async function createWasm() {
         };
         MainLoop.method = 'rAF';
       } else if (mode == 2) {
-        if (typeof MainLoop.setImmediate == 'undefined') {
-          if (typeof setImmediate == 'undefined') {
+        if (!MainLoop.setImmediate) {
+          if (globalThis.setImmediate) {
+            MainLoop.setImmediate = setImmediate;
+          } else {
             // Emulate setImmediate. (note: not a complete polyfill, we don't emulate clearImmediate() to keep code size to minimum, since not needed)
             var setImmediates = [];
             var emscriptenMainLoopMessageId = 'setimmediate';
@@ -8222,8 +8246,6 @@ async function createWasm() {
                 postMessage({target: emscriptenMainLoopMessageId}); // In --proxy-to-worker, route the message via proxyClient.js
               } else postMessage(emscriptenMainLoopMessageId, "*"); // On the main thread, can just send the message to itself.
             });
-          } else {
-            MainLoop.setImmediate = setImmediate;
           }
         }
         MainLoop.scheduler = function MainLoop_scheduler_setImmediate() {
@@ -8407,7 +8429,7 @@ async function createWasm() {
         setTimeout(func, delay);
       },
   requestAnimationFrame(func) {
-        if (typeof requestAnimationFrame == 'function') {
+        if (globalThis.requestAnimationFrame) {
           requestAnimationFrame(func);
         } else {
           MainLoop.fakeRequestAnimationFrame(func);
@@ -10026,6 +10048,7 @@ if (Module['wasmBinary']) wasmBinary = Module['wasmBinary'];
   'stackAlloc',
   'getTempRet0',
   'setTempRet0',
+  'createNamedFunction',
   'zeroMemory',
   'withStackSave',
   'inetPton4',
@@ -10428,49 +10451,49 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
 var ASM_CONSTS = {
-  120784: () => { if (document.fullscreenElement) return 1; },  
- 120830: () => { return Module.canvas.width; },  
- 120862: () => { return parseInt(Module.canvas.style.width); },  
- 120910: () => { document.exitFullscreen(); },  
- 120937: () => { setTimeout(function() { Module.requestFullscreen(false, false); }, 100); },  
- 121010: () => { if (document.fullscreenElement) return 1; },  
- 121056: () => { return Module.canvas.width; },  
- 121088: () => { return screen.width; },  
- 121113: () => { document.exitFullscreen(); },  
- 121140: () => { setTimeout(function() { Module.requestFullscreen(false, true); setTimeout(function() { canvas.style.width="unset"; }, 100); }, 100); },  
- 121273: () => { return window.innerWidth; },  
- 121299: () => { return window.innerHeight; },  
- 121326: () => { if (document.fullscreenElement) return 1; },  
- 121372: () => { return Module.canvas.width; },  
- 121404: () => { return parseInt(Module.canvas.style.width); },  
- 121452: () => { if (document.fullscreenElement) return 1; },  
- 121498: () => { return Module.canvas.width; },  
- 121530: () => { return screen.width; },  
- 121555: () => { return window.innerWidth; },  
- 121581: () => { return window.innerHeight; },  
- 121608: () => { if (document.fullscreenElement) return 1; },  
- 121654: () => { return Module.canvas.width; },  
- 121686: () => { return screen.width; },  
- 121711: () => { document.exitFullscreen(); },  
- 121738: () => { if (document.fullscreenElement) return 1; },  
- 121784: () => { return Module.canvas.width; },  
- 121816: () => { return parseInt(Module.canvas.style.width); },  
- 121864: () => { document.exitFullscreen(); },  
- 121891: ($0) => { Module.canvas.style.opacity = $0; },  
- 121929: () => { return screen.width; },  
- 121954: () => { return screen.height; },  
- 121980: () => { return window.screenX; },  
- 122007: () => { return window.screenY; },  
- 122034: () => { return window.devicePixelRatio; },  
- 122070: ($0) => { navigator.clipboard.writeText(UTF8ToString($0)); },  
- 122123: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
- 122174: () => { Module.canvas.style.cursor = 'none'; },  
- 122211: ($0, $1, $2, $3) => { try { navigator.getGamepads()[$0].vibrationActuator.playEffect('dual-rumble', { startDelay: 0, duration: $3, weakMagnitude: $1, strongMagnitude: $2 }); } catch (e) { try { navigator.getGamepads()[$0].hapticActuators[0].pulse($2, $3); } catch (e) { } } },  
- 122467: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
- 122518: () => { if (document.pointerLockElement) return 1; },  
- 122565: () => { if (document.fullscreenElement) return 1; },  
- 122611: () => { return window.innerWidth; },  
- 122637: () => { return window.innerHeight; }
+  135688: () => { if (document.fullscreenElement) return 1; },  
+ 135734: () => { return Module.canvas.width; },  
+ 135766: () => { return parseInt(Module.canvas.style.width); },  
+ 135814: () => { document.exitFullscreen(); },  
+ 135841: () => { setTimeout(function() { Module.requestFullscreen(false, false); }, 100); },  
+ 135914: () => { if (document.fullscreenElement) return 1; },  
+ 135960: () => { return Module.canvas.width; },  
+ 135992: () => { return screen.width; },  
+ 136017: () => { document.exitFullscreen(); },  
+ 136044: () => { setTimeout(function() { Module.requestFullscreen(false, true); setTimeout(function() { canvas.style.width="unset"; }, 100); }, 100); },  
+ 136177: () => { return window.innerWidth; },  
+ 136203: () => { return window.innerHeight; },  
+ 136230: () => { if (document.fullscreenElement) return 1; },  
+ 136276: () => { return Module.canvas.width; },  
+ 136308: () => { return parseInt(Module.canvas.style.width); },  
+ 136356: () => { if (document.fullscreenElement) return 1; },  
+ 136402: () => { return Module.canvas.width; },  
+ 136434: () => { return screen.width; },  
+ 136459: () => { return window.innerWidth; },  
+ 136485: () => { return window.innerHeight; },  
+ 136512: () => { if (document.fullscreenElement) return 1; },  
+ 136558: () => { return Module.canvas.width; },  
+ 136590: () => { return screen.width; },  
+ 136615: () => { document.exitFullscreen(); },  
+ 136642: () => { if (document.fullscreenElement) return 1; },  
+ 136688: () => { return Module.canvas.width; },  
+ 136720: () => { return parseInt(Module.canvas.style.width); },  
+ 136768: () => { document.exitFullscreen(); },  
+ 136795: ($0) => { Module.canvas.style.opacity = $0; },  
+ 136833: () => { return screen.width; },  
+ 136858: () => { return screen.height; },  
+ 136884: () => { return window.screenX; },  
+ 136911: () => { return window.screenY; },  
+ 136938: () => { return window.devicePixelRatio; },  
+ 136974: ($0) => { navigator.clipboard.writeText(UTF8ToString($0)); },  
+ 137027: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
+ 137078: () => { Module.canvas.style.cursor = 'none'; },  
+ 137115: ($0, $1, $2, $3) => { try { navigator.getGamepads()[$0].vibrationActuator.playEffect('dual-rumble', { startDelay: 0, duration: $3, weakMagnitude: $1, strongMagnitude: $2 }); } catch (e) { try { navigator.getGamepads()[$0].hapticActuators[0].pulse($2, $3); } catch (e) { } } },  
+ 137371: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
+ 137422: () => { if (document.pointerLockElement) return 1; },  
+ 137469: () => { if (document.fullscreenElement) return 1; },  
+ 137515: () => { return window.innerWidth; },  
+ 137541: () => { return window.innerHeight; }
 };
 function GetCanvasIdJs() { var canvasId = "#" + Module.canvas.id; var lengthBytes = lengthBytesUTF8(canvasId) + 1; var stringOnWasmHeap = _malloc(lengthBytes); stringToUTF8(canvasId, stringOnWasmHeap, lengthBytes); return stringOnWasmHeap; }
 
@@ -10490,15 +10513,17 @@ var _emscripten_stack_get_current = makeInvalidEarlyAccess('_emscripten_stack_ge
 var dynCall_ii = makeInvalidEarlyAccess('dynCall_ii');
 var dynCall_vi = makeInvalidEarlyAccess('dynCall_vi');
 var dynCall_iii = makeInvalidEarlyAccess('dynCall_iii');
+var dynCall_iiii = makeInvalidEarlyAccess('dynCall_iiii');
 var dynCall_vii = makeInvalidEarlyAccess('dynCall_vii');
 var dynCall_viii = makeInvalidEarlyAccess('dynCall_viii');
 var dynCall_viff = makeInvalidEarlyAccess('dynCall_viff');
 var dynCall_viiiii = makeInvalidEarlyAccess('dynCall_viiiii');
 var dynCall_viiii = makeInvalidEarlyAccess('dynCall_viiii');
 var dynCall_vidd = makeInvalidEarlyAccess('dynCall_vidd');
-var dynCall_iiii = makeInvalidEarlyAccess('dynCall_iiii');
 var dynCall_iiiiii = makeInvalidEarlyAccess('dynCall_iiiiii');
 var dynCall_viiiiii = makeInvalidEarlyAccess('dynCall_viiiiii');
+var dynCall_fffi = makeInvalidEarlyAccess('dynCall_fffi');
+var dynCall_ffi = makeInvalidEarlyAccess('dynCall_ffi');
 var dynCall_vffff = makeInvalidEarlyAccess('dynCall_vffff');
 var dynCall_vf = makeInvalidEarlyAccess('dynCall_vf');
 var dynCall_viiiiiiii = makeInvalidEarlyAccess('dynCall_viiiiiiii');
@@ -10528,9 +10553,11 @@ var _asyncify_start_unwind = makeInvalidEarlyAccess('_asyncify_start_unwind');
 var _asyncify_stop_unwind = makeInvalidEarlyAccess('_asyncify_stop_unwind');
 var _asyncify_start_rewind = makeInvalidEarlyAccess('_asyncify_start_rewind');
 var _asyncify_stop_rewind = makeInvalidEarlyAccess('_asyncify_stop_rewind');
+var wasmMemory = makeInvalidEarlyAccess('wasmMemory');
+var wasmTable = makeInvalidEarlyAccess('wasmTable');
 
 function assignWasmExports(wasmExports) {
-  Module['_main'] = _main = createExportWrapper('main', 2);
+  _main = Module['_main'] = createExportWrapper('main', 2);
   _free = createExportWrapper('free', 1);
   _malloc = createExportWrapper('malloc', 1);
   _fflush = createExportWrapper('fflush', 1);
@@ -10542,48 +10569,53 @@ function assignWasmExports(wasmExports) {
   __emscripten_stack_restore = wasmExports['_emscripten_stack_restore'];
   __emscripten_stack_alloc = wasmExports['_emscripten_stack_alloc'];
   _emscripten_stack_get_current = wasmExports['emscripten_stack_get_current'];
-  dynCalls['ii'] = dynCall_ii = createExportWrapper('dynCall_ii', 2);
-  dynCalls['vi'] = dynCall_vi = createExportWrapper('dynCall_vi', 2);
-  dynCalls['iii'] = dynCall_iii = createExportWrapper('dynCall_iii', 3);
-  dynCalls['vii'] = dynCall_vii = createExportWrapper('dynCall_vii', 3);
-  dynCalls['viii'] = dynCall_viii = createExportWrapper('dynCall_viii', 4);
-  dynCalls['viff'] = dynCall_viff = createExportWrapper('dynCall_viff', 4);
-  dynCalls['viiiii'] = dynCall_viiiii = createExportWrapper('dynCall_viiiii', 6);
-  dynCalls['viiii'] = dynCall_viiii = createExportWrapper('dynCall_viiii', 5);
-  dynCalls['vidd'] = dynCall_vidd = createExportWrapper('dynCall_vidd', 4);
-  dynCalls['iiii'] = dynCall_iiii = createExportWrapper('dynCall_iiii', 4);
-  dynCalls['iiiiii'] = dynCall_iiiiii = createExportWrapper('dynCall_iiiiii', 6);
-  dynCalls['viiiiii'] = dynCall_viiiiii = createExportWrapper('dynCall_viiiiii', 7);
-  dynCalls['vffff'] = dynCall_vffff = createExportWrapper('dynCall_vffff', 5);
-  dynCalls['vf'] = dynCall_vf = createExportWrapper('dynCall_vf', 2);
-  dynCalls['viiiiiiii'] = dynCall_viiiiiiii = createExportWrapper('dynCall_viiiiiiii', 9);
-  dynCalls['viiiiiiiii'] = dynCall_viiiiiiiii = createExportWrapper('dynCall_viiiiiiiii', 10);
-  dynCalls['i'] = dynCall_i = createExportWrapper('dynCall_i', 1);
-  dynCalls['vff'] = dynCall_vff = createExportWrapper('dynCall_vff', 3);
-  dynCalls['v'] = dynCall_v = createExportWrapper('dynCall_v', 1);
-  dynCalls['viiiiiii'] = dynCall_viiiiiii = createExportWrapper('dynCall_viiiiiii', 8);
-  dynCalls['vfi'] = dynCall_vfi = createExportWrapper('dynCall_vfi', 3);
-  dynCalls['viif'] = dynCall_viif = createExportWrapper('dynCall_viif', 4);
-  dynCalls['vif'] = dynCall_vif = createExportWrapper('dynCall_vif', 3);
-  dynCalls['vifff'] = dynCall_vifff = createExportWrapper('dynCall_vifff', 5);
-  dynCalls['viffff'] = dynCall_viffff = createExportWrapper('dynCall_viffff', 6);
-  dynCalls['vfff'] = dynCall_vfff = createExportWrapper('dynCall_vfff', 4);
-  dynCalls['jiji'] = dynCall_jiji = createExportWrapper('dynCall_jiji', 4);
-  dynCalls['iidiiii'] = dynCall_iidiiii = createExportWrapper('dynCall_iidiiii', 7);
-  dynCalls['viijii'] = dynCall_viijii = createExportWrapper('dynCall_viijii', 6);
-  dynCalls['iiiii'] = dynCall_iiiii = createExportWrapper('dynCall_iiiii', 5);
-  dynCalls['iiiiiiiii'] = dynCall_iiiiiiiii = createExportWrapper('dynCall_iiiiiiiii', 9);
-  dynCalls['iiiiiii'] = dynCall_iiiiiii = createExportWrapper('dynCall_iiiiiii', 7);
-  dynCalls['iiiiij'] = dynCall_iiiiij = createExportWrapper('dynCall_iiiiij', 6);
-  dynCalls['iiiiid'] = dynCall_iiiiid = createExportWrapper('dynCall_iiiiid', 6);
-  dynCalls['iiiiijj'] = dynCall_iiiiijj = createExportWrapper('dynCall_iiiiijj', 7);
-  dynCalls['iiiiiiii'] = dynCall_iiiiiiii = createExportWrapper('dynCall_iiiiiiii', 8);
-  dynCalls['iiiiiijj'] = dynCall_iiiiiijj = createExportWrapper('dynCall_iiiiiijj', 8);
+  dynCall_ii = dynCalls['ii'] = createExportWrapper('dynCall_ii', 2);
+  dynCall_vi = dynCalls['vi'] = createExportWrapper('dynCall_vi', 2);
+  dynCall_iii = dynCalls['iii'] = createExportWrapper('dynCall_iii', 3);
+  dynCall_iiii = dynCalls['iiii'] = createExportWrapper('dynCall_iiii', 4);
+  dynCall_vii = dynCalls['vii'] = createExportWrapper('dynCall_vii', 3);
+  dynCall_viii = dynCalls['viii'] = createExportWrapper('dynCall_viii', 4);
+  dynCall_viff = dynCalls['viff'] = createExportWrapper('dynCall_viff', 4);
+  dynCall_viiiii = dynCalls['viiiii'] = createExportWrapper('dynCall_viiiii', 6);
+  dynCall_viiii = dynCalls['viiii'] = createExportWrapper('dynCall_viiii', 5);
+  dynCall_vidd = dynCalls['vidd'] = createExportWrapper('dynCall_vidd', 4);
+  dynCall_iiiiii = dynCalls['iiiiii'] = createExportWrapper('dynCall_iiiiii', 6);
+  dynCall_viiiiii = dynCalls['viiiiii'] = createExportWrapper('dynCall_viiiiii', 7);
+  dynCall_fffi = dynCalls['fffi'] = createExportWrapper('dynCall_fffi', 4);
+  dynCall_ffi = dynCalls['ffi'] = createExportWrapper('dynCall_ffi', 3);
+  dynCall_vffff = dynCalls['vffff'] = createExportWrapper('dynCall_vffff', 5);
+  dynCall_vf = dynCalls['vf'] = createExportWrapper('dynCall_vf', 2);
+  dynCall_viiiiiiii = dynCalls['viiiiiiii'] = createExportWrapper('dynCall_viiiiiiii', 9);
+  dynCall_viiiiiiiii = dynCalls['viiiiiiiii'] = createExportWrapper('dynCall_viiiiiiiii', 10);
+  dynCall_i = dynCalls['i'] = createExportWrapper('dynCall_i', 1);
+  dynCall_vff = dynCalls['vff'] = createExportWrapper('dynCall_vff', 3);
+  dynCall_v = dynCalls['v'] = createExportWrapper('dynCall_v', 1);
+  dynCall_viiiiiii = dynCalls['viiiiiii'] = createExportWrapper('dynCall_viiiiiii', 8);
+  dynCall_vfi = dynCalls['vfi'] = createExportWrapper('dynCall_vfi', 3);
+  dynCall_viif = dynCalls['viif'] = createExportWrapper('dynCall_viif', 4);
+  dynCall_vif = dynCalls['vif'] = createExportWrapper('dynCall_vif', 3);
+  dynCall_vifff = dynCalls['vifff'] = createExportWrapper('dynCall_vifff', 5);
+  dynCall_viffff = dynCalls['viffff'] = createExportWrapper('dynCall_viffff', 6);
+  dynCall_vfff = dynCalls['vfff'] = createExportWrapper('dynCall_vfff', 4);
+  dynCall_jiji = dynCalls['jiji'] = createExportWrapper('dynCall_jiji', 4);
+  dynCall_iidiiii = dynCalls['iidiiii'] = createExportWrapper('dynCall_iidiiii', 7);
+  dynCall_viijii = dynCalls['viijii'] = createExportWrapper('dynCall_viijii', 6);
+  dynCall_iiiii = dynCalls['iiiii'] = createExportWrapper('dynCall_iiiii', 5);
+  dynCall_iiiiiiiii = dynCalls['iiiiiiiii'] = createExportWrapper('dynCall_iiiiiiiii', 9);
+  dynCall_iiiiiii = dynCalls['iiiiiii'] = createExportWrapper('dynCall_iiiiiii', 7);
+  dynCall_iiiiij = dynCalls['iiiiij'] = createExportWrapper('dynCall_iiiiij', 6);
+  dynCall_iiiiid = dynCalls['iiiiid'] = createExportWrapper('dynCall_iiiiid', 6);
+  dynCall_iiiiijj = dynCalls['iiiiijj'] = createExportWrapper('dynCall_iiiiijj', 7);
+  dynCall_iiiiiiii = dynCalls['iiiiiiii'] = createExportWrapper('dynCall_iiiiiiii', 8);
+  dynCall_iiiiiijj = dynCalls['iiiiiijj'] = createExportWrapper('dynCall_iiiiiijj', 8);
   _asyncify_start_unwind = createExportWrapper('asyncify_start_unwind', 1);
   _asyncify_stop_unwind = createExportWrapper('asyncify_stop_unwind', 0);
   _asyncify_start_rewind = createExportWrapper('asyncify_start_rewind', 1);
   _asyncify_stop_rewind = createExportWrapper('asyncify_stop_rewind', 0);
+  wasmMemory = wasmExports['memory'];
+  wasmTable = wasmExports['__indirect_function_table'];
 }
+
 var wasmImports = {
   /** @export */
   GetCanvasIdJs,
@@ -11089,6 +11121,8 @@ var wasmImports = {
   glShaderSource: _glShaderSource,
   /** @export */
   glTexImage2D: _glTexImage2D,
+  /** @export */
+  glTexParameterf: _glTexParameterf,
   /** @export */
   glTexParameteri: _glTexParameteri,
   /** @export */

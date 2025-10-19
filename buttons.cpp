@@ -8,8 +8,9 @@
 #include "buttons.h"
 
 //Start PlusMinusButton Class------------------------------------
-PlusMinusButton::PlusMinusButton(string &text) {
+PlusMinusButton::PlusMinusButton(string text, string defaultButtonLabel) {
 	label = text;
+	buttonLabel = defaultButtonLabel;
 	symbolLabels[0] = '+';
 	symbolLabels[1] = '-';
 	for (int i = 0; i < 2; ++i) {
@@ -83,6 +84,14 @@ string PlusMinusButton::GetLabel() {
 	return label;
 }
 
+void PlusMinusButton::SetButtonLabel(string text) {
+	buttonLabel = text;
+}
+
+string PlusMinusButton::GetButtonLabel() { 
+	return buttonLabel;
+};
+
 char PlusMinusButton::GetSymbolLabel(int index) {
 	return symbolLabels[index];
 }
@@ -100,12 +109,12 @@ bool PlusMinusButton::GetFunctionality(int index) {
 
 
 //Start PlusMinusButtonGroup Class-------------------------------
-PlusMinusButtonGroup::PlusMinusButtonGroup(shared_ptr<Texture2D>& texture, Data &data) : buttonTexture(texture), StyleGuide(data) {
+PlusMinusButtonGroup::PlusMinusButtonGroup(shared_ptr<Texture2D>& texture) : buttonTexture(texture) {
 	size = 0;
 }
 
-void PlusMinusButtonGroup::AddButton(string label) {
-	buttons.push_back(PlusMinusButton(label));
+void PlusMinusButtonGroup::AddButton(string label, string buttonLabel) {
+	buttons.push_back(PlusMinusButton(label, buttonLabel));
 	++size;
 }
 
@@ -207,7 +216,7 @@ bool SingleButton::GetFunctionality() {
 
 
 //Start SingleButtonGroup Class----------------------------------
-SingleButtonGroup::SingleButtonGroup(shared_ptr<Texture2D>& texture, Data &data) : buttonTexture(texture), StyleGuide(data) {
+SingleButtonGroup::SingleButtonGroup(shared_ptr<Texture2D>& texture) : buttonTexture(texture) {
 	size = 0;
 }
 

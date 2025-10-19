@@ -20,11 +20,11 @@
 #include "globals.h"
 using namespace std;
 
-void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide);
-void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide);
-void scrollLogic(float &scrollOffset, Data &StyleGuide);
-float GetCardSourceX(Card *card, Data &StyleGuide);
-Rectangle GetCardSourceRec(Card *card, Data &StyleGuide);
+void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons);
+void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons);
+void scrollLogic(float &scrollOffset);
+float GetCardSourceX(Card *card);
+Rectangle GetCardSourceRec(Card *card);
 Flags ResetFlags();
 GameVars ResetGameVars();
 CardEditVars ResetCardEditVars();

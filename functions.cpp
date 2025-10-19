@@ -7,57 +7,57 @@
  
 #include "functions.h"
 
-void scrollLogic(float &scrollOffset, Data &StyleGuide) {
-	if (StyleGuide.maxScroll < 0) StyleGuide.maxScroll = 0;
-	if (IsKeyDown(KEY_DOWN) || GetMouseWheelMove() < 0) scrollOffset += StyleGuide.scrollSpeed;
-	if (IsKeyDown(KEY_UP) || GetMouseWheelMove() > 0) scrollOffset -= StyleGuide.scrollSpeed;
+void scrollLogic(float &scrollOffset) {
+	if (styleGuide.maxScroll < 0) styleGuide.maxScroll = 0;
+	if (IsKeyDown(KEY_DOWN) || GetMouseWheelMove() < 0) scrollOffset += styleGuide.scrollSpeed;
+	if (IsKeyDown(KEY_UP) || GetMouseWheelMove() > 0) scrollOffset -= styleGuide.scrollSpeed;
 	if (scrollOffset < 0) scrollOffset = 0;
-	if (scrollOffset >= StyleGuide.maxScroll) scrollOffset = StyleGuide.maxScroll;
+	if (scrollOffset >= styleGuide.maxScroll) scrollOffset = styleGuide.maxScroll;
 }
 
 //Gets the correct Card source texture data based on its attribute
-float GetCardSourceX(Card *card, Data &StyleGuide) {
+float GetCardSourceX(Card *card) {
 	switch(card->GetAttribute()) {
 		case(C_MIMIC):
-			return StyleGuide.cardSource.width * 4;
+			return styleGuide.cardSource.width * 4;
 		case(C_STR):
-			return StyleGuide.cardSource.width * 0;
+			return styleGuide.cardSource.width * 0;
 		case(C_FTH):
-			return StyleGuide.cardSource.width * 2;
+			return styleGuide.cardSource.width * 2;
 		case(C_DEX):
-			return StyleGuide.cardSource.width * 1;
+			return styleGuide.cardSource.width * 1;
 		case(C_INT):
-			return StyleGuide.cardSource.width * 3;
+			return styleGuide.cardSource.width * 3;
 		case(C_ARC):
-			return StyleGuide.cardSource.width * 5;
+			return styleGuide.cardSource.width * 5;
 		default:
-			return StyleGuide.cardSource.width * 4;
+			return styleGuide.cardSource.width * 4;
 	}
 }
 
 //Gets the correct Card source texture data based on its attribute
 //and returns it as a rectangle
-Rectangle GetCardSourceRec(Card *card, Data &StyleGuide) {
+Rectangle GetCardSourceRec(Card *card) {
 	switch(card->GetAttribute()) {
 		case(C_MIMIC):
-			return {StyleGuide.cardSource.width * 4, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
+			return {styleGuide.cardSource.width * 4, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
 		case(C_STR):
-			return {StyleGuide.cardSource.width * 0, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
+			return {styleGuide.cardSource.width * 0, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
 		case(C_FTH):
-			return {StyleGuide.cardSource.width * 2, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
+			return {styleGuide.cardSource.width * 2, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
 		case(C_DEX):
-			return {StyleGuide.cardSource.width * 1, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
+			return {styleGuide.cardSource.width * 1, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
 		case(C_INT):
-			return {StyleGuide.cardSource.width * 3, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
+			return {styleGuide.cardSource.width * 3, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
 		case(C_ARC):
-			return {StyleGuide.cardSource.width * 5, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
+			return {styleGuide.cardSource.width * 5, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
 		default:
-			return {StyleGuide.cardSource.width * 4, 0, StyleGuide.cardSource.width, StyleGuide.cardSource.height};
+			return {styleGuide.cardSource.width * 4, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
 	}
 }
 
 //Logic for the ENTIRE GAME NOT AN INDIVIDUAL TURN
-void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide) {
+void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons) {
 	
 	//Correctly Initialize Starting Variables
 	if (gameVars.gameStarted == false) {
@@ -71,9 +71,9 @@ void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, Sin
 	
 	//Take Player Turn
 	if (gameVars.playerInPlay == PLAYER1) {
-		RegularGameTurn(deck1, deck2, gameVars, flags, buttons, StyleGuide);
+		RegularGameTurn(deck1, deck2, gameVars, flags, buttons);
 	} else if (gameVars.playerInPlay == PLAYER2) {
-		RegularGameTurn(deck2, deck1, gameVars, flags, buttons, StyleGuide);
+		RegularGameTurn(deck2, deck1, gameVars, flags, buttons);
 	}
 	
 	//If anybody died move to next round
@@ -96,9 +96,9 @@ void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, Sin
 		gameVars.currCardRole = C_MAIN;
 		
 		++gameVars.round;
-		if (gameVars.round >= StyleGuide.numCards) { //if no next round, end game
+		if (gameVars.round >= styleGuide.numCards) { //if no next round, end game
 			gameVars.gameEnded = true;
-			gameVars.round = StyleGuide.numCards - 1;
+			gameVars.round = styleGuide.numCards - 1;
 			if (gameVars.player1Score > gameVars.player2Score) {
 				gameVars.dialog = "Game Over. Player 1 Won!";
 			} else if (gameVars.player1Score < gameVars.player2Score) {
@@ -159,7 +159,7 @@ void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, Sin
 }
 
 //LOGIC FOR AN INDIVIDUAL TURN IN A GAME
-void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons, Data &StyleGuide) {
+void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons) {
 	
 	//Decide if main or support Card is playing
 	if (gameVars.currCardRole == C_MAIN) gameVars.who = gameVars.round;

@@ -6,7 +6,7 @@
  */
 #include "globals.h"
 
-Data::Data() {
+StyleGuide::StyleGuide() {
 	screenDimensions = {(float)GetScreenWidth(), (float)GetScreenHeight()};
 	starRotation = 0.0f;
 	maxScroll = 0;
@@ -16,10 +16,9 @@ Data::Data() {
 	deck2AI = false;
 	widthSegment = screenDimensions.x/segments;
 	heightSegment = screenDimensions.y/segments;
-	fontSize = 24;
 }
 
-void Data::Update() {
+void StyleGuide::Update() {
 	// Update screen dimensions
 	screenDimensions.x = GetScreenWidth();
 	screenDimensions.y = GetScreenHeight();
@@ -31,6 +30,11 @@ void Data::Update() {
 	widthSegment = screenDimensions.x/segments;
 	heightSegment = screenDimensions.y/segments;
 }
+
+
+StyleGuide styleGuide;
+
+vector<NamedFont> fonts;
 
 string gamerules = "Game Rules:"
 		"\n\n1: Each player gets a user defined amount of cards referred to as a Deck."
