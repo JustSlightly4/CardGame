@@ -8,9 +8,9 @@
 #include "buttons.h"
 
 //Start PlusMinusButton Class------------------------------------
-PlusMinusButton::PlusMinusButton(string text, string defaultButtonLabel) {
-	label = text;
-	buttonLabel = defaultButtonLabel;
+PlusMinusButton::PlusMinusButton(string title, string label) {
+	this->title = title;
+	this->label = label;
 	symbolLabels[0] = '+';
 	symbolLabels[1] = '-';
 	for (int i = 0; i < 2; ++i) {
@@ -76,20 +76,20 @@ Color PlusMinusButton::GetColor(int index) {
 	return tint[index];
 }
 
-void PlusMinusButton::SetLabel(string text) {
-	label = text;
+void PlusMinusButton::SetTitle(string title) {
+	this->title = title;
 }
 
-string PlusMinusButton::GetLabel() {
+string PlusMinusButton::GetTitle() {
+	return title;
+}
+
+void PlusMinusButton::SetLabel(string label) {
+	this->label = label;
+}
+
+string PlusMinusButton::GetLabel() { 
 	return label;
-}
-
-void PlusMinusButton::SetButtonLabel(string text) {
-	buttonLabel = text;
-}
-
-string PlusMinusButton::GetButtonLabel() { 
-	return buttonLabel;
 };
 
 char PlusMinusButton::GetSymbolLabel(int index) {
@@ -113,8 +113,9 @@ PlusMinusButtonGroup::PlusMinusButtonGroup(shared_ptr<Texture2D>& texture) : but
 	size = 0;
 }
 
-void PlusMinusButtonGroup::AddButton(string label, string buttonLabel) {
-	buttons.push_back(PlusMinusButton(label, buttonLabel));
+void PlusMinusButtonGroup::AddButton(string title, string label) {
+	buttons.push_back(PlusMinusButton(title, label));
+	buttonsMap[title] = size;
 	++size;
 }
 
@@ -145,7 +146,18 @@ int PlusMinusButtonGroup::GetSize() {
 }
 
 PlusMinusButton& PlusMinusButtonGroup::operator[](int index) {
-	return buttons[index];
+	if (index < 0 || index >= buttons.size())
+        throw std::out_of_range("Button index out of range");
+    return buttons[index];
+}
+
+//Overload [] operator with string
+PlusMinusButton& PlusMinusButtonGroup::operator[](const string& title) {
+    auto it = buttonsMap.find(title);
+    if (it == buttonsMap.end()) {
+        throw std::out_of_range("PlusMinus Button title not found: " + title);
+    }
+    return buttons[it->second];
 }
 
 std::shared_ptr<Texture2D>& PlusMinusButtonGroup::GetTexture() {
@@ -156,8 +168,8 @@ std::shared_ptr<Texture2D>& PlusMinusButtonGroup::GetTexture() {
 
 
 //Start SingleButton Class---------------------------------------
-SingleButton::SingleButton(string &text) {
-	label = text;
+SingleButton::SingleButton(string label) {
+	this->label = label;
 	buttonState = 0;
 	buttonAction = false;
 	functionality = true;
@@ -193,8 +205,8 @@ Color SingleButton::GetColor() {
 	return tint;
 }
 
-void SingleButton::SetLabel(string text) {
-	label = text;
+void SingleButton::SetLabel(string label) {
+	this->label = label;
 }
 
 string SingleButton::GetLabel() {
@@ -222,6 +234,7 @@ SingleButtonGroup::SingleButtonGroup(shared_ptr<Texture2D>& texture) : buttonTex
 
 void SingleButtonGroup::AddButton(string label) {
 	buttons.push_back(SingleButton(label));
+	buttonsMap[label] = size;
 	++size;
 }
 
@@ -230,9 +243,20 @@ int SingleButtonGroup::GetSize() {
 	return size;
 }
 
-//Overload [] operator
+//Overload [] operator with integer
 SingleButton& SingleButtonGroup::operator[](int index) {
-	return buttons[index];
+    if (index < 0 || index >= buttons.size())
+        throw std::out_of_range("Button index out of range");
+    return buttons[index];
+}
+
+//Overload [] operator with string
+SingleButton& SingleButtonGroup::operator[](const string& label) {
+    auto it = buttonsMap.find(label);
+    if (it == buttonsMap.end()) {
+        throw std::out_of_range("Button label not found: " + label);
+    }
+    return buttons[it->second];
 }
 
 //Sets Button Functionality on a range on start(inclusive) to end(non-inclusive);

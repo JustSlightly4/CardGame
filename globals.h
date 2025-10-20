@@ -43,9 +43,13 @@ public:
     static constexpr float scrollSpeed = 50.0f;
     
     // Drawing Constants
-    static constexpr Vector2 REC_START = {1, 54};
+    static constexpr Vector2 REC_START = {1, 53};
     static constexpr Vector2 REC_END = {63, 63};
     static constexpr Color REC_COLOR = BLACK;
+    static constexpr Vector2 REC_BTN_START1 = {2, 54};
+    static constexpr Vector2 REC_BTN_END1 = {62, 58};
+    static constexpr Vector2 REC_BTN_START2 = {2, 58};
+    static constexpr Vector2 REC_BTN_END2 = {62, 62};
 	
 	//Mutable
     Vector2 screenDimensions;

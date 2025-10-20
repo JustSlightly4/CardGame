@@ -268,8 +268,8 @@ void DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string value, Ve
 			break;
 	}
 	
-	//The label above all three buttons
-	DrawTextSOnGrid(buttons[index].GetLabel(), {startCoords.x, startCoords.y - 2}, {endCoords.x, startCoords.y}, (Alignment){CENTERX, CENTERY});
+	//The title above all three buttons
+	DrawTextSOnGrid(buttons[index].GetTitle(), {startCoords.x, startCoords.y - 2}, {endCoords.x, startCoords.y}, (Alignment){CENTERX, CENTERY});
 	
 	//All three buttons values
 	DrawTextSWrapped(string(1, buttons[index].GetSymbolLabel(0)), buttonDest[0], styleGuide.textColor, styleGuide.currentFont->fontSize, (Alignment){CENTERX, CENTERY});
@@ -290,7 +290,7 @@ void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector
 void DrawButtonColumnOnGrid(PlusMinusButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords) {
 	float buttonHeight = (endCoords.y - startCoords.y - (buttons.GetSize() * 3))/buttons.GetSize();
 	for (int i = 0; i < buttons.GetSize(); ++i) {
-		DrawButtonOnGrid(buttons, i, buttons[i].GetButtonLabel(), 
+		DrawButtonOnGrid(buttons, i, buttons[i].GetLabel(), 
 		{startCoords.x, startCoords.y + (i * buttonHeight) + (i * 3)}, 
 		{endCoords.x, startCoords.y + (i * buttonHeight) + buttonHeight + (i * 3)});
 	}

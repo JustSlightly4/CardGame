@@ -64,7 +64,7 @@ var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIR
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: /tmp/tmpqufzyqby.js
+// include: /tmp/tmpj6sxg0pn.js
 
   Module['expectedDataFileDownloads'] ??= 0;
   Module['expectedDataFileDownloads']++;
@@ -194,25 +194,25 @@ Module['FS_createPath']("/", "textures", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/fonts/Akieir.ttf", "start": 0, "end": 12624}, {"filename": "/fonts/LilitaOne.ttf", "start": 12624, "end": 36968}, {"filename": "/fonts/MontserratExtrabold.ttf", "start": 36968, "end": 314320}, {"filename": "/fonts/SuperShiny.ttf", "start": 314320, "end": 462116}, {"filename": "/textures/ArcCard.png", "start": 462116, "end": 468972}, {"filename": "/textures/BlankCard.png", "start": 468972, "end": 475603}, {"filename": "/textures/DexCard.png", "start": 475603, "end": 482355}, {"filename": "/textures/FthCard.png", "start": 482355, "end": 487885}, {"filename": "/textures/IntCard.png", "start": 487885, "end": 494237}, {"filename": "/textures/MimicCard.png", "start": 494237, "end": 500827}, {"filename": "/textures/StrCard.png", "start": 500827, "end": 507388}, {"filename": "/textures/button.png", "start": 507388, "end": 508258}, {"filename": "/textures/cardTextures.png", "start": 508258, "end": 523168}, {"filename": "/textures/invisTexture.png", "start": 523168, "end": 523761}, {"filename": "/textures/old.png", "start": 523761, "end": 543062}, {"filename": "/textures/old2.png", "start": 543062, "end": 564356}, {"filename": "/textures/whiteCard.png", "start": 564356, "end": 564784}], "remote_package_size": 564784});
+    loadPackage({"files": [{"filename": "/fonts/Akieir.ttf", "start": 0, "end": 12624}, {"filename": "/fonts/MontserratExtrabold.ttf", "start": 12624, "end": 289976}, {"filename": "/fonts/SuperShiny.ttf", "start": 289976, "end": 437772}, {"filename": "/textures/ArcCard.png", "start": 437772, "end": 444628}, {"filename": "/textures/BlankCard.png", "start": 444628, "end": 451259}, {"filename": "/textures/DexCard.png", "start": 451259, "end": 458011}, {"filename": "/textures/FthCard.png", "start": 458011, "end": 463541}, {"filename": "/textures/IntCard.png", "start": 463541, "end": 469893}, {"filename": "/textures/MimicCard.png", "start": 469893, "end": 476483}, {"filename": "/textures/StrCard.png", "start": 476483, "end": 483044}, {"filename": "/textures/button.png", "start": 483044, "end": 483914}, {"filename": "/textures/cardTextures.png", "start": 483914, "end": 498824}, {"filename": "/textures/invisTexture.png", "start": 498824, "end": 499417}, {"filename": "/textures/old.png", "start": 499417, "end": 518718}, {"filename": "/textures/old2.png", "start": 518718, "end": 540012}, {"filename": "/textures/whiteCard.png", "start": 540012, "end": 540440}], "remote_package_size": 540440});
 
   })();
 
-// end include: /tmp/tmpqufzyqby.js
-// include: /tmp/tmpb3l3q35p.js
+// end include: /tmp/tmpj6sxg0pn.js
+// include: /tmp/tmpnb793gtu.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if ((typeof ENVIRONMENT_IS_WASM_WORKER != 'undefined' && ENVIRONMENT_IS_WASM_WORKER) || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD) || (typeof ENVIRONMENT_IS_AUDIO_WORKLET != 'undefined' && ENVIRONMENT_IS_AUDIO_WORKLET)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: /tmp/tmpb3l3q35p.js
-// include: /tmp/tmprz1zmp22.js
+  // end include: /tmp/tmpnb793gtu.js
+// include: /tmp/tmpp3kggv72.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach((task) => {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: /tmp/tmprz1zmp22.js
+  // end include: /tmp/tmpp3kggv72.js
 
 
 var arguments_ = [];
@@ -9763,7 +9763,7 @@ async function createWasm() {
   Disabled:3,
   },
   state:0,
-  StackSize:4096,
+  StackSize:1048576,
   currData:null,
   handleSleepReturnValue:0,
   exportCallStack:[],
@@ -10451,49 +10451,49 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
 var ASM_CONSTS = {
-  135688: () => { if (document.fullscreenElement) return 1; },  
- 135734: () => { return Module.canvas.width; },  
- 135766: () => { return parseInt(Module.canvas.style.width); },  
- 135814: () => { document.exitFullscreen(); },  
- 135841: () => { setTimeout(function() { Module.requestFullscreen(false, false); }, 100); },  
- 135914: () => { if (document.fullscreenElement) return 1; },  
- 135960: () => { return Module.canvas.width; },  
- 135992: () => { return screen.width; },  
- 136017: () => { document.exitFullscreen(); },  
- 136044: () => { setTimeout(function() { Module.requestFullscreen(false, true); setTimeout(function() { canvas.style.width="unset"; }, 100); }, 100); },  
- 136177: () => { return window.innerWidth; },  
- 136203: () => { return window.innerHeight; },  
- 136230: () => { if (document.fullscreenElement) return 1; },  
- 136276: () => { return Module.canvas.width; },  
- 136308: () => { return parseInt(Module.canvas.style.width); },  
- 136356: () => { if (document.fullscreenElement) return 1; },  
- 136402: () => { return Module.canvas.width; },  
- 136434: () => { return screen.width; },  
- 136459: () => { return window.innerWidth; },  
- 136485: () => { return window.innerHeight; },  
- 136512: () => { if (document.fullscreenElement) return 1; },  
- 136558: () => { return Module.canvas.width; },  
- 136590: () => { return screen.width; },  
- 136615: () => { document.exitFullscreen(); },  
- 136642: () => { if (document.fullscreenElement) return 1; },  
- 136688: () => { return Module.canvas.width; },  
- 136720: () => { return parseInt(Module.canvas.style.width); },  
- 136768: () => { document.exitFullscreen(); },  
- 136795: ($0) => { Module.canvas.style.opacity = $0; },  
- 136833: () => { return screen.width; },  
- 136858: () => { return screen.height; },  
- 136884: () => { return window.screenX; },  
- 136911: () => { return window.screenY; },  
- 136938: () => { return window.devicePixelRatio; },  
- 136974: ($0) => { navigator.clipboard.writeText(UTF8ToString($0)); },  
- 137027: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
- 137078: () => { Module.canvas.style.cursor = 'none'; },  
- 137115: ($0, $1, $2, $3) => { try { navigator.getGamepads()[$0].vibrationActuator.playEffect('dual-rumble', { startDelay: 0, duration: $3, weakMagnitude: $1, strongMagnitude: $2 }); } catch (e) { try { navigator.getGamepads()[$0].hapticActuators[0].pulse($2, $3); } catch (e) { } } },  
- 137371: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
- 137422: () => { if (document.pointerLockElement) return 1; },  
- 137469: () => { if (document.fullscreenElement) return 1; },  
- 137515: () => { return window.innerWidth; },  
- 137541: () => { return window.innerHeight; }
+  135768: () => { if (document.fullscreenElement) return 1; },  
+ 135814: () => { return Module.canvas.width; },  
+ 135846: () => { return parseInt(Module.canvas.style.width); },  
+ 135894: () => { document.exitFullscreen(); },  
+ 135921: () => { setTimeout(function() { Module.requestFullscreen(false, false); }, 100); },  
+ 135994: () => { if (document.fullscreenElement) return 1; },  
+ 136040: () => { return Module.canvas.width; },  
+ 136072: () => { return screen.width; },  
+ 136097: () => { document.exitFullscreen(); },  
+ 136124: () => { setTimeout(function() { Module.requestFullscreen(false, true); setTimeout(function() { canvas.style.width="unset"; }, 100); }, 100); },  
+ 136257: () => { return window.innerWidth; },  
+ 136283: () => { return window.innerHeight; },  
+ 136310: () => { if (document.fullscreenElement) return 1; },  
+ 136356: () => { return Module.canvas.width; },  
+ 136388: () => { return parseInt(Module.canvas.style.width); },  
+ 136436: () => { if (document.fullscreenElement) return 1; },  
+ 136482: () => { return Module.canvas.width; },  
+ 136514: () => { return screen.width; },  
+ 136539: () => { return window.innerWidth; },  
+ 136565: () => { return window.innerHeight; },  
+ 136592: () => { if (document.fullscreenElement) return 1; },  
+ 136638: () => { return Module.canvas.width; },  
+ 136670: () => { return screen.width; },  
+ 136695: () => { document.exitFullscreen(); },  
+ 136722: () => { if (document.fullscreenElement) return 1; },  
+ 136768: () => { return Module.canvas.width; },  
+ 136800: () => { return parseInt(Module.canvas.style.width); },  
+ 136848: () => { document.exitFullscreen(); },  
+ 136875: ($0) => { Module.canvas.style.opacity = $0; },  
+ 136913: () => { return screen.width; },  
+ 136938: () => { return screen.height; },  
+ 136964: () => { return window.screenX; },  
+ 136991: () => { return window.screenY; },  
+ 137018: () => { return window.devicePixelRatio; },  
+ 137054: ($0) => { navigator.clipboard.writeText(UTF8ToString($0)); },  
+ 137107: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
+ 137158: () => { Module.canvas.style.cursor = 'none'; },  
+ 137195: ($0, $1, $2, $3) => { try { navigator.getGamepads()[$0].vibrationActuator.playEffect('dual-rumble', { startDelay: 0, duration: $3, weakMagnitude: $1, strongMagnitude: $2 }); } catch (e) { try { navigator.getGamepads()[$0].hapticActuators[0].pulse($2, $3); } catch (e) { } } },  
+ 137451: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
+ 137502: () => { if (document.pointerLockElement) return 1; },  
+ 137549: () => { if (document.fullscreenElement) return 1; },  
+ 137595: () => { return window.innerWidth; },  
+ 137621: () => { return window.innerHeight; }
 };
 function GetCanvasIdJs() { var canvasId = "#" + Module.canvas.id; var lengthBytes = lengthBytesUTF8(canvasId) + 1; var stringOnWasmHeap = _malloc(lengthBytes); stringToUTF8(canvasId, stringOnWasmHeap, lengthBytes); return stringOnWasmHeap; }
 

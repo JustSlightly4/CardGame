@@ -2,8 +2,8 @@
  * Eric Ryan Montgomery
  * 09/21/2025
  * Build Command: g++ -Wall -o out CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp cards.pp deckofcards.cpp globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
- * Web Build Command: cmd /c em++ -Wall CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp cards.cpp deckofcards.cpp globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 --preload-file textures@/textures --preload-file fonts@/fonts
- * Web Execute Local Command: emrun --port 8080
+ * Web Build Command: cmd /c em++ -Wall CardGameUI.cpp drawingFunctions.cpp functions.cpp buttons.cpp cards.cpp deckofcards.cpp globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 -s ASYNCIFY_STACK_SIZE=1048576 --preload-file textures@/textures --preload-file fonts@/fonts
+ * Web Execute Local Command: emrun --port 8080 index.html
  * Make Command: mingw32-make
  */
  
@@ -53,24 +53,27 @@ int main(void)
 	fonts.push_back({"Montserrat", LoadFont("fonts/MontserratExtrabold.ttf"), 24});
 	fonts.push_back({"Super Shiny", LoadFont("fonts/SuperShiny.ttf"), 20});
 	fonts.push_back({"Akieir", LoadFont("fonts/Akieir.ttf"), 26});
-	fonts.push_back({"Lilita One", LoadFont("fonts/LilitaOne.ttf"), 24});
 	styleGuide.currentFont = fonts.begin();
 	
 	
 	//Button Definitions
-    SingleButtonGroup setupButtons(buttonTexture);
-		setupButtons.AddButton("Rules");
-		setupButtons.AddButton("Info");
-		setupButtons.AddButton("Settings");
-		setupButtons.AddButton("Create Deck 1");
-		setupButtons.AddButton("Create Deck 2");
-		setupButtons.AddButton("Start");
-		setupButtons.AddButton("Exit");
+    SingleButtonGroup setupButtons1(buttonTexture);
+		setupButtons1.AddButton("Rules");
+		setupButtons1.AddButton("Info");
+		setupButtons1.AddButton("Settings");
+		setupButtons1.AddButton("Create Deck 1");
+		setupButtons1.AddButton("Create Deck 2");
+		setupButtons1.AddButton("Start");
+		setupButtons1.AddButton("Exit");
+	SingleButtonGroup setupButtons2(buttonTexture);
+		for (int i = 0; i < setupButtons1.GetSize(); ++i) {
+			setupButtons2.AddButton("");
+		}
     SingleButtonGroup singleBackButton(buttonTexture);
 		singleBackButton.AddButton("Back");
     PlusMinusButtonGroup settingsButtons(buttonTexture);
-		settingsButtons.AddButton("Cards:", to_string(styleGuide.numCards));
-		settingsButtons.AddButton("Deck Strength:", to_string(styleGuide.deckStrength));
+		settingsButtons.AddButton("Number of Cards", to_string(styleGuide.numCards));
+		settingsButtons.AddButton("Deck Strength", to_string(styleGuide.deckStrength));
 		settingsButtons.AddButton("Is Player 2 AI?", "false");
 		settingsButtons.AddButton("Font", "Montserrat");
 	SingleButtonGroup gameButtons(buttonTexture);
@@ -92,10 +95,10 @@ int main(void)
 			viewCardButtons.AddButton("");
 		}
 	PlusMinusButtonGroup cardEditButtons(buttonTexture);
-		cardEditButtons.AddButton("Color: ", "");
-		cardEditButtons.AddButton("Attribute: ", "");
-		cardEditButtons.AddButton("Power Level: ", "");
-		cardEditButtons.AddButton("Spell: ", "");
+		cardEditButtons.AddButton("Color", "");
+		cardEditButtons.AddButton("Attribute", "");
+		cardEditButtons.AddButton("Power Level", "");
+		cardEditButtons.AddButton("Spell", "");
 	SingleButtonGroup cardEditScreenButtons(buttonTexture);
 		cardEditScreenButtons.AddButton("Rules");
 		cardEditScreenButtons.AddButton("Abilities");
@@ -140,7 +143,8 @@ int main(void)
 				break;
 			}
 			case SETUP: {
-				setupButtons.AnimationLogic(mousePoint); //Provides the animation logic for the button groups
+				setupButtons1.AnimationLogic(mousePoint); //Provides the animation logic for the button groups
+				setupButtons2.AnimationLogic(mousePoint);
 				
 				deck1EditButtons.AnimationLogic(mousePoint);
 				for (int i = 0; i < deck1EditButtons.GetSize(); ++i) {
@@ -176,25 +180,25 @@ int main(void)
 					}
 				}
 				
-                if (setupButtons[0].GetAction() == true || IsKeyPressed(KEY_R)) { //Rules Button
+                if (setupButtons1["Rules"].GetAction() == true || IsKeyPressed(KEY_R)) { //Rules Button
 					currentScreen = RULES;
 					previousScreen = SETUP;
 				}
-				if (setupButtons[1].GetAction() == true || IsKeyPressed(KEY_A)) { //Abilities Button
+				if (setupButtons1["Info"].GetAction() == true || IsKeyPressed(KEY_A)) { //Abilities Button
 					currentScreen = SKILLS;
 					previousScreen = SETUP;
 				}
-				if (setupButtons[2].GetAction() == true || IsKeyPressed(KEY_S)) { //Settings Button
+				if (setupButtons1["Settings"].GetAction() == true || IsKeyPressed(KEY_S)) { //Settings Button
 					currentScreen = SETTINGS;
 					previousScreen = SETUP;
 				}
-				if (setupButtons[3].GetAction() == true || IsKeyPressed(KEY_ONE)) { //Create Deck 1
+				if (setupButtons1["Create Deck 1"].GetAction() == true || IsKeyPressed(KEY_ONE)) { //Create Deck 1
 					deck1 = Deck(styleGuide.numCards, cardTexture, true, styleGuide.deck1AI, styleGuide.deckStrength);
 				}
-				if (setupButtons[4].GetAction() == true || IsKeyPressed(KEY_TWO)) { //Create Deck 2
+				if (setupButtons1["Create Deck 2"].GetAction() == true || IsKeyPressed(KEY_TWO)) { //Create Deck 2
 					deck2 = Deck(styleGuide.numCards, cardTexture, true, styleGuide.deck2AI, styleGuide.deckStrength);
 				}
-				if ((setupButtons[5].GetAction() == true || IsKeyPressed(KEY_ENTER))) { //Start Game
+				if ((setupButtons1["Start"].GetAction() == true || IsKeyPressed(KEY_ENTER))) { //Start Game
 					deck1Copy = deck1;
 					deck2Copy = deck2;
 					deck1.ShuffleDeck();
@@ -202,7 +206,7 @@ int main(void)
 					currentScreen = GAME;
 					previousScreen = SETUP;
 				}
-				if (setupButtons[6].GetAction() == true) { //Exit Button
+				if (setupButtons1["Exit"].GetAction() == true) { //Exit Button
 					closeWindow = true;
 				}
 				break;
@@ -271,59 +275,60 @@ int main(void)
 				}
 				
 				//Increases or decreases the number of cards
-				if (settingsButtons[0].GetAllActions() == true) {
-					if (settingsButtons[0].GetAction(0) == true) {
-						++styleGuide.numCards;
-						if (styleGuide.numCards > 7) styleGuide.numCards = 7;
-					}
-					if (settingsButtons[0].GetAction(1) == true) {
-						--styleGuide.numCards;
-						if (styleGuide.numCards < 3) styleGuide.numCards = 3;
-					}
-					settingsButtons[0].SetButtonLabel(to_string(styleGuide.numCards));
+				if (settingsButtons["Number of Cards"].GetAction(0) == true) {
+					++styleGuide.numCards;
+					if (styleGuide.numCards > 7) styleGuide.numCards = 7;
+					settingsButtons["Number of Cards"].SetLabel(to_string(styleGuide.numCards));
+					settingsChanged = true;
+				}
+				
+				if (settingsButtons["Number of Cards"].GetAction(1) == true) {
+					--styleGuide.numCards;
+					if (styleGuide.numCards < 3) styleGuide.numCards = 3;
+					settingsButtons["Number of Cards"].SetLabel(to_string(styleGuide.numCards));
 					settingsChanged = true;
 				}
 				
 				//Increases or decreases the strength of the cards
-				if (settingsButtons[1].GetAllActions() == true) {
-					if (settingsButtons[1].GetAction(0) == true) {
-						++styleGuide.deckStrength;
-						if (styleGuide.deckStrength > 10) styleGuide.deckStrength = 10;
-					}
-					if (settingsButtons[1].GetAction(1) == true) {
-						--styleGuide.deckStrength;
-						if (styleGuide.deckStrength < 1) styleGuide.deckStrength = 1;
-					}
-					settingsButtons[1].SetButtonLabel(to_string(styleGuide.deckStrength));
+				if (settingsButtons["Deck Strength"].GetAction(0) == true) {
+					++styleGuide.deckStrength;
+					if (styleGuide.deckStrength > 10) styleGuide.deckStrength = 10;
+					settingsButtons["Deck Strength"].SetLabel(to_string(styleGuide.deckStrength));
+					settingsChanged = true;
+				}
+				
+				if (settingsButtons["Deck Strength"].GetAction(1) == true) {
+					--styleGuide.deckStrength;
+					if (styleGuide.deckStrength < 1) styleGuide.deckStrength = 1;
+					settingsButtons["Deck Strength"].SetLabel(to_string(styleGuide.deckStrength));
 					settingsChanged = true;
 				}
 				
 				//Change Deck2 to be ai or not
-				if (settingsButtons[2].GetAllActions() == true) {
-					if (settingsButtons[2].GetAction(0) == true) {
-						styleGuide.deck2AI = true;
-						deck2.SetAI(true);
-						settingsButtons[2].SetButtonLabel("true");
-					}
-					if (settingsButtons[2].GetAction(1) == true) {
-						styleGuide.deck2AI = false;
-						deck2.SetAI(false);
-						settingsButtons[2].SetButtonLabel("false");
-					}
+				if (settingsButtons["Is Player 2 AI?"].GetAction(0) == true) {
+					styleGuide.deck2AI = true;
+					deck2.SetAI(true);
+					settingsButtons["Is Player 2 AI?"].SetLabel("true");
+				}
+				
+				if (settingsButtons["Is Player 2 AI?"].GetAction(1) == true) {
+					styleGuide.deck2AI = false;
+					deck2.SetAI(false);
+					settingsButtons["Is Player 2 AI?"].SetLabel("false");
 				}
 				
 				//Changes the font ++
-				if (settingsButtons[3].GetAction(0) == true) {
+				if (settingsButtons["Font"].GetAction(0) == true) {
 					++styleGuide.currentFont;
 					if (styleGuide.currentFont == fonts.end()) styleGuide.currentFont = fonts.begin(); // wrap around
-					settingsButtons[3].SetButtonLabel(styleGuide.currentFont->name);
+					settingsButtons["Font"].SetLabel(styleGuide.currentFont->name);
 				}
 				
 				//Changes the font --
-				if (settingsButtons[3].GetAction(1) == true) {
+				if (settingsButtons["Font"].GetAction(1) == true) {
 					if (styleGuide.currentFont == fonts.begin()) styleGuide.currentFont = fonts.end();
 					--styleGuide.currentFont;
-					settingsButtons[3].SetButtonLabel(styleGuide.currentFont->name);
+					settingsButtons["Font"].SetLabel(styleGuide.currentFont->name);
 				}
 				
 				break;
@@ -334,7 +339,7 @@ int main(void)
 				viewCardButtons.AnimationLogic(mousePoint);
 				
 				//Look up the game rules
-				if (gameButtons[0].GetAction() == true || IsKeyPressed(KEY_R)) {
+				if (gameButtons["Rules"].GetAction() == true || IsKeyPressed(KEY_R)) {
 					currentScreen = RULES;
 					previousScreen = GAME;
 				}
@@ -360,7 +365,7 @@ int main(void)
 				if (gameVars.gameEnded == false) RegularGame(deck1, deck2, gameVars, flags, gameButtons);
 				
 				//Go back to the setup
-				if (gameButtons[6].GetAction() == true || IsKeyPressed(KEY_BACKSPACE)) {
+				if (gameButtons["Main Menu"].GetAction() == true || IsKeyPressed(KEY_BACKSPACE)) {
 					gameVars.turn = 0;
 					gameVars.playerInPlay = PLAYER1;
 					gameVars.currCardRole = C_MAIN;
@@ -396,94 +401,94 @@ int main(void)
 				
 				//If max color turn off increase color button
 				if (cardEditVars.chosenColor == cols[cols.size() - 1]) {
-					cardEditButtons[0].SetFunctionality(0, false);
+					cardEditButtons["Color"].SetFunctionality(0, false);
 				}
 				
 				//If min color turn off decrease color button
 				if (cardEditVars.chosenColor == cols[0]) {
-					cardEditButtons[0].SetFunctionality(1, false);
+					cardEditButtons["Color"].SetFunctionality(1, false);
 				}
 				
 				//If max attribute turn off increase attribute button
 				if (cardEditVars.chosenAtt == atts[atts.size() - 1]) {
-					cardEditButtons[1].SetFunctionality(0, false);
+					cardEditButtons["Attribute"].SetFunctionality(0, false);
 				}
 				
 				//If min attribute turn off decrease attribute button
 				if (cardEditVars.chosenAtt == atts[0]) {
-					cardEditButtons[1].SetFunctionality(1, false);
+					cardEditButtons["Attribute"].SetFunctionality(1, false);
 				}
 				
 				//If max power level turn off increase power button
 				if (cardEditVars.chosenPowerLevel >= 9) {
-					cardEditButtons[2].SetFunctionality(0, false);
+					cardEditButtons["Power Level"].SetFunctionality(0, false);
 				}
 				
 				//If min power level turn off decrease power button
 				if (cardEditVars.chosenPowerLevel <= 0) {
-					cardEditButtons[2].SetFunctionality(1, false);
+					cardEditButtons["Power Level"].SetFunctionality(1, false);
 				}
 				
 				//If max spell turn off increase power button
 				if (cardEditVars.chosenSpell == spellList[spellList.size()-1]) {
-					cardEditButtons[3].SetFunctionality(0, false);
+					cardEditButtons["Spell"].SetFunctionality(0, false);
 				}
 				
 				//If min spell turn off decrease power button
 				if (cardEditVars.chosenSpell == spellList[0]) {
-					cardEditButtons[3].SetFunctionality(1, false);
+					cardEditButtons["Spell"].SetFunctionality(1, false);
 				}
 				
 				//Increase Color
-				if (cardEditButtons[0].GetAction(0) == true) {
+				if (cardEditButtons["Color"].GetAction(0) == true) {
 					cardEditVars.chosenColor = cols[cardEditVars.chosenColor + 1];
 					--cardEditVars.remainingPoints;
 					flags.cardEdited = true;
 				}
 				
 				//Decrease Color
-				if (cardEditButtons[0].GetAction(1) == true) {
+				if (cardEditButtons["Color"].GetAction(1) == true) {
 					cardEditVars.chosenColor = cols[cardEditVars.chosenColor - 1];
 					++cardEditVars.remainingPoints;
 					flags.cardEdited = true;
 				}
 				
 				//Increase attribute
-				if (cardEditButtons[1].GetAction(0) == true) {
+				if (cardEditButtons["Attribute"].GetAction(0) == true) {
 					cardEditVars.chosenAtt = atts[cardEditVars.chosenAtt + 1];
 					--cardEditVars.remainingPoints;
 					flags.cardEdited = true;
 				}
 				
 				//Decrease attribute
-				if (cardEditButtons[1].GetAction(1) == true) {
+				if (cardEditButtons["Attribute"].GetAction(1) == true) {
 					cardEditVars.chosenAtt = atts[cardEditVars.chosenAtt - 1];
 					++cardEditVars.remainingPoints;
 					flags.cardEdited = true;
 				}
 				
 				//Increase power level
-				if (cardEditButtons[2].GetAction(0) == true) {
+				if (cardEditButtons["Power Level"].GetAction(0) == true) {
 					cardEditVars.chosenPowerLevel += 1;
 					--cardEditVars.remainingPoints;
 					flags.cardEdited = true;
 				}
 				
 				//Decrease power level
-				if (cardEditButtons[2].GetAction(1) == true) {
+				if (cardEditButtons["Power Level"].GetAction(1) == true) {
 					cardEditVars.chosenPowerLevel -= 1;
 					++cardEditVars.remainingPoints;
 					flags.cardEdited = true;
 				}
 				
 				//Increase spell *Doesn't cause the Card to be reset
-				if (cardEditButtons[3].GetAction(0) == true) {
+				if (cardEditButtons["Spell"].GetAction(0) == true) {
 					cardEditVars.chosenSpell = spellList[cardEditVars.chosenSpell + 1];
 					dummyDeck[cardEditVars.cardClickedOn]->SetSpell(cardEditVars.chosenSpell);
 				}
 				
 				//Decrease spell *Doesn't cause the Card to be reset
-				if (cardEditButtons[3].GetAction(1) == true) {
+				if (cardEditButtons["Spell"].GetAction(1) == true) {
 					cardEditVars.chosenSpell = spellList[cardEditVars.chosenSpell - 1];
 					dummyDeck[cardEditVars.cardClickedOn]->SetSpell(cardEditVars.chosenSpell);
 				}
@@ -495,17 +500,17 @@ int main(void)
 					flags.cardEdited = false;
 				}
 				
-				if (cardEditScreenButtons[0].GetAction() == true || IsKeyPressed(KEY_R)) { //Rules Button
+				if (cardEditScreenButtons["Rules"].GetAction() == true || IsKeyPressed(KEY_R)) { //Rules Button
 					currentScreen = RULES;
 					previousScreen = EDITCARD;
 				}
 				
-				if (cardEditScreenButtons[1].GetAction() == true || IsKeyPressed(KEY_A)) { //Abilities Button
+				if (cardEditScreenButtons["Abilities"].GetAction() == true || IsKeyPressed(KEY_A)) { //Abilities Button
 					currentScreen = SKILLS;
 					previousScreen = EDITCARD;
 				}
 				
-				if (cardEditScreenButtons[2].GetAction() == true || IsKeyPressed(KEY_W)) { //Wipe card Button
+				if (cardEditScreenButtons["Wipe"].GetAction() == true || IsKeyPressed(KEY_W)) { //Wipe card Button
 					cardEditVars.remainingPoints += (cardEditVars.chosenColor + cardEditVars.chosenAtt + cardEditVars.chosenPowerLevel);
 					cardEditVars.chosenColor = cols[0];
 					cardEditVars.chosenAtt = atts[0];
@@ -515,7 +520,7 @@ int main(void)
 				}
 				
 				//Goes back to setup screen and saves selection
-                if (cardEditScreenButtons[3].GetAction() == true || IsKeyPressed(KEY_ENTER)) {
+                if (cardEditScreenButtons["Accept"].GetAction() == true || IsKeyPressed(KEY_ENTER)) {
 					currentScreen = SETUP;
 					previousScreen = EDITCARD;
 					scrollOffset = 0;
@@ -532,7 +537,7 @@ int main(void)
 				}
 				
 				//Goes back to setup screen and cancels selection
-                if (cardEditScreenButtons[4].GetAction() == true || IsKeyPressed(KEY_BACKSPACE)) {
+                if (cardEditScreenButtons["Cancel"].GetAction() == true || IsKeyPressed(KEY_BACKSPACE)) {
 					currentScreen = SETUP;
 					previousScreen = EDITCARD;
 					scrollOffset = 0;
@@ -575,7 +580,9 @@ int main(void)
 					
 					//Draws the setup buttons at the bottom of the screen
 					DrawRectangleOnGrid(styleGuide.REC_START, styleGuide.REC_END, styleGuide.REC_COLOR); //Rectangle behind buttons
-					DrawButtonRowOnGrid(setupButtons, {2, 55}, {62, 62}); //Setup buttons
+					//DrawButtonRowOnGrid(setupButtons, {2, 55}, {62, 62}); //Setup buttons
+					DrawButtonRowOnGrid(setupButtons1, styleGuide.REC_BTN_START1, styleGuide.REC_BTN_END1);
+					DrawButtonRowOnGrid(setupButtons2, styleGuide.REC_BTN_START2, styleGuide.REC_BTN_END2);
 					
 					break;
 				}
@@ -585,8 +592,8 @@ int main(void)
 						- (styleGuide.screenDimensions.y - (11 * styleGuide.heightSegment));
 					
 					//Draws the back button at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Rectangle behind button
-					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}); //back button
+					DrawRectangleOnGrid(styleGuide.REC_START, styleGuide.REC_END, styleGuide.REC_COLOR); //Rectangle behind buttons
+					DrawButtonRowOnGrid(singleBackButton, styleGuide.REC_BTN_START1, styleGuide.REC_BTN_END2); //back button
 					break;
 				}
 				case SKILLS: {
@@ -595,21 +602,17 @@ int main(void)
 						- (styleGuide.screenDimensions.y - (11 * styleGuide.heightSegment));
 					
 					//Draws the back button at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Rectangle behind button
-					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}); //back button
+					DrawRectangleOnGrid(styleGuide.REC_START, styleGuide.REC_END, styleGuide.REC_COLOR); //Rectangle behind buttons
+					DrawButtonRowOnGrid(singleBackButton, styleGuide.REC_BTN_START1, styleGuide.REC_BTN_END2); //back button
 					break;
 				}
 				case SETTINGS: {
 					//Draws the settings buttons
-					//DrawButtonOnGrid(settingsButtons, 0, to_string(styleGuide.numCards), {24, 9}, {40, 16});
-					//DrawButtonOnGrid(settingsButtons, 1, to_string(styleGuide.deckStrength), {24, 20}, {40, 27});
-					//DrawButtonOnGrid(settingsButtons, 2, settingsButtons[2].GetButtonLabel(), {24, 31}, {40, 38});
-					//DrawButtonOnGrid(settingsButtons, 3, settingsButtons[3].GetButtonLabel(), {24, 42}, {40, 49});
 					DrawButtonColumnOnGrid(settingsButtons, {24, 9}, {40, 49});
 					
 					//Draws the back button at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Rectangle behind button
-					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}); //back button
+					DrawRectangleOnGrid(styleGuide.REC_START, styleGuide.REC_END, styleGuide.REC_COLOR); //Rectangle behind buttons
+					DrawButtonRowOnGrid(singleBackButton, styleGuide.REC_BTN_START1, styleGuide.REC_BTN_END2); //back button
 					break;
 				}
 				case GAME: {
@@ -627,10 +630,10 @@ int main(void)
 					DrawRectangleOnGrid({58, 43.0f - ((42.0f/deck1.size()) * gameVars.player2Score)}, {63, 43}, BLUE); //Right Score Column Outline
 					DrawRectangleLinesOnGrid({1, 1}, {6, 43}, BLACK, 5); //Left Score Column Outline
 					DrawRectangleLinesOnGrid({58, 1}, {63, 43}, BLACK, 5); //Right Score Column Outline
-					DrawRectangleLinesOnGrid({1, 44}, {63, 53}, BLACK, 5); //Text Box
-					DrawTextSWrappedOnGrid(gameVars.dialog, {1, 44}, {63, 53}, (Alignment){CENTERX, CENTERY}, 5); //Dialog in Text Box
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Behind Buttons
-					DrawButtonRowOnGrid(gameButtons, {2, 55}, {62, 62}); //Buttons
+					DrawRectangleLinesOnGrid({1, 44}, {63, 52}, BLACK, 5); //Text Box
+					DrawTextSWrappedOnGrid(gameVars.dialog, {1, 44}, {63, 52}, (Alignment){CENTERX, CENTERY}, 5); //Dialog in Text Box
+					DrawRectangleOnGrid(styleGuide.REC_START, styleGuide.REC_END, styleGuide.REC_COLOR); //Rectangle behind buttons
+					DrawButtonRowOnGrid(gameButtons, styleGuide.REC_BTN_START1, styleGuide.REC_BTN_END2); //Buttons
 					//Draw Star on who is playing
 					if (gameVars.playerInPlay == PLAYER1) {
 						if (gameVars.currCardRole == C_MAIN) DrawStarOnGrid({7, 8});
@@ -667,8 +670,8 @@ int main(void)
 					DrawButtonOnGrid(cardEditButtons, 3, dummyDeck[cardEditVars.cardClickedOn]->GetSpellStr(), {41, 37}, {57, 44});
 					
 					//Draws the back button at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Rectangle behind button
-					DrawButtonRowOnGrid(cardEditScreenButtons, {2, 55}, {62, 62}); //back button
+					DrawRectangleOnGrid(styleGuide.REC_START, styleGuide.REC_END, styleGuide.REC_COLOR); //Rectangle behind buttons
+					DrawButtonRowOnGrid(cardEditScreenButtons, styleGuide.REC_BTN_START1, styleGuide.REC_BTN_END2); //back button
 					
 					break;
 				}
@@ -680,7 +683,7 @@ int main(void)
 					//String for stats
 					string stats = "Power: " + to_string(deck->at(viewCardVars.cardIndex)->GetPower()) +
 						"\nMagical Power: " + to_string(deck->at(viewCardVars.cardIndex)->GetMagicalPower()) +
-						"\nHealth: " + to_string(deck->at(viewCardVars.cardIndex)->GetHealth()) + "/" + to_string(deck->at(cardEditVars.cardClickedOn)->GetHealthT()) +
+						"\nHealth: " + to_string(deck->at(viewCardVars.cardIndex)->GetHealth()) + "/" + to_string(deck->at(viewCardVars.cardIndex)->GetHealthT()) +
 						"\nPhysical Resistance: " + deck->at(viewCardVars.cardIndex)->GetPhysicalResistanceStr(2) +
 						"\nMagical Resistance: " + deck->at(viewCardVars.cardIndex)->GetMagicalResistanceStr(2) +
 						"\nAbility: " + deck->at(viewCardVars.cardIndex)->GetAbilityStr() +
@@ -691,12 +694,11 @@ int main(void)
 					DrawTextSOnGrid(stats, {18, 8}, {25, 38}, (Alignment){LEFTX, CENTERY});
 					
 					//Draws the back button at the bottom of the screen
-					DrawRectangleOnGrid({1, 54}, {63, 63}, BLACK); //Rectangle behind button
-					DrawButtonRowOnGrid(singleBackButton, {2, 55}, {62, 62}); //back button
+					DrawRectangleOnGrid(styleGuide.REC_START, styleGuide.REC_END, styleGuide.REC_COLOR); //Rectangle behind buttons
+					DrawButtonRowOnGrid(singleBackButton, styleGuide.REC_BTN_START1, styleGuide.REC_BTN_END2); //back button
 					break;
 				}
 			};
-
         EndDrawing();
         if (WindowShouldClose() == true) closeWindow = true;
         //----------------------------------------------------------------------------------
