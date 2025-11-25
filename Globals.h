@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 #include "raylib.h"
-#include "cards.h"
-#include "deckofcards.h"
+#include "Card.h"
+#include "Deck.h"
 
 using namespace std;
 

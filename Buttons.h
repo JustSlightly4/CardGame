@@ -14,19 +14,10 @@
 #include <functional>
 #include <memory>
 #include "raylib.h"
-#include "globals.h"
+#include "Globals.h"
 using namespace std;
 
 class PlusMinusButton {
-	protected:
-		int buttonState[2];
-		bool buttonAction[2];
-		bool functionality[2];
-		char symbolLabels[2];
-		Rectangle bounds[2];
-		Color tint[2];
-		string title;
-		string label;
 	public:
 		PlusMinusButton(string title, string label);
 		void SetButtonState(int index, int state);
@@ -44,14 +35,19 @@ class PlusMinusButton {
 		char GetSymbolLabel(int index);
 		void SetFunctionality(int index, bool b);
 		bool GetFunctionality(int index);
+
+	protected:
+		int buttonState[2];
+		bool buttonAction[2];
+		bool functionality[2];
+		char symbolLabels[2];
+		Rectangle bounds[2];
+		Color tint[2];
+		string title;
+		string label;
 };
 
 class PlusMinusButtonGroup {
-	protected:
-		std::shared_ptr<Texture2D> buttonTexture;
-		int size;
-		vector<PlusMinusButton> buttons;
-		unordered_map<string, int> buttonsMap;
 	public:
 		PlusMinusButtonGroup(shared_ptr<Texture2D>& texture);
 		void AddButton(string label, string buttonLabel);
@@ -62,16 +58,15 @@ class PlusMinusButtonGroup {
 		auto begin() { return buttons.begin(); }
 		auto end() { return buttons.end(); }
 		shared_ptr<Texture2D>& GetTexture();
+
+	protected:
+		std::shared_ptr<Texture2D> buttonTexture;
+		int size;
+		vector<PlusMinusButton> buttons;
+		unordered_map<string, int> buttonsMap;
 };
 
 class SingleButton {
-	protected:
-		int buttonState; // Button state: 0-NORMAL, 1-MOUSE_HOVER, 2-PRESSED
-		bool buttonAction; // Button action should be activated
-		bool functionality; //If true the button can be clicked
-		Rectangle bounds;
-		Color tint;
-		string label;
 	public:
 		SingleButton(string label);
 		void SetButtonState(int state);
@@ -85,14 +80,16 @@ class SingleButton {
 		string GetLabel();
 		void SetFunctionality(bool b);
 		bool GetFunctionality();
+		protected:
+		int buttonState; // Button state: 0-NORMAL, 1-MOUSE_HOVER, 2-PRESSED
+		bool buttonAction; // Button action should be activated
+		bool functionality; //If true the button can be clicked
+		Rectangle bounds;
+		Color tint;
+		string label;
 };
 
 class SingleButtonGroup {
-	protected:
-		std::shared_ptr<Texture2D> buttonTexture;
-		int size;
-		vector<SingleButton> buttons;
-		unordered_map<string, int> buttonsMap;
 	public:
 		SingleButtonGroup(shared_ptr<Texture2D>& texture);
 		void AddButton(string label);
@@ -105,6 +102,11 @@ class SingleButtonGroup {
 		auto begin() { return buttons.begin(); }
 		auto end() { return buttons.end(); }
 		shared_ptr<Texture2D>& GetTexture();
+		protected:
+		std::shared_ptr<Texture2D> buttonTexture;
+		int size;
+		vector<SingleButton> buttons;
+		unordered_map<string, int> buttonsMap;
 };
 
 #endif

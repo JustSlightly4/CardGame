@@ -5,8 +5,8 @@
  * Functions for a Deck of cards without the use of raylib are written here
  */
  
-#ifndef DECKOFCARDSH
-#define DECKOFCARDSH
+#ifndef DECKH
+#define DECKH
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -18,7 +18,7 @@
 #include <memory>
 #include <unordered_map>
 #include "raylib.h"
-#include "cards.h"
+#include "Card.h"
 using namespace std;
 
 class Deck {
@@ -54,19 +54,19 @@ class Deck {
 		void SetRemainingPoints(int amt); //Set the points remaining in a Deck to spend on cards
 
 	protected:
-		//Private Functions
-		vector<Card*> Cards;
-		shared_ptr<Texture2D> cardTexture;
-		int cardLimit;   
-		int amtCards;
-		int timesUsedFlask;
-		int timesSwapped;
-		bool ai;
-		bool CheckIfNumber(string &number);
-		int totalPoints; //Amount of Points user has to spend on cards
-		int remainingPoints;
-		void CreateRandomCards(); //Creates random cards with points
-		void CreateBlankCards(); //Creates blank cards
+	//Private Functions
+	vector<Card*> Cards;
+	shared_ptr<Texture2D> cardTexture;
+	int cardLimit;   
+	int amtCards;
+	int timesUsedFlask;
+	int timesSwapped;
+	bool ai;
+	bool CheckIfNumber(string &number);
+	int totalPoints; //Amount of Points user has to spend on cards
+	int remainingPoints;
+	void CreateRandomCards(); //Creates random cards with points
+	void CreateBlankCards(); //Creates blank cards
 		
 };
 

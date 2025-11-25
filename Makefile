@@ -12,11 +12,11 @@ OUTPUT = index.html
 SRC = CardGameUI.cpp \
       UIDrawer.cpp \
       RegularGame.cpp \
-      buttons.cpp \
-      cards.cpp \
-      deckofcards.cpp \
+      Buttons.cpp \
+      Card.cpp \
+      Deck.cpp \
       StateVariables.cpp \
-      globals.cpp
+      Globals.cpp
 
 # Include and library paths
 INCLUDES = -I include/

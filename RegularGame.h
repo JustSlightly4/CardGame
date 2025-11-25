@@ -11,10 +11,10 @@
 #include <string>
 #include <vector>
 #include "raylib.h"
-#include "cards.h"
-#include "deckofcards.h"
-#include "globals.h"
-#include "buttons.h"
+#include "Card.h"
+#include "Deck.h"
+#include "Globals.h"
+#include "Buttons.h"
 
 class RegularGame {
     public:
@@ -61,7 +61,7 @@ class RegularGame {
         void Reset();
         void PlayRegularGame(Deck &deck1, Deck &deck2, SingleButtonGroup &buttons);
 
-    private:
+    protected:
         //Private Functions
         void PlayRegularGameTurn(Deck &player, Deck &opponent, SingleButtonGroup &buttons);
         float GetCardSourceX(Card *card, float cardWidth);

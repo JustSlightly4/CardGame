@@ -5,7 +5,7 @@
  * Button Classes/Functions are written here
  */
  
-#include "buttons.h"
+#include "Buttons.h"
 
 //Start PlusMinusButton Class------------------------------------
 PlusMinusButton::PlusMinusButton(string title, string label) {

@@ -4,7 +4,7 @@
  * For CardGameUI
  * Functions for a Deck of cards without the use of raylib are written here
  */
-#include "deckofcards.h"
+#include "Deck.h"
 
 //----------------------------------------------- deck Class
 

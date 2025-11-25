@@ -1,8 +1,8 @@
 /*
  * Eric Ryan Montgomery
  * 09/21/2025
- * Build Command: g++ -Wall -o out CardGameUI.cpp UIDrawer.cpp RegularGame.cpp buttons.cpp cards.pp deckofcards.cpp StateVariables.cpp globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
- * Web Build Command: cmd /c em++ -Wall CardGameUI.cpp UIDrawer.cpp RegularGame.cpp buttons.cpp cards.cpp deckofcards.cpp StateVariables.cpp globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 -s ASYNCIFY_STACK_SIZE=1048576 --preload-file textures@/textures --preload-file fonts@/fonts
+ * Build Command: g++ -Wall -o out CardGameUI.cpp UIDrawer.cpp RegularGame.cpp Buttons.cpp Card.cpp Deck.cpp StateVariables.cpp Globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
+ * Web Build Command: cmd /c em++ -Wall CardGameUI.cpp UIDrawer.cpp RegularGame.cpp Buttons.cpp Card.cpp Deck.cpp StateVariables.cpp Globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 -s ASYNCIFY_STACK_SIZE=1048576 --preload-file textures@/textures --preload-file fonts@/fonts
  * Web Execute Local Command: emrun --port 8080 index.html
  * Make Commands:
  * 		1. make clean
@@ -17,10 +17,10 @@
 #include <emscripten.h>
 #include "RegularGame.h"
 #include "UIDrawer.h"
-#include "deckofcards.h"
-#include "cards.h"
-#include "buttons.h"
-#include "globals.h"
+#include "Deck.h"
+#include "Card.h"
+#include "Buttons.h"
+#include "Globals.h"
 #include "raylib.h"
 #include "StateVariables.h"
 using namespace std;

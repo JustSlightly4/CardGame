@@ -4,7 +4,7 @@
  * For CardGameUI
  * Functions for a single Card without the use of raylib are written here
  */
-#include "cards.h"
+#include "Card.h"
 
 //----------------------------------------------- card Class
 

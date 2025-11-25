@@ -4,7 +4,7 @@
  * For CardGameUI
  * Global Variables/Structs/Class are written here
  */
-#include "globals.h"
+#include "Globals.h"
 
 string gamerules = "Game Rules:"
 		"\n\n1: Each player gets a user defined amount of cards referred to as a Deck."
