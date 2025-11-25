@@ -28,45 +28,6 @@ typedef struct NAMEDFONT {
 	int fontSize;
 } NamedFont;
 
-class StyleGuide {
-public:
-    // Constant bases
-    static constexpr Vector2 origin = {0, 0};
-    static constexpr Rectangle cardSource = {0, 0, 100, 150};
-    static constexpr Rectangle buttonSource = {0, 0, 200, 100};
-    static constexpr int segments = 64;
-    static constexpr Color textColor = BLACK;
-    static constexpr Color background = RAYWHITE;
-    static constexpr Color starColor = GOLD;
-    static constexpr int starRadius = 20;
-    static constexpr int starLineThickness = 7;
-    static constexpr float scrollSpeed = 50.0f;
-    
-    // Drawing Constants
-    static constexpr Vector2 REC_START = {1, 53};
-    static constexpr Vector2 REC_END = {63, 63};
-    static constexpr Color REC_COLOR = BLACK;
-    static constexpr Vector2 REC_BTN_START1 = {2, 54};
-    static constexpr Vector2 REC_BTN_END1 = {62, 58};
-    static constexpr Vector2 REC_BTN_START2 = {2, 58};
-    static constexpr Vector2 REC_BTN_END2 = {62, 62};
-	
-	//Mutable
-    Vector2 screenDimensions;
-    float maxScroll;
-    float starRotation;
-    int numCards;
-    int deckStrength;
-    bool deck1AI;
-    bool deck2AI;
-    float widthSegment;
-    float heightSegment;
-    std::vector<NamedFont>::iterator currentFont;
-
-    StyleGuide();
-    void Update();
-};
-
 enum GameScreen {
 	TITLE = 0,
 	SETUP = 1,
@@ -191,7 +152,8 @@ typedef struct FLAGS {
 } Flags;
 
 //Flags and variables for game specific purposes
-typedef struct GAMEVARS {
+class GameVars {
+	public:
 	int who = 0; //This is the index for the Card in play
 	int turn = 0;
 	int round = 0;
@@ -203,6 +165,11 @@ typedef struct GAMEVARS {
 	int amtActions = 0;
 	bool gameStarted = false;
 	bool gameEnded = false;
+
+	int numCards = 5;
+    int deckStrength = 7;
+    bool deck1AI = false;
+    bool deck2AI = false;
 	/*
 	 * static constexpr makes these varable const and compile time known
 	 * It also prevents errors when doing something like this:
@@ -212,7 +179,21 @@ typedef struct GAMEVARS {
 	static constexpr int maxSwaps = 2;
 	static constexpr int maxCharges = 2;
 	static constexpr int maxFlasks = 2;
-} GameVars;
+
+	void Reset() {
+		who = 0; //This is the index for the Card in play
+		turn = 0;
+		round = 0;
+		playerInPlay = PLAYER1; //This is the Deck that is in play
+		currCardRole = C_MAIN; //This is the role that the current Card is in
+		player1Score = 0;
+		player2Score = 0;
+		dialog = "";
+		amtActions = 0;
+		gameStarted = false;
+		gameEnded = false;
+	}
+};
 
 
 extern std::vector<colors> cols;
@@ -220,7 +201,6 @@ extern std::vector<attributes> atts;
 extern std::vector<spells> spellList;
 extern std::vector<actions> actionsList;
 extern std::unordered_map<colors, colors> advantage;
-extern StyleGuide styleGuide;
 extern vector<NamedFont> fonts;
 extern string gamerules;
 extern string skills;

@@ -22,11 +22,9 @@ using namespace std;
 
 void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons);
 void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons);
-void scrollLogic(float &scrollOffset);
-float GetCardSourceX(Card *card);
-Rectangle GetCardSourceRec(Card *card);
+float GetCardSourceX(Card *card, float cardWidth);
+Rectangle GetCardSourceRec(Card *card, float cardWidth, float cardHeight);
 Flags ResetFlags();
-GameVars ResetGameVars();
 CardEditVars ResetCardEditVars();
 string ApplyAbility(Deck &player, Deck &opponent, int pos, int mainPos);
 string NullifyOpponentsAbility(Card &player, Card &opponent);

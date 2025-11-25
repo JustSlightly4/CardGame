@@ -1,103 +1,136 @@
 /*
  * Eric Ryan Montgomery
- * 09/21/2025
+ * 11/24/2025
  * For CardGameUI
- * Function/Classes for drawing to the screen are written here
+ * UIDrawer Class to replace functional functions
  */
  
-#include "drawingFunctions.h"
+#include "UIDrawer.h"
+
+UIDrawer::UIDrawer() {
+	screenDimensions = {(float)GetScreenWidth(), (float)GetScreenHeight()};
+	starRotation = 0.0f;
+	maxScroll = 0;
+	widthSegment = screenDimensions.x/segments;
+	heightSegment = screenDimensions.y/segments;
+	scrollOffset = 0.0f;
+}
+
+void UIDrawer::Update() {
+	// Update screen dimensions
+	screenDimensions.x = GetScreenWidth();
+	screenDimensions.y = GetScreenHeight();
+
+	// Star rotation animation
+	starRotation += 20 * GetFrameTime();
+	if (starRotation > 360.0f) starRotation = 0.0f;
+	
+	widthSegment = screenDimensions.x/segments;
+	heightSegment = screenDimensions.y/segments;
+
+	//Update Scroll Logic
+	this->scrollLogic();
+}
+
+void UIDrawer::scrollLogic() {
+	if (this->maxScroll < 0) this->maxScroll = 0;
+	if (IsKeyDown(KEY_DOWN) || GetMouseWheelMove() < 0) scrollOffset += this->scrollSpeed;
+	if (IsKeyDown(KEY_UP) || GetMouseWheelMove() > 0) scrollOffset -= this->scrollSpeed;
+	if (scrollOffset < 0) scrollOffset = 0;
+	if (scrollOffset >= this->maxScroll) scrollOffset = this->maxScroll;
+}
 
 //Draws grid across screen for debugging purposes
-void DrawGrid() {
+void UIDrawer::DrawGrid() {
 	//void DrawLineEx(Vector2 startPos, Vector2 endPos, float thick, Color color); 
 	//Split screen into 32 by 32 squares
 	Vector2 linePos = {0, 0};
-	for (int i = 0; i < styleGuide.segments + 1; ++i) {
-		DrawLineEx({linePos.x, 0}, {linePos.x, styleGuide.screenDimensions.y}, 1, BLACK);
-		DrawLineEx({0, linePos.y}, {styleGuide.screenDimensions.x, linePos.y}, 1, BLACK);
-		linePos.x = i * styleGuide.widthSegment;
-		linePos.y = i * styleGuide.heightSegment;
+	for (int i = 0; i < this->segments + 1; ++i) {
+		DrawLineEx({linePos.x, 0}, {linePos.x, this->screenDimensions.y}, 1, BLACK);
+		DrawLineEx({0, linePos.y}, {this->screenDimensions.x, linePos.y}, 1, BLACK);
+		linePos.x = i * this->widthSegment;
+		linePos.y = i * this->heightSegment;
 	}
 }
 
 //Draws dots across screen for debugging purposes
-void DrawGridDots() {
+void UIDrawer::DrawGridDots() {
 	//void DrawCircleV(Vector2 center, float radius, Color color)
-	for (int i = 0; i < styleGuide.segments + 1; ++i) {
-		for (int j = 0; j < styleGuide.segments + 1; ++j) {
-			DrawCircleV({i * styleGuide.widthSegment, j * styleGuide.heightSegment}, 3, RED);
+	for (int i = 0; i < this->segments + 1; ++i) {
+		for (int j = 0; j < this->segments + 1; ++j) {
+			DrawCircleV({i * this->widthSegment, j * this->heightSegment}, 3, RED);
 		}
 	}
 }
 
 //Draws the FPS on the top left of the screen
-void DrawFPSOnGrid() {
+void UIDrawer::DrawFPSOnGrid() {
 	string FPS = "FPS: " + to_string(GetFPS());
 	DrawTextSOnGrid(FPS, {0, 0}, {3, 1}, {LEFTX, UPY});
 }
 
-inline Rectangle CoordsToRec(Vector2 startCoords, Vector2 endCoords) {
-	return (Rectangle){startCoords.x * styleGuide.widthSegment, startCoords.y * styleGuide.heightSegment, 
-		(endCoords.x - startCoords.x) * styleGuide.widthSegment, 
-		(endCoords.y - startCoords.y) * styleGuide.heightSegment};
+inline Rectangle UIDrawer::CoordsToRec(Vector2 startCoords, Vector2 endCoords) {
+	return (Rectangle){startCoords.x * this->widthSegment, startCoords.y * this->heightSegment, 
+		(endCoords.x - startCoords.x) * this->widthSegment, 
+		(endCoords.y - startCoords.y) * this->heightSegment};
 }
 
 //Draws a texture on a grid
-void DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords, Vector2 endCoords, Color tint) {
+void UIDrawer::DrawTextureOnGrid(Texture2D &texture, Rectangle source, Vector2 startCoords, Vector2 endCoords, Color tint) {
 	DrawTexturePro(texture, source, 
 	CoordsToRec(startCoords, endCoords), 
-	styleGuide.origin, 0.0f, tint);
+	this->origin, 0.0f, tint);
 }
 
 //Draws a rectangle on a grid
-void DrawRectangleOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint) {
+void UIDrawer::DrawRectangleOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint) {
 	DrawRectangleRec(CoordsToRec(startCoords, endCoords), tint);
 }
 
 //Draws Rectangle Lines on a grid
-void DrawRectangleLinesOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, int lineThickness) {
+void UIDrawer::DrawRectangleLinesOnGrid(Vector2 startCoords, Vector2 endCoords, Color tint, int lineThickness) {
 	DrawRectangleLinesEx(CoordsToRec(startCoords, endCoords), 
 		lineThickness, tint);
 }
 
 //Draws a rotating star on the grid
-void DrawStarOnGrid(Vector2 coords) {
-	DrawPolyLinesEx({coords.x * styleGuide.widthSegment, coords.y * styleGuide.heightSegment}, 4, styleGuide.starRadius, styleGuide.starRotation, styleGuide.starLineThickness, GOLD);
+void UIDrawer::DrawStarOnGrid(Vector2 coords) {
+	DrawPolyLinesEx({coords.x * this->widthSegment, coords.y * this->heightSegment}, 4, this->starRadius, this->starRotation, this->starLineThickness, GOLD);
 }
 
 //-------------------------
 
 //Draw Test Super
-void DrawTextS(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness) {
+void UIDrawer::DrawTextS(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness) {
 	
 	//Draw Test
 	if (orientation.x == CENTERX) { //Centered
-		dest.x = (dest.x + (dest.width/2)) - (((MeasureTextEx(styleGuide.currentFont->font, text.c_str(), fontSize, 1.0f)).x)/2);
+		dest.x = (dest.x + (dest.width/2)) - (((MeasureTextEx(this->currentFont->font, text.c_str(), fontSize, 1.0f)).x)/2);
 	} else if (orientation.x == RIGHTX) { //Right
-		dest.x = dest.x + dest.width - ((MeasureTextEx(styleGuide.currentFont->font, text.c_str(), fontSize, 1.0f)).x) - lineThickness;
+		dest.x = dest.x + dest.width - ((MeasureTextEx(this->currentFont->font, text.c_str(), fontSize, 1.0f)).x) - lineThickness;
 	} else { //Left
 		dest.x = dest.x + lineThickness;
 	}
 	
 	if (orientation.y == CENTERY) { //Centered
-		dest.y = (dest.y + (dest.height/2)) - (((MeasureTextEx(styleGuide.currentFont->font, text.c_str(), fontSize, 1.0f)).y)/2);
+		dest.y = (dest.y + (dest.height/2)) - (((MeasureTextEx(this->currentFont->font, text.c_str(), fontSize, 1.0f)).y)/2);
 	} else if (orientation.y == DOWNY) { //Down
-		dest.y = (dest.y + (dest.height)) - ((MeasureTextEx(styleGuide.currentFont->font, text.c_str(), fontSize, 1.0f)).y) - lineThickness;
+		dest.y = (dest.y + (dest.height)) - ((MeasureTextEx(this->currentFont->font, text.c_str(), fontSize, 1.0f)).y) - lineThickness;
 	} else { //UP
 		dest.y = dest.y + lineThickness;
 	}
 	
-	DrawTextEx(styleGuide.currentFont->font, text.c_str(), (Vector2){dest.x, dest.y}, fontSize, 1.0f, tint); // Draw text using font and additional parameters
+	DrawTextEx(this->currentFont->font, text.c_str(), (Vector2){dest.x, dest.y}, fontSize, 1.0f, tint); // Draw text using font and additional parameters
 }
 
 //DrawTextS but on a grid
-void DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, int lineThickness) {
+void UIDrawer::DrawTextSOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, int lineThickness) {
 	DrawTextS(text, CoordsToRec(startCoords, endCoords), 
-		styleGuide.textColor, styleGuide.currentFont->fontSize, orientation, lineThickness);
+		this->textColor, this->currentFont->fontSize, orientation, lineThickness);
 }
 
 //Draw Text Super Wrapped on the x-axis
-float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness) {
+float UIDrawer::DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness) {
 
 	//Splits text up into its individual words
     vector<string> words;
@@ -126,11 +159,11 @@ float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, 
      */
     for (int i = 0; i < words.size(); ++i) {
 		if (words[i] != "\n") {
-			wordWidth = MeasureTextEx(styleGuide.currentFont->font, (words[i] + " ").c_str(), fontSize, 1.0f).x;
+			wordWidth = MeasureTextEx(this->currentFont->font, (words[i] + " ").c_str(), fontSize, 1.0f).x;
 			sum += wordWidth;
 			if (sum >= dest.width && sum > wordWidth) {
 				newLineQueue.push(i); //Marking this word as needing to start on a newline
-				sum = MeasureTextEx(styleGuide.currentFont->font, (words[i]).c_str(), fontSize, 1.0f).x;
+				sum = MeasureTextEx(this->currentFont->font, (words[i]).c_str(), fontSize, 1.0f).x;
 			}
 		} else {
 			words[i] = "";
@@ -160,7 +193,7 @@ float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, 
 	}
 	
 	//Finally this section puts the words to the screen
-	float lineHeight = MeasureTextEx(styleGuide.currentFont->font, "Ay", fontSize, 1.0f).y;
+	float lineHeight = MeasureTextEx(this->currentFont->font, "Ay", fontSize, 1.0f).y;
 	float blockHeight = lines.size() * lineHeight;
 
 	// Align the entire block vertically once
@@ -173,7 +206,7 @@ float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, 
 	}
 	for (int i = 0; i < lines.size(); ++i) {
 		DrawTextS(lines[i], dest, tint, fontSize, (Alignment){orientation.x, UPY}, lineThickness);
-		dest.y += MeasureTextEx(styleGuide.currentFont->font, "Ay", fontSize, 1.0f).y;
+		dest.y += MeasureTextEx(this->currentFont->font, "Ay", fontSize, 1.0f).y;
 	}
 	
 	return blockHeight;
@@ -181,19 +214,19 @@ float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, 
 }
 
 //DrawTextSWrapped but on a grid
-float DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, int lineThickness) {
-	return DrawTextSWrapped(text, {startCoords.x * styleGuide.widthSegment, startCoords.y * styleGuide.heightSegment, 
-		(endCoords.x - startCoords.x) * styleGuide.widthSegment, 
-		(endCoords.y - startCoords.y) * styleGuide.heightSegment}, 
-		styleGuide.textColor, styleGuide.currentFont->fontSize, orientation, lineThickness);
+float UIDrawer::DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2 endCoords, Alignment orientation, int lineThickness) {
+	return DrawTextSWrapped(text, {startCoords.x * this->widthSegment, startCoords.y * this->heightSegment, 
+		(endCoords.x - startCoords.x) * this->widthSegment, 
+		(endCoords.y - startCoords.y) * this->heightSegment}, 
+		this->textColor, this->currentFont->fontSize, orientation, lineThickness);
 }
 
 //Draws a single Card on the grid
-void DrawCardOnGrid(Deck &deck, int index, Vector2 startCoords, Vector2 endCoords, bool showStats) {
+void UIDrawer::DrawCardOnGrid(Deck &deck, int index, Vector2 startCoords, Vector2 endCoords, bool showStats) {
 	DrawTexturePro(*deck.GetTexture(), 
-	GetCardSourceRec(deck[index]),
+	GetCardSourceRec(deck[index], this->cardSource.width, this->cardSource.height),
 	CoordsToRec(startCoords, endCoords),
-	styleGuide.origin, 0.0f, deck[index]->GetColorRaylib());
+	this->origin, 0.0f, deck[index]->GetColorRaylib());
 	
 	if (showStats) {
 		DrawTextSOnGrid(deck[index]->GetName(), {startCoords.x, endCoords.y}, {endCoords.x, endCoords.y + 2}, {CENTERX, CENTERY});
@@ -203,16 +236,16 @@ void DrawCardOnGrid(Deck &deck, int index, Vector2 startCoords, Vector2 endCoord
 }
 
 //Draws a single Card button on the grid
-void DrawCardButtonOnGrid(Deck &deck, SingleButtonGroup &buttons, int cardIndex, int buttonIndex, Vector2 startCoords, Vector2 endCoords, bool showStats) {
+void UIDrawer::DrawCardButtonOnGrid(Deck &deck, SingleButtonGroup &buttons, int cardIndex, int buttonIndex, Vector2 startCoords, Vector2 endCoords, bool showStats) {
 	DrawCardOnGrid(deck, cardIndex, startCoords, endCoords, showStats);
 	DrawButtonOnGrid(buttons, buttonIndex, startCoords, endCoords);
 }
 
 //Draws a single button on the grid
-void DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords) {
+void UIDrawer::DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords) {
 	Rectangle buttonDest = CoordsToRec(startCoords, endCoords);
 	buttons[index].SetBounds(buttonDest);
-	DrawTextureOnGrid(*buttons.GetTexture(), styleGuide.buttonSource, startCoords, endCoords, WHITE);
+	DrawTextureOnGrid(*buttons.GetTexture(), this->buttonSource, startCoords, endCoords, WHITE);
 	switch(buttons[index].GetState()) {
 		case 1://Hovered GRAY (Color){ 130, 130, 130, 100 }
 			DrawRectangleRec(buttonDest, (Color){ 130, 130, 130, 100 });
@@ -227,7 +260,7 @@ void DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords
 }
 
 //Draws a PlusMinus button on the grid
-void DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string value, Vector2 startCoords, Vector2 endCoords) {
+void UIDrawer::DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string value, Vector2 startCoords, Vector2 endCoords) {
 	//Calculations for a single buttons width and all three buttons destinations on screen
 	float singleButtonWidth = (endCoords.x - startCoords.x)/3;
 	vector<Rectangle> buttonDest(3);
@@ -240,9 +273,9 @@ void DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string value, Ve
 	buttons[index].SetBounds(1, buttonDest[2]);
 	
 	//Drawing all three buttons
-	DrawTexturePro(*buttons.GetTexture(), styleGuide.buttonSource, buttonDest[0], styleGuide.origin, 0.0f, WHITE);
-	DrawTexturePro(*buttons.GetTexture(), styleGuide.buttonSource, buttonDest[1], styleGuide.origin, 0.0f, WHITE);
-	DrawTexturePro(*buttons.GetTexture(), styleGuide.buttonSource, buttonDest[2], styleGuide.origin, 0.0f, WHITE);
+	DrawTexturePro(*buttons.GetTexture(), this->buttonSource, buttonDest[0], this->origin, 0.0f, WHITE);
+	DrawTexturePro(*buttons.GetTexture(), this->buttonSource, buttonDest[1], this->origin, 0.0f, WHITE);
+	DrawTexturePro(*buttons.GetTexture(), this->buttonSource, buttonDest[2], this->origin, 0.0f, WHITE);
 	
 	//Draws grey rectangle on the left most button if needed
 	switch(buttons[index].GetState(0)) {
@@ -272,13 +305,13 @@ void DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string value, Ve
 	DrawTextSOnGrid(buttons[index].GetTitle(), {startCoords.x, startCoords.y - 2}, {endCoords.x, startCoords.y}, (Alignment){CENTERX, CENTERY});
 	
 	//All three buttons values
-	DrawTextSWrapped(string(1, buttons[index].GetSymbolLabel(0)), buttonDest[0], styleGuide.textColor, styleGuide.currentFont->fontSize, (Alignment){CENTERX, CENTERY});
-	DrawTextSWrapped(value, buttonDest[1], styleGuide.textColor, styleGuide.currentFont->fontSize, (Alignment){CENTERX, CENTERY});
-	DrawTextSWrapped(string(1, buttons[index].GetSymbolLabel(1)), buttonDest[2], styleGuide.textColor, styleGuide.currentFont->fontSize, (Alignment){CENTERX, CENTERY});
+	DrawTextSWrapped(string(1, buttons[index].GetSymbolLabel(0)), buttonDest[0], this->textColor, this->currentFont->fontSize, (Alignment){CENTERX, CENTERY});
+	DrawTextSWrapped(value, buttonDest[1], this->textColor, this->currentFont->fontSize, (Alignment){CENTERX, CENTERY});
+	DrawTextSWrapped(string(1, buttons[index].GetSymbolLabel(1)), buttonDest[2], this->textColor, this->currentFont->fontSize, (Alignment){CENTERX, CENTERY});
 }
 
 //Draws a horizontal row of buttons on the grid
-void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords) {
+void UIDrawer::DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords) {
 	float buttonWidth = (endCoords.x - startCoords.x)/buttons.GetSize();
 	for (int i = 0; i < buttons.GetSize(); ++i) {
 		DrawButtonOnGrid(buttons, i, 
@@ -287,7 +320,7 @@ void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector
 	}
 }
 
-void DrawButtonColumnOnGrid(PlusMinusButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords) {
+void UIDrawer::DrawButtonColumnOnGrid(PlusMinusButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords) {
 	float buttonHeight = (endCoords.y - startCoords.y - (buttons.GetSize() * 3))/buttons.GetSize();
 	for (int i = 0; i < buttons.GetSize(); ++i) {
 		DrawButtonOnGrid(buttons, i, buttons[i].GetLabel(), 
@@ -297,7 +330,7 @@ void DrawButtonColumnOnGrid(PlusMinusButtonGroup &buttons, Vector2 startCoords, 
 }
 
 //Draws the whole Deck of cards in a row
-void DrawCardRowOnGrid(Deck &deck, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats) {
+void UIDrawer::DrawCardRowOnGrid(Deck &deck, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats) {
 	float cardWidth = ((endCoords.x - startCoords.x) - (spacing * (deck.size() - 1)))/deck.size();
 	float xValue;
 	for (int i = 0; i < deck.size(); ++i) {
@@ -307,7 +340,7 @@ void DrawCardRowOnGrid(Deck &deck, int spacing, Vector2 startCoords, Vector2 end
 }
 
 //Draws the whole Deck of cards in a row
-void DrawCardButtonRowOnGrid(Deck &deck, SingleButtonGroup &buttons, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats) {
+void UIDrawer::DrawCardButtonRowOnGrid(Deck &deck, SingleButtonGroup &buttons, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats) {
 	float cardWidth = cardWidthSegments;
 	float spacing = ((endCoords.x - startCoords.x) - (cardWidth * deck.size()))/(deck.size() - 1);
 	float xValue;

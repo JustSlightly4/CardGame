@@ -7,52 +7,44 @@
  
 #include "functions.h"
 
-void scrollLogic(float &scrollOffset) {
-	if (styleGuide.maxScroll < 0) styleGuide.maxScroll = 0;
-	if (IsKeyDown(KEY_DOWN) || GetMouseWheelMove() < 0) scrollOffset += styleGuide.scrollSpeed;
-	if (IsKeyDown(KEY_UP) || GetMouseWheelMove() > 0) scrollOffset -= styleGuide.scrollSpeed;
-	if (scrollOffset < 0) scrollOffset = 0;
-	if (scrollOffset >= styleGuide.maxScroll) scrollOffset = styleGuide.maxScroll;
-}
-
 //Gets the correct Card source texture data based on its attribute
-float GetCardSourceX(Card *card) {
+float GetCardSourceX(Card *card, float cardWidth) {
 	switch(card->GetAttribute()) {
 		case(C_MIMIC):
-			return styleGuide.cardSource.width * 4;
+			return cardWidth * 4;
 		case(C_STR):
-			return styleGuide.cardSource.width * 0;
+			return cardWidth * 0;
 		case(C_FTH):
-			return styleGuide.cardSource.width * 2;
+			return cardWidth * 2;
 		case(C_DEX):
-			return styleGuide.cardSource.width * 1;
+			return cardWidth * 1;
 		case(C_INT):
-			return styleGuide.cardSource.width * 3;
+			return cardWidth * 3;
 		case(C_ARC):
-			return styleGuide.cardSource.width * 5;
+			return cardWidth * 5;
 		default:
-			return styleGuide.cardSource.width * 4;
+			return cardWidth * 4;
 	}
 }
 
 //Gets the correct Card source texture data based on its attribute
 //and returns it as a rectangle
-Rectangle GetCardSourceRec(Card *card) {
+Rectangle GetCardSourceRec(Card *card, float cardWidth, float cardHeight) {
 	switch(card->GetAttribute()) {
 		case(C_MIMIC):
-			return {styleGuide.cardSource.width * 4, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
+			return {cardWidth * 4, 0, cardWidth, cardHeight};
 		case(C_STR):
-			return {styleGuide.cardSource.width * 0, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
+			return {cardWidth * 0, 0, cardWidth, cardHeight};
 		case(C_FTH):
-			return {styleGuide.cardSource.width * 2, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
+			return {cardWidth * 2, 0, cardWidth, cardHeight};
 		case(C_DEX):
-			return {styleGuide.cardSource.width * 1, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
+			return {cardWidth * 1, 0, cardWidth, cardHeight};
 		case(C_INT):
-			return {styleGuide.cardSource.width * 3, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
+			return {cardWidth * 3, 0, cardWidth, cardHeight};
 		case(C_ARC):
-			return {styleGuide.cardSource.width * 5, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
+			return {cardWidth * 5, 0, cardWidth, cardHeight};
 		default:
-			return {styleGuide.cardSource.width * 4, 0, styleGuide.cardSource.width, styleGuide.cardSource.height};
+			return {cardWidth * 4, 0, cardWidth, cardHeight};
 	}
 }
 
@@ -96,9 +88,9 @@ void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, Sin
 		gameVars.currCardRole = C_MAIN;
 		
 		++gameVars.round;
-		if (gameVars.round >= styleGuide.numCards) { //if no next round, end game
+		if (gameVars.round >= gameVars.numCards) { //if no next round, end game
 			gameVars.gameEnded = true;
-			gameVars.round = styleGuide.numCards - 1;
+			gameVars.round = gameVars.numCards - 1;
 			if (gameVars.player1Score > gameVars.player2Score) {
 				gameVars.dialog = "Game Over. Player 1 Won!";
 			} else if (gameVars.player1Score < gameVars.player2Score) {
@@ -253,11 +245,6 @@ void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &fl
 Flags ResetFlags() {
 	Flags flags;
 	return flags;
-}
-
-GameVars ResetGameVars() {
-	GameVars gameVars;
-	return gameVars;
 }
 
 CardEditVars ResetCardEditVars() {

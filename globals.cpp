@@ -6,34 +6,6 @@
  */
 #include "globals.h"
 
-StyleGuide::StyleGuide() {
-	screenDimensions = {(float)GetScreenWidth(), (float)GetScreenHeight()};
-	starRotation = 0.0f;
-	maxScroll = 0;
-	numCards = 5;
-	deckStrength = 7;
-	deck1AI = false;
-	deck2AI = false;
-	widthSegment = screenDimensions.x/segments;
-	heightSegment = screenDimensions.y/segments;
-}
-
-void StyleGuide::Update() {
-	// Update screen dimensions
-	screenDimensions.x = GetScreenWidth();
-	screenDimensions.y = GetScreenHeight();
-
-	// Star rotation animation
-	starRotation += 20 * GetFrameTime();
-	if (starRotation > 360.0f) starRotation = 0.0f;
-	
-	widthSegment = screenDimensions.x/segments;
-	heightSegment = screenDimensions.y/segments;
-}
-
-
-StyleGuide styleGuide;
-
 vector<NamedFont> fonts;
 
 string gamerules = "Game Rules:"
