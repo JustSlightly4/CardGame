@@ -10,10 +10,10 @@
 UIDrawer::UIDrawer() {
 	screenDimensions = {(float)GetScreenWidth(), (float)GetScreenHeight()};
 	starRotation = 0.0f;
-	maxScroll = 0;
+	maxScroll = 0.0f;
+	scrollOffset = 0.0f;
 	widthSegment = screenDimensions.x/segments;
 	heightSegment = screenDimensions.y/segments;
-	scrollOffset = 0.0f;
 }
 
 void UIDrawer::Update() {
@@ -221,10 +221,51 @@ float UIDrawer::DrawTextSWrappedOnGrid(string text, Vector2 startCoords, Vector2
 		this->textColor, this->currentFont->fontSize, orientation, lineThickness);
 }
 
+//Gets the correct Card source texture data based on its attribute
+float UIDrawer::GetCardSourceX(Card *card) {
+	switch(card->GetAttribute()) {
+		case(Card::C_MIMIC):
+			return cardSource.width * 4;
+		case(Card::C_STR):
+			return cardSource.width * 0;
+		case(Card::C_FTH):
+			return cardSource.width * 2;
+		case(Card::C_DEX):
+			return cardSource.width * 1;
+		case(Card::C_INT):
+			return cardSource.width * 3;
+		case(Card::C_ARC):
+			return cardSource.width * 5;
+		default:
+			return cardSource.width * 4;
+	}
+}
+
+//Gets the correct Card source texture data based on its attribute
+//and returns it as a rectangle
+Rectangle UIDrawer::GetCardSourceRec(Card *card) {
+	switch(card->GetAttribute()) {
+		case(Card::C_MIMIC):
+			return {cardSource.width * 4, 0, cardSource.width, cardSource.height};
+		case(Card::C_STR):
+			return {cardSource.width * 0, 0, cardSource.width, cardSource.height};
+		case(Card::C_FTH):
+			return {cardSource.width * 2, 0, cardSource.width, cardSource.height};
+		case(Card::C_DEX):
+			return {cardSource.width * 1, 0, cardSource.width, cardSource.height};
+		case(Card::C_INT):
+			return {cardSource.width * 3, 0, cardSource.width, cardSource.height};
+		case(Card::C_ARC):
+			return {cardSource.width * 5, 0, cardSource.width, cardSource.height};
+		default:
+			return {cardSource.width * 4, 0, cardSource.width, cardSource.height};
+	}
+}
+
 //Draws a single Card on the grid
 void UIDrawer::DrawCardOnGrid(Deck &deck, int index, Vector2 startCoords, Vector2 endCoords, bool showStats) {
 	DrawTexturePro(*deck.GetTexture(), 
-	GetCardSourceRec(deck[index], this->cardSource.width, this->cardSource.height),
+	GetCardSourceRec(deck[index]),
 	CoordsToRec(startCoords, endCoords),
 	this->origin, 0.0f, deck[index]->GetColorRaylib());
 	

@@ -7,8 +7,49 @@
 #include "cards.h"
 
 //----------------------------------------------- card Class
+
+const vector<Card::colors> Card::cols { //Colors are worth 0-5 points
+	Card::C_WHITE, //0
+	Card::C_GREEN, //1
+	Card::C_BLUE, //2
+	Card::C_YELLOW, //3
+	Card::C_RED, //4
+	Card::C_ORANGE, //5
+};
+const vector<Card::attributes> Card::atts { //atts are worth 0-5 points
+	Card::C_MIMIC, //0
+	Card::C_DEX, //1
+	Card::C_INT, //2
+	Card::C_STR, //3
+	Card::C_FTH, //4
+	Card::C_ARC, //5
+};
+const vector<Card::spells> Card::spellList { //All spells are free for now
+	Card::FORCE,
+	Card::DRAIN,
+	Card::WEAKEN,
+	Card::HEAL,
+};
+const vector<Card::actions> Card::actionsList {
+	Card::ATTACK,
+	Card::SWAP,
+	Card::CHARGE,
+	Card::FLASK,
+	Card::CASTSPELL,
+};
+
+unordered_map<Card::colors, Card::colors> Card::advantage = {
+	{ Card::C_WHITE, Card::C_YELLOW },   
+	{ Card::C_GREEN, Card::C_RED },  
+	{ Card::C_BLUE, Card::C_ORANGE },  
+	{ Card::C_YELLOW, Card::C_WHITE }, 
+	{ Card::C_RED, Card::C_GREEN },
+	{ Card::C_ORANGE, Card::C_BLUE } 
+};
+
+
 //Constructor
-Card::Card(enum colors color, enum attributes attribute, int number) {
+Card::Card(Card::colors color, Card::attributes attribute, int number) {
 	this->color = color;
 	this->attribute = attribute;
 	this->number = number;
@@ -631,7 +672,7 @@ int Card::GetID() const {
 }
 
 //Return a cards color as enum
-enum colors Card::GetColor() const {
+Card::colors Card::GetColor() const {
 	return color;
 }
 
@@ -676,7 +717,7 @@ Color Card::GetColorRaylib() const {
 }
 
 //Return a cards attribute as enum
-enum attributes Card::GetAttribute() const {
+Card::attributes Card::GetAttribute() const {
 	return attribute;
 }
 
@@ -701,7 +742,7 @@ string Card::GetAttributeStr() const {
 }
 
 //Return a cards ability as enum
-enum abilities Card::GetAbility() const {
+Card::abilities Card::GetAbility() const {
 	return ability;
 }
 
@@ -986,7 +1027,7 @@ string Card::DecNumActions(int amount) {
 }
 
 //Rolls a Dice and Returns a HIT, MISS, OR CRITHIT
-enum attackActions Card::RollDiceEnum() {
+Card::attackActions Card::RollDiceEnum() {
 	int roll = (rand() % 20) + 1;
 	if (roll <= lowerDice) return MISS;
 	if (roll >= upperDice) return CRITHIT;
@@ -1024,7 +1065,7 @@ void Card::SetAbilitiesActive(bool b) {
 }
 
 //Gets a cards spell
-spells Card::GetSpell() {
+Card::spells Card::GetSpell() {
 	return spell;
 }
 
@@ -1055,7 +1096,7 @@ void Card::PushAction(actions a) {
 }
 
 //Remove the next action from the AI's action queue
-actions Card::PopAction() {
+Card::actions Card::PopAction() {
 	if (!actionQueue.empty()) {
 		actions temp = actionQueue.front();
 		actionQueue.pop();
@@ -1065,7 +1106,7 @@ actions Card::PopAction() {
 }
 
 //Gets the next action in the action queue
-actions Card::GetNextAction() {
+Card::actions Card::GetNextAction() {
 	if (!actionQueue.empty()) {
 		return actionQueue.front();
 	}

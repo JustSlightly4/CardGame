@@ -18,54 +18,82 @@
 #include <memory>
 #include <unordered_map>
 #include "raylib.h"
-#include "globals.h"
 using namespace std;
 	
 class Card {
-	protected:
-	//User Defined Variables:
-	colors color; //Color of the Card
-	attributes attribute; //Attribute of the Card
-	int number; //Power level of the Card
-	
-	//Calculated Variables:
-	int power; //Power depends on color, attribute, and number
-	int magicalPower; //Power depends on color, attribute, and number 
-	int health; // health depends on color, attribute, and number
-	int totalHealth; // health depends on color, attribute, and number
-	string name; //name depends on color and attribute
-	abilities ability; //Ability depends on color and attribute
-	int ID; //Used to identify cards
-	
-	//Modifier Variables 
-	int const powerMod = 1; //Used to scale a cards power
-	int const healthMod = 1; //Used to scale a cards health
-	
-	//Other Variables
-	int charge; //Number of times a Card has charged up
-	int numActions; //Number of actions a Card can take in one turn
-	double physicalResistance; //Physical Resistance to incoming damage
-	double magicalResistance; //Magical Resistance to incoming damage
-	int upperDice; //Highest Dice Roll for positive effects
-	int lowerDice; //Lowest Dice Roll for negative effects
-	bool abilityUsed; //If ability has been used or not
-	bool abilitiesActive; //If abilities are working or not
-	spells spell;
-	
-	//AI Queue
-	queue<actions> actionQueue;
-	
-	//Private Functions:
-	void CalcPhysicalPower(); //Physical Power Calculator
-	void CalcMagicalPower(); //Magical Power Calculator
-	void CalcHealth(); //Health Calculator
-	void CalcName(); //Name Calculator
-	void CalcAbility(); //Ability Calculator
-	void CalcID(); //ID Calculator
-	
-	//-------------------------------------------------------
-	
 	public:
+	//Public Enums
+	enum colors {
+		C_WHITE = 0,
+		C_GREEN = 1,
+		C_BLUE = 2,
+		C_YELLOW = 3,
+		C_RED = 4,
+		C_ORANGE = 5,
+	};
+
+	enum attributes {
+		C_MIMIC = 0,
+		C_DEX = 1,
+		C_INT = 2,
+		C_STR = 3,
+		C_FTH = 4,
+		C_ARC = 5,
+		C_DUMMY = 6,
+	};
+
+	enum spells {
+		FORCE,
+		DRAIN,
+		WEAKEN,
+		HEAL,
+	};
+
+	enum abilities {
+		MIMICRY = 0, //Copies Opponent *Two Versions
+		HEAVY_HANDED = 1, //Adds 3 power
+		FAITHFUL = 2, //Increases Crit Hit chance by max
+		FAST_HAND = 3, //Adds one action
+		HEALTHY_MIND = 4, //Adds 10 health
+		TERROR = 5, //Decreases opponents power by 3
+		RESISTANT = 6, //Take half damage against physical attacks
+		HOLY_PRESENCE = 7, //Charge up next Card in deck
+		EVIL_PRESENCE = 8, //Charge down the next Card in opponents deck
+		ACCURATE = 9, //Can never miss and crit hit chance is increased
+		INNERGATE = 10, //Can only miss or crit hit
+		NECROMANCY = 11, //Swap yourself with a dead Card in the Deck
+		MAGIC_IMMUNITY = 12, //Take no damage against magical attacks
+		DIVINEHELP = 13, //The divine strikes your foe for 10 points
+		NULLIFY = 14, //Nullifies an opponents ability
+		MADE_IN_HEAVEN = 15, //Resets the opponents Card
+		//REALITYSHIFTER = 97, //Gives you a choice of three abilities to use
+		CHAOS = 98, //Chooses a random ability
+		STRATEGICFIRE = 99, //Gives ability based on position in Deck
+	};
+
+	enum actions {
+		ATTACK = 0,
+		SWAP = 1,
+		CHARGE = 2,
+		FLASK = 3,
+		CASTSPELL = 4,
+		ERROR = 99,
+	};
+
+	enum attackActions {
+		MISS = 0,
+		HIT = 1,
+		CRITHIT = 2,
+	};
+
+	//Public Vectors
+	//List of colors and attributes
+	static const vector<Card::colors> cols;
+	static const vector<Card::attributes> atts;
+	static const vector<Card::spells> spellList;
+	static const vector<Card::actions> actionsList;
+	static std::unordered_map<Card::colors, Card::colors> advantage;
+
 	//Public Functions:
 	Card (enum colors color, enum attributes attribute, int number); //Constructor
 	void operator=(const Card &rhs);//Overload =
@@ -135,6 +163,49 @@ class Card {
 	void ClearActionQueue(); //Completely removes all elements from action queue
 	size_t GetActionQueueSize(); //Returns the action queues current size
 	
+	//--------------------------------------------------------------------------
+
+	protected:
+	//User Defined Variables:
+	colors color; //Color of the Card
+	attributes attribute; //Attribute of the Card
+	int number; //Power level of the Card
+	
+	//Calculated Variables:
+	int power; //Power depends on color, attribute, and number
+	int magicalPower; //Power depends on color, attribute, and number 
+	int health; // health depends on color, attribute, and number
+	int totalHealth; // health depends on color, attribute, and number
+	string name; //name depends on color and attribute
+	abilities ability; //Ability depends on color and attribute
+	int ID; //Used to identify cards
+	
+	//Modifier Variables 
+	int const powerMod = 1; //Used to scale a cards power
+	int const healthMod = 1; //Used to scale a cards health
+	
+	//Other Variables
+	int charge; //Number of times a Card has charged up
+	int numActions; //Number of actions a Card can take in one turn
+	double physicalResistance; //Physical Resistance to incoming damage
+	double magicalResistance; //Magical Resistance to incoming damage
+	int upperDice; //Highest Dice Roll for positive effects
+	int lowerDice; //Lowest Dice Roll for negative effects
+	bool abilityUsed; //If ability has been used or not
+	bool abilitiesActive; //If abilities are working or not
+	spells spell;
+	
+	//AI Queue
+	queue<actions> actionQueue;
+	
+	//Private Functions:
+	void CalcPhysicalPower(); //Physical Power Calculator
+	void CalcMagicalPower(); //Magical Power Calculator
+	void CalcHealth(); //Health Calculator
+	void CalcName(); //Name Calculator
+	void CalcAbility(); //Ability Calculator
+	void CalcID(); //ID Calculator
+
 };
 
 

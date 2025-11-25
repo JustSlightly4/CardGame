@@ -399,22 +399,22 @@ int main(void)
 				}
 				
 				//If max color turn off increase color button
-				if (cardEditVars.chosenColor == cols[cols.size() - 1]) {
+				if (cardEditVars.chosenColor == Card::cols[Card::cols.size() - 1]) {
 					cardEditButtons["Color"].SetFunctionality(0, false);
 				}
 				
 				//If min color turn off decrease color button
-				if (cardEditVars.chosenColor == cols[0]) {
+				if (cardEditVars.chosenColor == Card::cols[0]) {
 					cardEditButtons["Color"].SetFunctionality(1, false);
 				}
 				
 				//If max attribute turn off increase attribute button
-				if (cardEditVars.chosenAtt == atts[atts.size() - 1]) {
+				if (cardEditVars.chosenAtt == Card::atts[Card::atts.size() - 1]) {
 					cardEditButtons["Attribute"].SetFunctionality(0, false);
 				}
 				
 				//If min attribute turn off decrease attribute button
-				if (cardEditVars.chosenAtt == atts[0]) {
+				if (cardEditVars.chosenAtt == Card::atts[0]) {
 					cardEditButtons["Attribute"].SetFunctionality(1, false);
 				}
 				
@@ -429,39 +429,39 @@ int main(void)
 				}
 				
 				//If max spell turn off increase power button
-				if (cardEditVars.chosenSpell == spellList[spellList.size()-1]) {
+				if (cardEditVars.chosenSpell == Card::spellList[Card::spellList.size()-1]) {
 					cardEditButtons["Spell"].SetFunctionality(0, false);
 				}
 				
 				//If min spell turn off decrease power button
-				if (cardEditVars.chosenSpell == spellList[0]) {
+				if (cardEditVars.chosenSpell == Card::spellList[0]) {
 					cardEditButtons["Spell"].SetFunctionality(1, false);
 				}
 				
 				//Increase Color
 				if (cardEditButtons["Color"].GetAction(0) == true) {
-					cardEditVars.chosenColor = cols[cardEditVars.chosenColor + 1];
+					cardEditVars.chosenColor = Card::cols[cardEditVars.chosenColor + 1];
 					--cardEditVars.remainingPoints;
 					flags.cardEdited = true;
 				}
 				
 				//Decrease Color
 				if (cardEditButtons["Color"].GetAction(1) == true) {
-					cardEditVars.chosenColor = cols[cardEditVars.chosenColor - 1];
+					cardEditVars.chosenColor = Card::cols[cardEditVars.chosenColor - 1];
 					++cardEditVars.remainingPoints;
 					flags.cardEdited = true;
 				}
 				
 				//Increase attribute
 				if (cardEditButtons["Attribute"].GetAction(0) == true) {
-					cardEditVars.chosenAtt = atts[cardEditVars.chosenAtt + 1];
+					cardEditVars.chosenAtt = Card::atts[cardEditVars.chosenAtt + 1];
 					--cardEditVars.remainingPoints;
 					flags.cardEdited = true;
 				}
 				
 				//Decrease attribute
 				if (cardEditButtons["Attribute"].GetAction(1) == true) {
-					cardEditVars.chosenAtt = atts[cardEditVars.chosenAtt - 1];
+					cardEditVars.chosenAtt = Card::atts[cardEditVars.chosenAtt - 1];
 					++cardEditVars.remainingPoints;
 					flags.cardEdited = true;
 				}
@@ -482,13 +482,13 @@ int main(void)
 				
 				//Increase spell *Doesn't cause the Card to be reset
 				if (cardEditButtons["Spell"].GetAction(0) == true) {
-					cardEditVars.chosenSpell = spellList[cardEditVars.chosenSpell + 1];
+					cardEditVars.chosenSpell = Card::spellList[cardEditVars.chosenSpell + 1];
 					dummyDeck[cardEditVars.cardClickedOn]->SetSpell(cardEditVars.chosenSpell);
 				}
 				
 				//Decrease spell *Doesn't cause the Card to be reset
 				if (cardEditButtons["Spell"].GetAction(1) == true) {
-					cardEditVars.chosenSpell = spellList[cardEditVars.chosenSpell - 1];
+					cardEditVars.chosenSpell = Card::spellList[cardEditVars.chosenSpell - 1];
 					dummyDeck[cardEditVars.cardClickedOn]->SetSpell(cardEditVars.chosenSpell);
 				}
 				
@@ -511,10 +511,10 @@ int main(void)
 				
 				if (cardEditScreenButtons["Wipe"].GetAction() == true || IsKeyPressed(KEY_W)) { //Wipe card Button
 					cardEditVars.remainingPoints += (cardEditVars.chosenColor + cardEditVars.chosenAtt + cardEditVars.chosenPowerLevel);
-					cardEditVars.chosenColor = cols[0];
-					cardEditVars.chosenAtt = atts[0];
+					cardEditVars.chosenColor = Card::cols[0];
+					cardEditVars.chosenAtt = Card::atts[0];
 					cardEditVars.chosenPowerLevel = 0;
-					cardEditVars.chosenSpell = FORCE;
+					cardEditVars.chosenSpell = Card::FORCE;
 					flags.cardEdited = true;
 				}
 				
@@ -566,15 +566,16 @@ int main(void)
             
             switch(currentScreen) {
 				case TITLE: {
-					drawer.DrawTextS("Press Enter to Start", (Rectangle){0, 0, drawer.screenDimensions.x, drawer.screenDimensions.y}, drawer.textColor, drawer.currentFont->fontSize, (Alignment){CENTERX, CENTERY});
+					drawer.DrawTextS("Press Enter to Start", (Rectangle){0, 0, drawer.screenDimensions.x, drawer.screenDimensions.y}, 
+					drawer.textColor, drawer.currentFont->fontSize, {UIDrawer::CENTERX, UIDrawer::CENTERY});
 					break;
 				}
 				case SETUP: {
 					
 					//Draws both decks on the screen
-					drawer.DrawTextSOnGrid("Deck 1", {3, 1}, {61, 3}, (Alignment){CENTERX, UPY}); //Deck 1 Label
+					drawer.DrawTextSOnGrid("Deck 1", {3, 1}, {61, 3}, {UIDrawer::CENTERX, UIDrawer::UPY}); //Deck 1 Label
 					drawer.DrawCardButtonRowOnGrid(deck1, deck1EditButtons, 4, {3, 3}, {61, 15}, true); //Deck 1
-					drawer.DrawTextSOnGrid("Deck 2", {3, 25}, {61, 27}, (Alignment){CENTERX, UPY}); //Deck 2 Label
+					drawer.DrawTextSOnGrid("Deck 2", {3, 25}, {61, 27}, {UIDrawer::CENTERX, UIDrawer::UPY}); //Deck 2 Label
 					drawer.DrawCardButtonRowOnGrid(deck2, deck2EditButtons, 4, {3, 27}, {61, 39}, true); //Deck 2
 					
 					//Draws the setup buttons at the bottom of the screen
@@ -587,7 +588,7 @@ int main(void)
 				}
 				case RULES: {
 					//float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness)
-					drawer.maxScroll = drawer.DrawTextSWrapped(gamerules, {0, -drawer.scrollOffset, 63 * drawer.widthSegment, drawer.screenDimensions.y}, drawer.textColor, drawer.currentFont->fontSize, (Alignment){LEFTX, UPY}, 5)
+					drawer.maxScroll = drawer.DrawTextSWrapped(gamerules, {0, -drawer.scrollOffset, 63 * drawer.widthSegment, drawer.screenDimensions.y}, drawer.textColor, drawer.currentFont->fontSize, {UIDrawer::LEFTX, UIDrawer::UPY}, 5)
 						- (drawer.screenDimensions.y - (11 * drawer.heightSegment));
 					
 					//Draws the back button at the bottom of the screen
@@ -597,7 +598,7 @@ int main(void)
 				}
 				case SKILLS: {
 					//float DrawTextSWrapped(string text, Rectangle dest, Color tint, float fontSize, Alignment orientation, int lineThickness)
-					drawer.maxScroll = drawer.DrawTextSWrapped(skills, {0, -drawer.scrollOffset, 63 * drawer.widthSegment, drawer.screenDimensions.y}, drawer.textColor, drawer.currentFont->fontSize, (Alignment){LEFTX, UPY}, 5)
+					drawer.maxScroll = drawer.DrawTextSWrapped(skills, {0, -drawer.scrollOffset, 63 * drawer.widthSegment, drawer.screenDimensions.y}, drawer.textColor, drawer.currentFont->fontSize, {UIDrawer::LEFTX, UIDrawer::UPY}, 5)
 						- (drawer.screenDimensions.y - (11 * drawer.heightSegment));
 					
 					//Draws the back button at the bottom of the screen
@@ -616,9 +617,9 @@ int main(void)
 				}
 				case GAME: {
 					drawer.DrawRectangleLinesOnGrid({7, 1}, {57, 7}, BLACK, 5); //Turn Counter Box
-					drawer.DrawTextSOnGrid("Round: " + to_string(gameVars.round+1), {7, 1}, {57, 4}, (Alignment){CENTERX, CENTERY}, 5); //Round #
-					drawer.DrawTextSOnGrid("Turn: " + to_string(gameVars.turn+1), {7, 4}, {57, 7}, (Alignment){CENTERX, CENTERY}, 5); //Turn #
-					drawer.DrawTextSOnGrid(gameVars.playerInPlay == 0 ? "Player 1 Turn" : "Player 2 Turn", {7, 1}, {57, 7}, (Alignment){gameVars.playerInPlay == 0 ? LEFTX : RIGHTX, CENTERY}, 6);
+					drawer.DrawTextSOnGrid("Round: " + to_string(gameVars.round+1), {7, 1}, {57, 4}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5); //Round #
+					drawer.DrawTextSOnGrid("Turn: " + to_string(gameVars.turn+1), {7, 4}, {57, 7}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5); //Turn #
+					drawer.DrawTextSOnGrid(gameVars.playerInPlay == 0 ? "Player 1 Turn" : "Player 2 Turn", {7, 1}, {57, 7}, {gameVars.playerInPlay == 0 ? UIDrawer::LEFTX : UIDrawer::RIGHTX, UIDrawer::CENTERY}, 6);
 					drawer.DrawCardButtonOnGrid(deck1, viewCardButtons, gameVars.round, 0, {7, 8}, {17, 38}, true); //deck1 main Card
 					drawer.DrawCardButtonOnGrid(deck2, viewCardButtons, gameVars.round, 3, {47, 8}, {57, 38}, true); //deck2 main Card
 					if (gameVars.round < deck1.size() - 1) { //Only draws support cards if not the last round
@@ -630,7 +631,7 @@ int main(void)
 					drawer.DrawRectangleLinesOnGrid({1, 1}, {6, 43}, BLACK, 5); //Left Score Column Outline
 					drawer.DrawRectangleLinesOnGrid({58, 1}, {63, 43}, BLACK, 5); //Right Score Column Outline
 					drawer.DrawRectangleLinesOnGrid({1, 44}, {63, 52}, BLACK, 5); //Text Box
-					drawer.DrawTextSWrappedOnGrid(gameVars.dialog, {1, 44}, {63, 52}, (Alignment){CENTERX, CENTERY}, 5); //Dialog in Text Box
+					drawer.DrawTextSWrappedOnGrid(gameVars.dialog, {1, 44}, {63, 52}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5); //Dialog in Text Box
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons
 					drawer.DrawButtonRowOnGrid(gameButtons, drawer.REC_BTN_START1, drawer.REC_BTN_END2); //Buttons
 					//Draw Star on who is playing
@@ -656,11 +657,11 @@ int main(void)
 						
 					//Draws the Card on the screen and its stats
 					drawer.DrawCardOnGrid(dummyDeck, cardEditVars.cardClickedOn, {7, 8}, {17, 38}, true);
-					drawer.DrawTextSOnGrid(stats, {18, 8}, {25, 38}, (Alignment){LEFTX, CENTERY});
+					drawer.DrawTextSOnGrid(stats, {18, 8}, {25, 38}, {UIDrawer::LEFTX, UIDrawer::CENTERY});
 					
 					//Draw how many points the Deck has on the screen
 					drawer.DrawTextSOnGrid("Points Left " + to_string(cardEditVars.remainingPoints) + "/" +  to_string((cardEditVars.playerEditing == 0 ? deck1 : deck2).GetTotalPoints()), 
-					{7, 1}, {57, 7}, (Alignment){CENTERX, CENTERY}, 5);
+					{7, 1}, {57, 7}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5);
 					
 					//Draws the settings buttons
 					drawer.DrawButtonOnGrid(cardEditButtons, 0, dummyDeck[cardEditVars.cardClickedOn]->GetColorStr(), {41, 10}, {57, 17});
@@ -690,7 +691,7 @@ int main(void)
 						
 					//Draws the Card on the screen and its stats
 					drawer.DrawCardOnGrid(*deck, viewCardVars.cardIndex, {7, 8}, {17, 38}, true);
-					drawer.DrawTextSOnGrid(stats, {18, 8}, {25, 38}, (Alignment){LEFTX, CENTERY});
+					drawer.DrawTextSOnGrid(stats, {18, 8}, {25, 38}, {UIDrawer::LEFTX, UIDrawer::CENTERY});
 					
 					//Draws the back button at the bottom of the screen
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons

@@ -7,6 +7,7 @@
 #include "deckofcards.h"
 
 //----------------------------------------------- deck Class
+
 //Constructor
 Deck::Deck(int cardLimit, shared_ptr<Texture2D> texture, bool random, bool ai, int deckStrength) : cardTexture(texture) {
 	this->amtCards = 0;
@@ -48,7 +49,7 @@ Deck::Deck(const Deck &other) : cardTexture(other.cardTexture) {
 
 //Overload = operator so that two decks can be set equal to each other
 void Deck::operator=(const Deck &rhs) {
-	vector<spells> appliedSpells;
+	vector<Card::spells> appliedSpells;
 	for (int i = 0; i < this->amtCards; ++i) {
 		delete this->Cards[i];
 	}
@@ -72,16 +73,16 @@ void Deck::CreateRandomCards() {
 	
 	//Colors array and initialization
 	//colors colorChoice[cardLimit];
-	vector<colors> colorChoice(cardLimit);
+	vector<Card::colors> colorChoice(cardLimit);
 	for (int i = 0; i < cardLimit; ++i) {
-		colorChoice[i] = C_WHITE;
+		colorChoice[i] = Card::C_WHITE;
 	}
 	
 	//Attributes array and initialization
 	//attributes attChoice[cardLimit];
-	vector<attributes> attChoice(cardLimit);
+	vector<Card::attributes> attChoice(cardLimit);
 	for (int i = 0; i < cardLimit; ++i) {
-		attChoice[i] = C_MIMIC;
+		attChoice[i] = Card::C_MIMIC;
 	}
 	
 	//Power Level array and initialization
@@ -93,9 +94,9 @@ void Deck::CreateRandomCards() {
 	
 	//Chosen Spells
 	//spells chosenSpells[cardLimit];
-	vector<spells> chosenSpells(cardLimit);
+	vector<Card::spells> chosenSpells(cardLimit);
 	for (int i = 0; i < cardLimit; ++i) {
-		chosenSpells[i] = spellList[rand() % spellList.size()];
+		chosenSpells[i] = Card::spellList[rand() % Card::spellList.size()];
 	}
 	
 	
@@ -108,11 +109,11 @@ void Deck::CreateRandomCards() {
 		aspectChosen = rand() % 3; //Choice either color, attribute, or power level to upgrade
 		switch(aspectChosen) {
 			case(0):
-				if (colorChoice[indexChosen] < cols[cols.size()-1]) colorChoice[indexChosen] = cols[colorChoice[indexChosen] + 1];
+				if (colorChoice[indexChosen] < Card::cols[Card::cols.size()-1]) colorChoice[indexChosen] = Card::cols[colorChoice[indexChosen] + 1];
 				else --i;
 				break;
 			case(1):
-				if (attChoice[indexChosen] < atts[atts.size()-1]) attChoice[indexChosen] = atts[attChoice[indexChosen] + 1];
+				if (attChoice[indexChosen] < Card::atts[Card::atts.size()-1]) attChoice[indexChosen] = Card::atts[attChoice[indexChosen] + 1];
 				else --i;
 				break;
 			case(2):
@@ -133,8 +134,8 @@ void Deck::CreateRandomCards() {
 
 void Deck::CreateBlankCards() {
 	for (int i = 0; i < cardLimit; ++i) {
-		this->AddCard(C_WHITE, C_MIMIC, 0);
-		Cards[i]->SetSpell(FORCE);
+		this->AddCard(Card::C_WHITE, Card::C_MIMIC, 0);
+		Cards[i]->SetSpell(Card::FORCE);
 	}
 }
 
@@ -147,7 +148,7 @@ bool Deck::AddCard(Card *newCard) {
 }
 
 //Adds Card to the Deck
-bool Deck::AddCard(enum colors col, enum attributes att, int num) {
+bool Deck::AddCard(Card::colors col, Card::attributes att, int num) {
 	if (amtCards >= cardLimit) {
 		cout << "here" << endl;
 		return false;
@@ -383,8 +384,8 @@ void Deck::SetAI(bool b) {
 
 void Deck::RestoreDeck() {
     // Use vectors to store data dynamically
-    std::vector<colors> cardColors(amtCards);
-    std::vector<attributes> cardAttributes(amtCards);
+    std::vector<Card::colors> cardColors(amtCards);
+    std::vector<Card::attributes> cardAttributes(amtCards);
     std::vector<int> cardPowerLevels(amtCards);
 
     // Copy data from existing cards

@@ -18,25 +18,12 @@
 #include <memory>
 #include <unordered_map>
 #include "raylib.h"
-#include "globals.h"
 #include "cards.h"
 using namespace std;
 
 class Deck {
-	protected:
-		vector<Card*> Cards;
-		shared_ptr<Texture2D> cardTexture;
-		int cardLimit;   
-		int amtCards;
-		int timesUsedFlask;
-		int timesSwapped;
-		bool ai;
-		bool CheckIfNumber(string &number);
-		int totalPoints; //Amount of Points user has to spend on cards
-		int remainingPoints;
-		void CreateRandomCards(); //Creates random cards with points
-		void CreateBlankCards(); //Creates blank cards
 	public:
+		//Public Functions
 		Deck(int amountCards, shared_ptr<Texture2D> texture, bool random = false, bool ai = false, int deckStrength = 7); //Constructor
 		~Deck(); //Deconstructor
 		Deck(const Deck &other); //Copy Constructor
@@ -45,7 +32,7 @@ class Deck {
 		Card* at(int const index) const; //Gets the Card at the index given
 		friend ostream &operator<<(ostream& os, const Deck &rhs); //Overload <<
 		bool AddCard(Card *newCard); //Adds a Card to the Deck
-		bool AddCard(enum colors col, enum attributes att, int num); //Adds Card
+		bool AddCard(enum Card::colors col, enum Card::attributes att, int num); //Adds Card
 		bool RemoveCard(int pos); //Removes a Card from the Deck by position
 		bool Isdeck_Full(); //Checks if the Deck is full or not
 		int GetCardLimit() const; //Gets Card limit
@@ -65,6 +52,21 @@ class Deck {
 		int GetTotalPoints(); //Returns the max amount of points this Deck can have
 		int GetRemainingPoints(); //Returns the remaining amount of points this Deck has
 		void SetRemainingPoints(int amt); //Set the points remaining in a Deck to spend on cards
+
+	protected:
+		//Private Functions
+		vector<Card*> Cards;
+		shared_ptr<Texture2D> cardTexture;
+		int cardLimit;   
+		int amtCards;
+		int timesUsedFlask;
+		int timesSwapped;
+		bool ai;
+		bool CheckIfNumber(string &number);
+		int totalPoints; //Amount of Points user has to spend on cards
+		int remainingPoints;
+		void CreateRandomCards(); //Creates random cards with points
+		void CreateBlankCards(); //Creates blank cards
 		
 };
 

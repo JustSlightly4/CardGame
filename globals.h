@@ -10,8 +10,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <unordered_map>
 #include "raylib.h"
+#include "cards.h"
+#include "deckofcards.h"
+
 using namespace std;
 
 Vector2 operator+(const Vector2& lhs, const Vector2& rhs);
@@ -39,87 +41,6 @@ enum GameScreen {
 	VIEWCARD = 7,
 };
 
-enum AlignmentX {
-	CENTERX = 0,
-	RIGHTX = 1,
-	LEFTX = 2,
-};
-
-enum AlignmentY {
-	CENTERY = 0,
-	DOWNY = 1,
-	UPY = 2,
-};
-
-typedef struct ALIGNMENT {
-	AlignmentX x;
-	AlignmentY y;
-	bool reduceTextSize = true;
-} Alignment;
-
-enum colors {
-	C_WHITE = 0,
-	C_GREEN = 1,
-	C_BLUE = 2,
-	C_YELLOW = 3,
-	C_RED = 4,
-	C_ORANGE = 5,
-};
-
-enum attributes {
-	C_MIMIC = 0,
-	C_DEX = 1,
-	C_INT = 2,
-	C_STR = 3,
-	C_FTH = 4,
-	C_ARC = 5,
-	C_DUMMY = 6,
-};
-
-enum abilities {
-	MIMICRY = 0, //Copies Opponent *Two Versions
-	HEAVY_HANDED = 1, //Adds 3 power
-	FAITHFUL = 2, //Increases Crit Hit chance by max
-	FAST_HAND = 3, //Adds one action
-	HEALTHY_MIND = 4, //Adds 10 health
-	TERROR = 5, //Decreases opponents power by 3
-	RESISTANT = 6, //Take half damage against physical attacks
-	HOLY_PRESENCE = 7, //Charge up next Card in deck
-	EVIL_PRESENCE = 8, //Charge down the next Card in opponents deck
-	ACCURATE = 9, //Can never miss and crit hit chance is increased
-	INNERGATE = 10, //Can only miss or crit hit
-	NECROMANCY = 11, //Swap yourself with a dead Card in the Deck
-	MAGIC_IMMUNITY = 12, //Take no damage against magical attacks
-	DIVINEHELP = 13, //The divine strikes your foe for 10 points
-	NULLIFY = 14, //Nullifies an opponents ability
-	MADE_IN_HEAVEN = 15, //Resets the opponents Card
-	//REALITYSHIFTER = 97, //Gives you a choice of three abilities to use
-	CHAOS = 98, //Chooses a random ability
-	STRATEGICFIRE = 99, //Gives ability based on position in Deck
-};
-
-enum spells {
-	FORCE,
-	DRAIN,
-	WEAKEN,
-	HEAL,
-};
-
-enum actions {
-	ATTACK = 0,
-	SWAP = 1,
-	CHARGE = 2,
-	FLASK = 3,
-	CASTSPELL = 4,
-	ERROR = 99,
-};
-
-enum attackActions {
-	MISS = 0,
-	HIT = 1,
-	CRITHIT = 2,
-};
-
 enum players {
 	PLAYER1,
 	PLAYER2,
@@ -134,10 +55,10 @@ typedef struct CARDEDITVARS {
 	int cardClickedOn = -1;
     int playerEditing = -1;
     int remainingPoints = -1;
-    colors chosenColor = C_WHITE;
-    attributes chosenAtt = C_MIMIC;
+    Card::colors chosenColor = Card::C_WHITE;
+    Card::attributes chosenAtt = Card::C_MIMIC;
     int chosenPowerLevel = 0;
-    spells chosenSpell = FORCE;
+    Card::spells chosenSpell = Card::FORCE;
 } CardEditVars;
 
 typedef struct VIEWCARDVARS {
@@ -195,12 +116,7 @@ class GameVars {
 	}
 };
 
-
-extern std::vector<colors> cols;
-extern std::vector<attributes> atts;
-extern std::vector<spells> spellList;
-extern std::vector<actions> actionsList;
-extern std::unordered_map<colors, colors> advantage;
+extern std::unordered_map<Card::colors, Card::colors> advantage;
 extern vector<NamedFont> fonts;
 extern string gamerules;
 extern string skills;
