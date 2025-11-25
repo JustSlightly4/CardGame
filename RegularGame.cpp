@@ -1,61 +1,76 @@
 /*
  * Eric Ryan Montgomery
- * 09/21/2025
+ * 11/25/2025
  * For CardGameUI
- * Logic Functions not related to drawing are written here
+ * Regular Game Class
  */
- 
-#include "functions.h"
 
-//Logic for the ENTIRE GAME NOT AN INDIVIDUAL TURN
-void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons) {
+ #include "RegularGame.h"
+
+//Resets the game
+void RegularGame::Reset() {
+	who = 0; //This is the index for the Card in play
+	turn = 0;
+	round = 0;
+	playerInPlay = PLAYER1; //This is the Deck that is in play
+	currCardRole = C_MAIN; //This is the role that the current Card is in
+	player1Score = 0;
+	player2Score = 0;
+	dialog = "Game Start";
+	amtActions = 0;
+	gameStarted = false;
+	gameEnded = false;
+}
+
+ //Logic for the ENTIRE GAME NOT AN INDIVIDUAL TURN
+void RegularGame::PlayRegularGame(Deck &deck1, Deck &deck2, SingleButtonGroup &buttons) {
 	
 	//Correctly Initialize Starting Variables
-	if (gameVars.gameStarted == false) {
-		gameVars.gameStarted = true;
-		gameVars.round = 0;
-		gameVars.turn = 0;
-		gameVars.playerInPlay = PLAYER1;
-		gameVars.dialog = "Game Start";
-		gameVars.amtActions = deck1[gameVars.round]->GetNumActions();
+	if (this->gameStarted == false) {
+		this->gameStarted = true;
+		this->round = 0;
+		this->turn = 0;
+		this->playerInPlay = PLAYER1;
+		this->dialog = "Game Start";
+		this->amtActions = deck1[this->round]->GetNumActions();
 	}
 	
 	//Take Player Turn
-	if (gameVars.playerInPlay == PLAYER1) {
-		RegularGameTurn(deck1, deck2, gameVars, flags, buttons);
-	} else if (gameVars.playerInPlay == PLAYER2) {
-		RegularGameTurn(deck2, deck1, gameVars, flags, buttons);
+	if (this->playerInPlay == PLAYER1) {
+		PlayRegularGameTurn(deck1, deck2, buttons);
+	} else if (this->playerInPlay == PLAYER2) {
+		PlayRegularGameTurn(deck2, deck1, buttons);
 	}
 	
 	//If anybody died move to next round
-	if ((deck1[gameVars.round]->GetHealth() <= 0 || deck2[gameVars.round]->GetHealth() <= 0)) {
+	if ((deck1[this->round]->GetHealth() <= 0 || deck2[this->round]->GetHealth() <= 0)) {
 		
-		if (deck1[gameVars.round]->GetHealth() <= 0 && deck2[gameVars.round]->GetHealth() <= 0) {
-			++gameVars.player1Score;
-			++gameVars.player2Score;
-			gameVars.playerInPlay = PLAYER1;
-			gameVars.dialog += " Ending the round in a tie!";
-		} else if (deck1[gameVars.round]->GetHealth() <= 0) {
-			++gameVars.player2Score;
-			gameVars.playerInPlay = PLAYER1;
-			gameVars.dialog += " Winning Player 2 the round!";
-		} else if (deck2[gameVars.round]->GetHealth() <= 0) {
-			++gameVars.player1Score;
-			gameVars.playerInPlay = PLAYER2;
-			gameVars.dialog += " Winning Player 1 the round!";
+		if (deck1[this->round]->GetHealth() <= 0 && deck2[this->round]->GetHealth() <= 0) {
+			++this->player1Score;
+			++this->player2Score;
+			this->playerInPlay = PLAYER1;
+			this->dialog += " Ending the round in a tie!";
+		} else if (deck1[this->round]->GetHealth() <= 0) {
+			++this->player2Score;
+			this->playerInPlay = PLAYER1;
+			this->dialog += " Winning Player 2 the round!";
+		} else if (deck2[this->round]->GetHealth() <= 0) {
+			++this->player1Score;
+			this->playerInPlay = PLAYER2;
+			this->dialog += " Winning Player 1 the round!";
 		}
-		gameVars.currCardRole = C_MAIN;
+		this->currCardRole = C_MAIN;
 		
-		++gameVars.round;
-		if (gameVars.round >= gameVars.numCards) { //if no next round, end game
-			gameVars.gameEnded = true;
-			gameVars.round = gameVars.numCards - 1;
-			if (gameVars.player1Score > gameVars.player2Score) {
-				gameVars.dialog = "Game Over. Player 1 Won!";
-			} else if (gameVars.player1Score < gameVars.player2Score) {
-				gameVars.dialog = "Game Over. Player 2 Won!";
+		++this->round;
+		if (this->round >= this->numCards) { //if no next round, end game
+			this->gameEnded = true;
+			this->round = this->numCards - 1;
+			if (this->player1Score > this->player2Score) {
+				this->dialog = "Game Over. Player 1 Won!";
+			} else if (this->player1Score < this->player2Score) {
+				this->dialog = "Game Over. Player 2 Won!";
 			} else {
-				gameVars.dialog = "Game Over. It was a tie!";
+				this->dialog = "Game Over. It was a tie!";
 			}
 			buttons.SetFunctionality(false, 0, buttons.GetSize()-2);
 			return;
@@ -64,65 +79,65 @@ void RegularGame(Deck &deck1, Deck &deck2, GameVars &gameVars, Flags &flags, Sin
 		//Reset Card variables for next round
 		deck1.SetTimesSwapped(0);
 		deck2.SetTimesSwapped(0);
-		gameVars.turn = 0;
-		if (gameVars.playerInPlay == 0) gameVars.amtActions = deck1[gameVars.round]->GetNumActions();
-		else gameVars.amtActions = deck2[gameVars.round]->GetNumActions();
-		flags.firstTurnFrame = true;
+		this->turn = 0;
+		if (this->playerInPlay == 0) this->amtActions = deck1[this->round]->GetNumActions();
+		else this->amtActions = deck2[this->round]->GetNumActions();
+		this->firstTurnFrame = true;
 	}
 	
 	//If used all actions move to next players turn
-	if (gameVars.amtActions <= 0) {
+	if (this->amtActions <= 0) {
 		
 		//Increase turn
-		++gameVars.turn;
+		++this->turn;
 		
-		switch(gameVars.currCardRole) {
+		switch(this->currCardRole) {
 			case(C_SUPPORT): { //If support Card was in play and is done
 				
 				//Switch players and reset to main Card
-				if (gameVars.playerInPlay == PLAYER1) gameVars.playerInPlay = PLAYER2;
-				else gameVars.playerInPlay = PLAYER1;
-				gameVars.currCardRole = C_MAIN;
+				if (this->playerInPlay == PLAYER1) this->playerInPlay = PLAYER2;
+				else this->playerInPlay = PLAYER1;
+				this->currCardRole = C_MAIN;
 				
 				//Give the correct number of actions to whichever Card is playing
-				if (gameVars.playerInPlay == PLAYER1 ) gameVars.amtActions = deck1[gameVars.round]->GetNumActions();
-				else gameVars.amtActions = deck2[gameVars.round]->GetNumActions();
+				if (this->playerInPlay == PLAYER1 ) this->amtActions = deck1[this->round]->GetNumActions();
+				else this->amtActions = deck2[this->round]->GetNumActions();
 				break;
 			}
 			case(C_MAIN): { //If main Card was in play and is done
 				
 				//Switch to support if not the last round
-				if (gameVars.round < deck1.size()-1) {
-					gameVars.currCardRole = C_SUPPORT;
+				if (this->round < deck1.size()-1) {
+					this->currCardRole = C_SUPPORT;
 				} else { //If it is the last round, switch players instead
-					if (gameVars.playerInPlay == PLAYER1) gameVars.playerInPlay = PLAYER2;
-					else gameVars.playerInPlay = PLAYER1;
+					if (this->playerInPlay == PLAYER1) this->playerInPlay = PLAYER2;
+					else this->playerInPlay = PLAYER1;
 				}
 				
 				//Give the correct number of actions to whichever Card is playing
-				if (gameVars.playerInPlay == PLAYER1 ) gameVars.amtActions = deck1[deck1.size()-1]->GetNumActions();
-				else gameVars.amtActions = deck2[deck2.size()-1]->GetNumActions();
+				if (this->playerInPlay == PLAYER1 ) this->amtActions = deck1[deck1.size()-1]->GetNumActions();
+				else this->amtActions = deck2[deck2.size()-1]->GetNumActions();
 				break;
 			}
 		}
-		flags.firstTurnFrame = true;
+		this->firstTurnFrame = true;
 	}
 }
 
 //LOGIC FOR AN INDIVIDUAL TURN IN A GAME
-void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &flags, SingleButtonGroup &buttons) {
+void RegularGame::PlayRegularGameTurn(Deck &player, Deck &opponent, SingleButtonGroup &buttons) {
 	
 	//Decide if main or support Card is playing
-	if (gameVars.currCardRole == C_MAIN) gameVars.who = gameVars.round;
-	else gameVars.who = player.size()-1;
+	if (this->currCardRole == C_MAIN) this->who = this->round;
+	else this->who = player.size()-1;
 	
 	//Set AIDecision to error to denote it hasnt make a decision yet
 	//and don't make a decision on the first frame.
 	//Once on the second frame, then wait a few seconds and make a decision
 	Card::actions AIDecision = Card::ERROR;
-	if (player.IsAI() == true && flags.firstTurnFrame == false) {
+	if (player.IsAI() == true && this->firstTurnFrame == false) {
 		WaitTime(1.5);
-		AIDecision = MakeAIDecisionDumb(player, opponent, gameVars);
+		AIDecision = MakeAIDecisionDumb(player, opponent);
 	}
 	
 	//Enable all buttons
@@ -131,22 +146,22 @@ void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &fl
 	}
 	
 	//Disable swap button if already used twice
-	if (player.GetTimesSwapped() >= gameVars.maxSwaps) {
+	if (player.GetTimesSwapped() >= this->maxSwaps) {
 		buttons[3].SetFunctionality(false);
 	}
 	
 	//Disable charge button if already used twice
-	if (player[gameVars.who]->GetCharge() >= gameVars.maxCharges) {
+	if (player[this->who]->GetCharge() >= this->maxCharges) {
 		buttons[4].SetFunctionality(false);
 	}
 	
 	//Disable flask button if already used twice
-	if (player.GetFlaskAmt() >= gameVars.maxFlasks) {
+	if (player.GetFlaskAmt() >= this->maxFlasks) {
 		buttons[5].SetFunctionality(false);
 	}
 	
 	//Disable attack button if support Card
-	if (gameVars.currCardRole == C_SUPPORT) {
+	if (this->currCardRole == C_SUPPORT) {
 		buttons[1].SetFunctionality(false);
 	}
 	
@@ -155,37 +170,37 @@ void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &fl
 		for (int i = 0; i < buttons.GetSize() - 1; ++i) {
 			buttons[i].SetFunctionality(false);
 		}
-		//if (flags.firstTurnFrame == false) AIDecision = player.MakeAIDecision(opponent, gameVars.round, gameVars.turn);
+		//if (flags.firstTurnFrame == false) AIDecision = player.MakeAIDecision(opponent, this->round, this->turn);
 	}
 	
 	//Physical Attack
 	if (((buttons[1].GetAction() == true || IsKeyPressed(KEY_A)) && buttons[1].GetFunctionality() == true)
 	|| AIDecision == Card::ATTACK) {
-		gameVars.dialog = PhysicalAttack(player[gameVars.who], opponent[gameVars.round], player[gameVars.round]);
-		--gameVars.amtActions;
+		this->dialog = PhysicalAttack(player[this->who], opponent[this->round], player[this->round]);
+		--this->amtActions;
 	}
 	
 	//Magical Attack
 	if (((buttons[2].GetAction() == true || IsKeyPressed(KEY_P)) && buttons[2].GetFunctionality() == true)
 	|| AIDecision == Card::CASTSPELL) {
-		gameVars.dialog = MagicalAttack(player[gameVars.who], opponent[gameVars.round], player[gameVars.round]);
-		--gameVars.amtActions;
+		this->dialog = MagicalAttack(player[this->who], opponent[this->round], player[this->round]);
+		--this->amtActions;
 	}
 	
 	//Swap
 	if (((buttons[3].GetAction() == true || IsKeyPressed(KEY_S)) && buttons[3].GetFunctionality() == true)
 	|| AIDecision == Card::SWAP) {
-		gameVars.dialog = player.Swap(gameVars.round, player.GetCardAmt()-1);
-		gameVars.amtActions = 0; //Set to zero rather than minus one because this should always end turn immediately
+		this->dialog = player.Swap(this->round, player.GetCardAmt()-1);
+		this->amtActions = 0; //Set to zero rather than minus one because this should always end turn immediately
 	}
 	
 	//Charge
 	if (((buttons[4].GetAction() == true || IsKeyPressed(KEY_C)) && buttons[4].GetFunctionality() == true)
 	|| AIDecision == Card::CHARGE) {
-		gameVars.dialog = player[gameVars.who]->ChargeUp();
-		--gameVars.amtActions;
-		if (player[gameVars.who]->GetCharge() == 2) {
-			gameVars.dialog = ApplyAbility(player, opponent, gameVars.who, gameVars.round);
+		this->dialog = player[this->who]->ChargeUp();
+		--this->amtActions;
+		if (player[this->who]->GetCharge() == 2) {
+			this->dialog = ApplyAbility(player, opponent, this->who, this->round);
 		}
 	}
 	
@@ -193,26 +208,16 @@ void RegularGameTurn(Deck &player, Deck &opponent, GameVars &gameVars, Flags &fl
 	if ((buttons[5].GetAction() == true || IsKeyPressed(KEY_F)
 	|| AIDecision == Card::FLASK) 
 	&& buttons[5].GetFunctionality() == true) {
-		gameVars.dialog = player.UseFlask(gameVars.who);
+		this->dialog = player.UseFlask(this->who);
 	}
 	
-	if (player.IsAI() == true && flags.firstTurnFrame == true) {
-		flags.firstTurnFrame = false;
+	if (player.IsAI() == true && this->firstTurnFrame == true) {
+		this->firstTurnFrame = false;
 	}
-}
-
-Flags ResetFlags() {
-	Flags flags;
-	return flags;
-}
-
-CardEditVars ResetCardEditVars() {
-	CardEditVars cardEditVars;
-	return cardEditVars;
 }
 
 //Applies a cards ability
-string ApplyAbility(Deck &player, Deck &opponent, int pos, int mainPos) {
+string RegularGame::ApplyAbility(Deck &player, Deck &opponent, int pos, int mainPos) {
 	ostringstream oss;
 	if (player[pos]->GetAbilitiesActive() == false) {
 		oss << player[pos]->GetName() << " could not used their ability!" << endl;
@@ -395,7 +400,7 @@ string ApplyAbility(Deck &player, Deck &opponent, int pos, int mainPos) {
 }
 
 //Tries to undo whatever the opponents ability did
-string NullifyOpponentsAbility(Card &player, Card &opponent) {
+string RegularGame::NullifyOpponentsAbility(Card &player, Card &opponent) {
 	ostringstream oss;
 	switch(opponent.GetAbility()) {
 		case (Card::HEAVY_HANDED):
@@ -429,7 +434,7 @@ string NullifyOpponentsAbility(Card &player, Card &opponent) {
 }
 
 //Physically Attack an Opponent
-string PhysicalAttack(Card *player, Card *opponent, Card *mainCard) {
+string RegularGame::PhysicalAttack(Card *player, Card *opponent, Card *mainCard) {
 	ostringstream oss;
 	Card::attackActions action = player->RollDiceEnum();
 	switch (action) {
@@ -451,7 +456,7 @@ string PhysicalAttack(Card *player, Card *opponent, Card *mainCard) {
 }
 
 //Magically Attack an Opponent
-string MagicalAttack(Card *player, Card *opponent, Card *mainCard) {
+string RegularGame::MagicalAttack(Card *player, Card *opponent, Card *mainCard) {
 	ostringstream oss;
 	
 	if (player->GetMagicalPower() <= 0) {
@@ -466,7 +471,7 @@ string MagicalAttack(Card *player, Card *opponent, Card *mainCard) {
 	switch(player->GetSpell()) {
 		case (Card::FORCE): { //Does physical damage
 			//If the opponents color is the same as the Card advantage then critical hit
-			if (Card::advantage[player->GetColor()] == opponent->GetColor()) {
+			if (Card::advantage.at(player->GetColor()) == opponent->GetColor()) {
 				amt *= 1.2;
 				oss << player->GetName() << " critically cast Force on " << opponent->GetName() << " for " << amt << " points!";
 				opponent->DecHealth(amt * opponent->GetMagicalResistance());
@@ -482,7 +487,7 @@ string MagicalAttack(Card *player, Card *opponent, Card *mainCard) {
 			if (amt > 1) amt = amt * 0.5; //Drain Spell nerf but can't miss
 			
 			//If the opponents color is the same as the Card advantage then critical hit
-			if (Card::advantage[player->GetColor()] == opponent->GetColor()) {
+			if (Card::advantage.at(player->GetColor()) == opponent->GetColor()) {
 				amt *= 1.2;
 				oss << player->GetName() << " critically cast Drain on " << opponent->GetName() << " for " << amt << " points!";
 				opponent->DecPower(amt * opponent->GetMagicalResistance());
@@ -496,7 +501,7 @@ string MagicalAttack(Card *player, Card *opponent, Card *mainCard) {
 		}
 		case(Card::WEAKEN): {
 			//If the opponents color is the same as the Card advantage then critical hit
-			if (Card::advantage[player->GetColor()] == opponent->GetColor()) {
+			if (Card::advantage.at(player->GetColor()) == opponent->GetColor()) {
 				double amt = 0.2;
 				oss << player->GetName() << " critically cast Weaken on " << opponent->GetName() << "!" << endl;
 				oss << opponent->DecPhysicalResistance(amt * opponent->GetMagicalResistance());
@@ -511,7 +516,7 @@ string MagicalAttack(Card *player, Card *opponent, Card *mainCard) {
 		}
 		case(Card::HEAL): {
 			//If mains color is the same as the Card advantage then Greater Heal
-			if (Card::advantage[player->GetColor()] == mainCard->GetColor()) {
+			if (Card::advantage.at(player->GetColor()) == mainCard->GetColor()) {
 				oss << player->GetName() << " cast Greater Heal for " << int (amt * 1.2) << " points!";
 				mainCard->Heal(amt * 1.2);
 					
@@ -526,20 +531,20 @@ string MagicalAttack(Card *player, Card *opponent, Card *mainCard) {
 	return oss.str();
 }
 
-Card::actions MakeAIDecisionDumb(Deck &player, Deck &opponent, GameVars &gameVars) {
+Card::actions RegularGame::MakeAIDecisionDumb(Deck &player, Deck &opponent) {
 	
 	//Make a list of the actions that are allowed
 	vector<Card::actions> allowableActions = {Card::CASTSPELL};
 	
 	//Go through checks to add which actions are allowed
-	if (player[gameVars.who]->GetCharge() < gameVars.maxCharges) allowableActions.push_back(Card::CHARGE);
-	if (player.GetTimesSwapped() < gameVars.maxSwaps) allowableActions.push_back(Card::SWAP);
-	if (player.GetFlaskAmt() < gameVars.maxFlasks) allowableActions.push_back(Card::FLASK);
-	if (gameVars.currCardRole == C_MAIN) allowableActions.push_back(Card::ATTACK);
+	if (player[this->who]->GetCharge() < this->maxCharges) allowableActions.push_back(Card::CHARGE);
+	if (player.GetTimesSwapped() < this->maxSwaps) allowableActions.push_back(Card::SWAP);
+	if (player.GetFlaskAmt() < this->maxFlasks) allowableActions.push_back(Card::FLASK);
+	if (this->currCardRole == C_MAIN) allowableActions.push_back(Card::ATTACK);
 	
 	//Push a completely random chosen action to the queue
-	player[gameVars.who]->PushAction(allowableActions[rand() % allowableActions.size()]);
+	player[this->who]->PushAction(allowableActions[rand() % allowableActions.size()]);
 	
 	//Remove action from queue and return it
-	return player[gameVars.who]->PopAction();
+	return player[this->who]->PopAction();
 }

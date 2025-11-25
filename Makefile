@@ -11,10 +11,11 @@ OUTPUT = index.html
 # Source files
 SRC = CardGameUI.cpp \
       UIDrawer.cpp \
-      functions.cpp \
+      RegularGame.cpp \
       buttons.cpp \
       cards.cpp \
       deckofcards.cpp \
+      StateVariables.cpp \
       globals.cpp
 
 # Include and library paths

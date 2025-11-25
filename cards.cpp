@@ -38,7 +38,7 @@ const vector<Card::actions> Card::actionsList {
 	Card::CASTSPELL,
 };
 
-unordered_map<Card::colors, Card::colors> Card::advantage = {
+const unordered_map<Card::colors, Card::colors> Card::advantage = {
 	{ Card::C_WHITE, Card::C_YELLOW },   
 	{ Card::C_GREEN, Card::C_RED },  
 	{ Card::C_BLUE, Card::C_ORANGE },  

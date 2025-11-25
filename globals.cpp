@@ -6,8 +6,6 @@
  */
 #include "globals.h"
 
-vector<NamedFont> fonts;
-
 string gamerules = "Game Rules:"
 		"\n\n1: Each player gets a user defined amount of cards referred to as a Deck."
 		"\n\n2: Before play begins, each Deck is shuffled and hidden from the player."

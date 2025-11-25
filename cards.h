@@ -92,7 +92,7 @@ class Card {
 	static const vector<Card::attributes> atts;
 	static const vector<Card::spells> spellList;
 	static const vector<Card::actions> actionsList;
-	static std::unordered_map<Card::colors, Card::colors> advantage;
+	static const std::unordered_map<Card::colors, Card::colors> advantage;
 
 	//Public Functions:
 	Card (enum colors color, enum attributes attribute, int number); //Constructor

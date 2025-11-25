@@ -18,6 +18,7 @@
 #include "cards.h"
 #include "buttons.h"
 #include "globals.h"
+#include "StateVariables.h"
 
  class UIDrawer {
     public:
