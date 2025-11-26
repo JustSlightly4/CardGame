@@ -317,12 +317,8 @@ int main(void)
 				//Allows animation and logic for buttons
 				gameButtons.AnimationLogic(mousePoint);
 				viewCardButtons.AnimationLogic(mousePoint);
-				
-				//Look up the game rules
-				if (gameButtons["Rules"].GetAction() == true || IsKeyPressed(KEY_R)) {
-					currentScreen = RULES;
-					previousScreen = GAME;
-				}
+
+				Card::actions decision = Card::ERROR;
 				
 				//View a Cards Detailed Stats
 				for (int i = 0; i < 4; ++i) {
@@ -335,15 +331,44 @@ int main(void)
 						previousScreen = GAME;
 					}
 				}
+
+				//Enable all buttons
+				gameButtons.SetFunctionality(true, 0, gameButtons.GetSize()-1); //----------------------------------------------
 				
+				//Disable swap button if already used twice
+				if (regularGame->GetPlayer().GetTimesSwapped() >= regularGame->GetMaxSwaps()) {
+					gameButtons["Swap"].SetFunctionality(false);
+				}
+
 				//Turns off the swap button if last round
 				if (regularGame->GetRound() >= regularGame->GetNumCards() - 1) {
-					gameButtons[3].SetFunctionality(false);
+					gameButtons["Swap"].SetFunctionality(false);
 				}
 				
-				//Play Game if not the end of a game
-				regularGame->PlayRegularGame(gameButtons);
+				//Disable charge button if already used twice
+				if (regularGame->GetPlayer().at(regularGame->GetCardInPlay())->GetCharge() >= regularGame->GetMaxCharges()) {
+					gameButtons["Charge"].SetFunctionality(false);
+				}
 				
+				//Disable flask button if already used twice
+				if (regularGame->GetPlayer().GetFlaskAmt() >= regularGame->GetMaxFlask()) {
+					gameButtons["Use Flask"].SetFunctionality(false);
+				}
+				
+				//Disable attack button if support Card
+				if (regularGame->GetCurrCardRole() == RegularGame::C_SUPPORT) {
+					gameButtons["Attack"].SetFunctionality(false);
+				}
+
+				//Disable all buttons if game is done
+				if (regularGame->GetGameEnded()) gameButtons.SetFunctionality(false, 0, gameButtons.GetSize()-2);
+
+				//Look up the game rules
+				if (gameButtons["Rules"].GetAction() == true || IsKeyPressed(KEY_R)) {
+					currentScreen = RULES;
+					previousScreen = GAME;
+				}
+
 				//Go back to the setup
 				if (gameButtons["Main Menu"].GetAction() == true || IsKeyPressed(KEY_BACKSPACE)) {
 					regularGame.reset();
@@ -351,6 +376,25 @@ int main(void)
 					previousScreen = GAME;
 					gameButtons.SetFunctionality(true, 0, gameButtons.GetSize()-1);
 				}
+				
+				//Physical Attack
+				if (((gameButtons["Attack"].GetAction() == true || IsKeyPressed(KEY_A)) && gameButtons["Attack"].GetFunctionality() == true)) decision = Card::ATTACK;
+				
+				//Magical Attack
+				if (((gameButtons["Cast Spell"].GetAction() == true || IsKeyPressed(KEY_P)) && gameButtons["Cast Spell"].GetFunctionality() == true)) decision = Card::CASTSPELL;
+				
+				//Swap
+				if (((gameButtons["Swap"].GetAction() == true || IsKeyPressed(KEY_S)) && gameButtons["Swap"].GetFunctionality() == true)) decision = Card::SWAP;
+				
+				//Charge
+				if (((gameButtons["Charge"].GetAction() == true || IsKeyPressed(KEY_C)) && gameButtons["Charge"].GetFunctionality() == true)) decision = Card::CHARGE;
+				
+				//Flask *does not use players turn
+				if ((gameButtons["Use Flask"].GetAction() == true || IsKeyPressed(KEY_F)) && gameButtons["Use Flask"].GetFunctionality() == true) decision = Card::FLASK;
+				
+				//Play Game if not the end of a game
+				regularGame->PlayRegularGame(decision);
+				
 				break;
 			}
 			case EDITCARD: {

@@ -172,7 +172,7 @@ bool Deck::RemoveCard(int pos) {
 
 //Get a Card from the Deck
 Card* Deck::at(int const index) const {
-	if (index > amtCards-1) {
+	if (index < 0 || index > amtCards-1) {
 		cout << "Indexing Failure!" << endl;
 		return nullptr;
 	}
@@ -181,7 +181,7 @@ Card* Deck::at(int const index) const {
 
 //Overload the [] operator returns pointer
 Card* Deck::operator[](int const index) const {
-	if (index > amtCards-1) {
+	if (index < 0 || index > amtCards-1) {
 		cout << "Indexing Failure!" << endl;
 		return nullptr;
 	}

@@ -64,7 +64,7 @@ var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIR
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: /tmp/tmpif38cx8r.js
+// include: /tmp/tmpjd5ul_zj.js
 
   Module['expectedDataFileDownloads'] ??= 0;
   Module['expectedDataFileDownloads']++;
@@ -198,21 +198,21 @@ Module['FS_createPath']("/", "textures", true, true);
 
   })();
 
-// end include: /tmp/tmpif38cx8r.js
-// include: /tmp/tmphnj4aaf4.js
+// end include: /tmp/tmpjd5ul_zj.js
+// include: /tmp/tmp2_30dveu.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if ((typeof ENVIRONMENT_IS_WASM_WORKER != 'undefined' && ENVIRONMENT_IS_WASM_WORKER) || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD) || (typeof ENVIRONMENT_IS_AUDIO_WORKLET != 'undefined' && ENVIRONMENT_IS_AUDIO_WORKLET)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: /tmp/tmphnj4aaf4.js
-// include: /tmp/tmppjqgz89j.js
+  // end include: /tmp/tmp2_30dveu.js
+// include: /tmp/tmpovsg2uap.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach((task) => {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: /tmp/tmppjqgz89j.js
+  // end include: /tmp/tmpovsg2uap.js
 
 
 var arguments_ = [];
@@ -10451,49 +10451,49 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
 var ASM_CONSTS = {
-  135832: () => { if (document.fullscreenElement) return 1; },  
- 135878: () => { return Module.canvas.width; },  
- 135910: () => { return parseInt(Module.canvas.style.width); },  
- 135958: () => { document.exitFullscreen(); },  
- 135985: () => { setTimeout(function() { Module.requestFullscreen(false, false); }, 100); },  
- 136058: () => { if (document.fullscreenElement) return 1; },  
- 136104: () => { return Module.canvas.width; },  
- 136136: () => { return screen.width; },  
- 136161: () => { document.exitFullscreen(); },  
- 136188: () => { setTimeout(function() { Module.requestFullscreen(false, true); setTimeout(function() { canvas.style.width="unset"; }, 100); }, 100); },  
- 136321: () => { return window.innerWidth; },  
- 136347: () => { return window.innerHeight; },  
- 136374: () => { if (document.fullscreenElement) return 1; },  
- 136420: () => { return Module.canvas.width; },  
- 136452: () => { return parseInt(Module.canvas.style.width); },  
- 136500: () => { if (document.fullscreenElement) return 1; },  
- 136546: () => { return Module.canvas.width; },  
- 136578: () => { return screen.width; },  
- 136603: () => { return window.innerWidth; },  
- 136629: () => { return window.innerHeight; },  
- 136656: () => { if (document.fullscreenElement) return 1; },  
- 136702: () => { return Module.canvas.width; },  
- 136734: () => { return screen.width; },  
- 136759: () => { document.exitFullscreen(); },  
- 136786: () => { if (document.fullscreenElement) return 1; },  
- 136832: () => { return Module.canvas.width; },  
- 136864: () => { return parseInt(Module.canvas.style.width); },  
- 136912: () => { document.exitFullscreen(); },  
- 136939: ($0) => { Module.canvas.style.opacity = $0; },  
- 136977: () => { return screen.width; },  
- 137002: () => { return screen.height; },  
- 137028: () => { return window.screenX; },  
- 137055: () => { return window.screenY; },  
- 137082: () => { return window.devicePixelRatio; },  
- 137118: ($0) => { navigator.clipboard.writeText(UTF8ToString($0)); },  
- 137171: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
- 137222: () => { Module.canvas.style.cursor = 'none'; },  
- 137259: ($0, $1, $2, $3) => { try { navigator.getGamepads()[$0].vibrationActuator.playEffect('dual-rumble', { startDelay: 0, duration: $3, weakMagnitude: $1, strongMagnitude: $2 }); } catch (e) { try { navigator.getGamepads()[$0].hapticActuators[0].pulse($2, $3); } catch (e) { } } },  
- 137515: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
- 137566: () => { if (document.pointerLockElement) return 1; },  
- 137613: () => { if (document.fullscreenElement) return 1; },  
- 137659: () => { return window.innerWidth; },  
- 137685: () => { return window.innerHeight; }
+  137512: () => { if (document.fullscreenElement) return 1; },  
+ 137558: () => { return Module.canvas.width; },  
+ 137590: () => { return parseInt(Module.canvas.style.width); },  
+ 137638: () => { document.exitFullscreen(); },  
+ 137665: () => { setTimeout(function() { Module.requestFullscreen(false, false); }, 100); },  
+ 137738: () => { if (document.fullscreenElement) return 1; },  
+ 137784: () => { return Module.canvas.width; },  
+ 137816: () => { return screen.width; },  
+ 137841: () => { document.exitFullscreen(); },  
+ 137868: () => { setTimeout(function() { Module.requestFullscreen(false, true); setTimeout(function() { canvas.style.width="unset"; }, 100); }, 100); },  
+ 138001: () => { return window.innerWidth; },  
+ 138027: () => { return window.innerHeight; },  
+ 138054: () => { if (document.fullscreenElement) return 1; },  
+ 138100: () => { return Module.canvas.width; },  
+ 138132: () => { return parseInt(Module.canvas.style.width); },  
+ 138180: () => { if (document.fullscreenElement) return 1; },  
+ 138226: () => { return Module.canvas.width; },  
+ 138258: () => { return screen.width; },  
+ 138283: () => { return window.innerWidth; },  
+ 138309: () => { return window.innerHeight; },  
+ 138336: () => { if (document.fullscreenElement) return 1; },  
+ 138382: () => { return Module.canvas.width; },  
+ 138414: () => { return screen.width; },  
+ 138439: () => { document.exitFullscreen(); },  
+ 138466: () => { if (document.fullscreenElement) return 1; },  
+ 138512: () => { return Module.canvas.width; },  
+ 138544: () => { return parseInt(Module.canvas.style.width); },  
+ 138592: () => { document.exitFullscreen(); },  
+ 138619: ($0) => { Module.canvas.style.opacity = $0; },  
+ 138657: () => { return screen.width; },  
+ 138682: () => { return screen.height; },  
+ 138708: () => { return window.screenX; },  
+ 138735: () => { return window.screenY; },  
+ 138762: () => { return window.devicePixelRatio; },  
+ 138798: ($0) => { navigator.clipboard.writeText(UTF8ToString($0)); },  
+ 138851: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
+ 138902: () => { Module.canvas.style.cursor = 'none'; },  
+ 138939: ($0, $1, $2, $3) => { try { navigator.getGamepads()[$0].vibrationActuator.playEffect('dual-rumble', { startDelay: 0, duration: $3, weakMagnitude: $1, strongMagnitude: $2 }); } catch (e) { try { navigator.getGamepads()[$0].hapticActuators[0].pulse($2, $3); } catch (e) { } } },  
+ 139195: ($0) => { Module.canvas.style.cursor = UTF8ToString($0); },  
+ 139246: () => { if (document.pointerLockElement) return 1; },  
+ 139293: () => { if (document.fullscreenElement) return 1; },  
+ 139339: () => { return window.innerWidth; },  
+ 139365: () => { return window.innerHeight; }
 };
 function GetCanvasIdJs() { var canvasId = "#" + Module.canvas.id; var lengthBytes = lengthBytesUTF8(canvasId) + 1; var stringOnWasmHeap = _malloc(lengthBytes); stringToUTF8(canvasId, stringOnWasmHeap, lengthBytes); return stringOnWasmHeap; }
 
@@ -10513,8 +10513,9 @@ var _emscripten_stack_get_current = makeInvalidEarlyAccess('_emscripten_stack_ge
 var dynCall_ii = makeInvalidEarlyAccess('dynCall_ii');
 var dynCall_vi = makeInvalidEarlyAccess('dynCall_vi');
 var dynCall_iii = makeInvalidEarlyAccess('dynCall_iii');
-var dynCall_iiii = makeInvalidEarlyAccess('dynCall_iiii');
 var dynCall_vii = makeInvalidEarlyAccess('dynCall_vii');
+var dynCall_v = makeInvalidEarlyAccess('dynCall_v');
+var dynCall_iiii = makeInvalidEarlyAccess('dynCall_iiii');
 var dynCall_viii = makeInvalidEarlyAccess('dynCall_viii');
 var dynCall_viff = makeInvalidEarlyAccess('dynCall_viff');
 var dynCall_viiiii = makeInvalidEarlyAccess('dynCall_viiiii');
@@ -10530,7 +10531,6 @@ var dynCall_viiiiiiii = makeInvalidEarlyAccess('dynCall_viiiiiiii');
 var dynCall_viiiiiiiii = makeInvalidEarlyAccess('dynCall_viiiiiiiii');
 var dynCall_i = makeInvalidEarlyAccess('dynCall_i');
 var dynCall_vff = makeInvalidEarlyAccess('dynCall_vff');
-var dynCall_v = makeInvalidEarlyAccess('dynCall_v');
 var dynCall_viiiiiii = makeInvalidEarlyAccess('dynCall_viiiiiii');
 var dynCall_vfi = makeInvalidEarlyAccess('dynCall_vfi');
 var dynCall_viif = makeInvalidEarlyAccess('dynCall_viif');
@@ -10572,8 +10572,9 @@ function assignWasmExports(wasmExports) {
   dynCall_ii = dynCalls['ii'] = createExportWrapper('dynCall_ii', 2);
   dynCall_vi = dynCalls['vi'] = createExportWrapper('dynCall_vi', 2);
   dynCall_iii = dynCalls['iii'] = createExportWrapper('dynCall_iii', 3);
-  dynCall_iiii = dynCalls['iiii'] = createExportWrapper('dynCall_iiii', 4);
   dynCall_vii = dynCalls['vii'] = createExportWrapper('dynCall_vii', 3);
+  dynCall_v = dynCalls['v'] = createExportWrapper('dynCall_v', 1);
+  dynCall_iiii = dynCalls['iiii'] = createExportWrapper('dynCall_iiii', 4);
   dynCall_viii = dynCalls['viii'] = createExportWrapper('dynCall_viii', 4);
   dynCall_viff = dynCalls['viff'] = createExportWrapper('dynCall_viff', 4);
   dynCall_viiiii = dynCalls['viiiii'] = createExportWrapper('dynCall_viiiii', 6);
@@ -10589,7 +10590,6 @@ function assignWasmExports(wasmExports) {
   dynCall_viiiiiiiii = dynCalls['viiiiiiiii'] = createExportWrapper('dynCall_viiiiiiiii', 10);
   dynCall_i = dynCalls['i'] = createExportWrapper('dynCall_i', 1);
   dynCall_vff = dynCalls['vff'] = createExportWrapper('dynCall_vff', 3);
-  dynCall_v = dynCalls['v'] = createExportWrapper('dynCall_v', 1);
   dynCall_viiiiiii = dynCalls['viiiiiii'] = createExportWrapper('dynCall_viiiiiii', 8);
   dynCall_vfi = dynCalls['vfi'] = createExportWrapper('dynCall_vfi', 3);
   dynCall_viif = dynCalls['viif'] = createExportWrapper('dynCall_viif', 4);

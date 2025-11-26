@@ -80,7 +80,7 @@ class SingleButton {
 		string GetLabel();
 		void SetFunctionality(bool b);
 		bool GetFunctionality();
-		protected:
+	protected:
 		int buttonState; // Button state: 0-NORMAL, 1-MOUSE_HOVER, 2-PRESSED
 		bool buttonAction; // Button action should be activated
 		bool functionality; //If true the button can be clicked
@@ -102,7 +102,7 @@ class SingleButtonGroup {
 		auto begin() { return buttons.begin(); }
 		auto end() { return buttons.end(); }
 		shared_ptr<Texture2D>& GetTexture();
-		protected:
+	protected:
 		std::shared_ptr<Texture2D> buttonTexture;
 		int size;
 		vector<SingleButton> buttons;

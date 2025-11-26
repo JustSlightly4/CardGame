@@ -106,5 +106,9 @@ void Vector3D::PrintComponents() {
 1. Update all code to follow general guidelines
 2. Continue updating and rewriting the new UIDrawer and RegularGame classes
 3. Add status effects and more spells
-4. Give the orange cards abilities other than mimic
+4. Give the sigil cards abilities other than mimic
 5. Make the game local multiplayer
+6. View card screen should show things like hit, miss, and crit chance
+7. View card screen should show resistances as percentages
+8. Fix evil presence dialog not telling the player what it does
+9. Change DrawTextS to ignore last newline character

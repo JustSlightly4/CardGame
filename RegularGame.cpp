@@ -9,6 +9,10 @@
  
  //Constructor
  RegularGame::RegularGame(Deck &player1, Deck &player2, int currNumCards, int currDeckStrength, bool isDeck1AI, bool isDeck2AI) : deck1(player1), deck2(player2) {
+	deck1.ShuffleDeck();
+	deck2.ShuffleDeck();
+	player = &deck1;
+	opponent = &deck2;
 	cardInPlay = 0; //This is the index for the Card in play
 	turn = 0;
 	round = 0;
@@ -17,7 +21,7 @@
 	player1Score = 0;
 	player2Score = 0;
 	string dialog = "Game Start";
-	amtActions = 0;
+	amtActions = player->at(this->round)->GetNumActions();
 	gameStarted = false;
 	gameEnded = false;
 	numCards = currNumCards;
@@ -25,32 +29,21 @@
 	deck1AI = isDeck1AI;
 	deck2AI = isDeck2AI;
 	firstTurnFrame = true;
-	deck1.ShuffleDeck();
-	deck2.ShuffleDeck();
+	this->gameStarted = true;
  }
 
  //Logic for the ENTIRE GAME NOT AN INDIVIDUAL TURN
-void RegularGame::PlayRegularGame(SingleButtonGroup &buttons) {
+void RegularGame::PlayRegularGame(Card::actions nextDecision) {
 
 	//Guard
 	if (gameEnded == true) return;
 	
-	//Correctly Initialize Starting Variables
-	if (this->gameStarted == false) {
-		this->gameStarted = true;
-		this->round = 0;
-		this->turn = 0;
-		this->playerInPlay = PLAYER1;
-		this->dialog = "Game Start";
-		this->amtActions = deck1[this->round]->GetNumActions();
-	}
-	
-	if (this->playerInPlay == PLAYER1) PlayRegularGameTurn(deck1, deck2, buttons);
-	else PlayRegularGameTurn(deck2, deck1, buttons);
+	if (nextDecision != Card::ERROR) dialog = performAction[nextDecision]();
 	
 	//If anybody died move to next round
 	if ((deck1[this->round]->GetHealth() <= 0 || deck2[this->round]->GetHealth() <= 0)) {
 		
+		//Award Winning player points
 		if (deck1[this->round]->GetHealth() <= 0 && deck2[this->round]->GetHealth() <= 0) {
 			++this->player1Score;
 			++this->player2Score;
@@ -65,9 +58,15 @@ void RegularGame::PlayRegularGame(SingleButtonGroup &buttons) {
 			this->playerInPlay = PLAYER2;
 			this->dialog += " Winning Player 1 the round!";
 		}
-		this->currCardRole = C_MAIN;
-		
+
+		//Advance to next round
 		++this->round;
+
+		//Set who is the player and opponent
+		player  = &(playerInPlay == PLAYER1 ? deck1 : deck2);
+		opponent = &(playerInPlay == PLAYER1 ? deck2 : deck1);
+		this->currCardRole = C_MAIN; //Return to main card upon round end
+		
 		if (this->round >= this->numCards) { //if no next round, end game
 			this->gameEnded = true;
 			this->round = this->numCards - 1;
@@ -78,17 +77,17 @@ void RegularGame::PlayRegularGame(SingleButtonGroup &buttons) {
 			} else {
 				this->dialog = "Game Over. It was a tie!";
 			}
-			buttons.SetFunctionality(false, 0, buttons.GetSize()-2);
 			return;
 		}
+
+		//Set card in play index to the round number
 		this->cardInPlay = this->round;
 		
 		//Reset Card variables for next round
 		deck1.SetTimesSwapped(0);
 		deck2.SetTimesSwapped(0);
 		this->turn = 0;
-		if (this->playerInPlay == 0) this->amtActions = deck1[this->round]->GetNumActions();
-		else this->amtActions = deck2[this->round]->GetNumActions();
+		this->amtActions = player->at(this->round)->GetNumActions();
 		this->firstTurnFrame = true;
 	}
 	
@@ -105,15 +104,15 @@ void RegularGame::PlayRegularGame(SingleButtonGroup &buttons) {
 				if (this->playerInPlay == PLAYER1) this->playerInPlay = PLAYER2;
 				else this->playerInPlay = PLAYER1;
 				this->currCardRole = C_MAIN;
-				
-				//Give the correct number of actions to whichever Card is playing
-				if (this->playerInPlay == PLAYER1 ) {
-					this->amtActions = deck1[this->round]->GetNumActions();
-					this->cardInPlay = this->round;
-				} else {
-					this->amtActions = deck2[this->round]->GetNumActions();
-					this->cardInPlay = this->round;
-				}
+
+				//Swap the player and the opponent
+				player  = &(playerInPlay == PLAYER1 ? deck1 : deck2);
+				opponent = &(playerInPlay == PLAYER1 ? deck2 : deck1);
+
+				//Set Number of actions and the card index in play
+				this->amtActions = player->at(this->round)->GetNumActions();
+				this->cardInPlay = this->round;
+
 				break;
 			}
 			case(C_MAIN): { //If main Card was in play and is done
@@ -124,16 +123,15 @@ void RegularGame::PlayRegularGame(SingleButtonGroup &buttons) {
 				} else { //If it is the last round, switch players instead
 					if (this->playerInPlay == PLAYER1) this->playerInPlay = PLAYER2;
 					else this->playerInPlay = PLAYER1;
+
+					//Swap the player and the opponent
+					player  = &(playerInPlay == PLAYER1 ? deck1 : deck2);
+					opponent = &(playerInPlay == PLAYER1 ? deck2 : deck1);
 				}
 				
-				//Give the correct number of actions to whichever Card is playing
-				if (this->playerInPlay == PLAYER1 ) {
-					this->amtActions = deck1[deck1.size()-1]->GetNumActions();
-					this->cardInPlay = deck1.size() - 1;
-				} else {
-					this->amtActions = deck2[deck2.size()-1]->GetNumActions();
-					this->cardInPlay = deck2.size() - 1;
-				}
+				//Set Number of actions and the card index in play
+				this->amtActions = player->at(player->size()-1)->GetNumActions();
+				this->cardInPlay = player->size()-1;
 				break;
 			}
 		}
@@ -162,133 +160,41 @@ int RegularGame::GetMaxCharges() {return maxCharges;};
 int RegularGame::GetMaxFlask() {return maxFlasks;};
 Deck &RegularGame::GetDeck1() {return deck1;};
 Deck &RegularGame::GetDeck2() {return deck2;};
-
-//LOGIC FOR AN INDIVIDUAL TURN IN A GAME
-void RegularGame::PlayRegularGameTurn(Deck &player, Deck &opponent, SingleButtonGroup &buttons) {
-	
-	//Set AIDecision to error to denote it hasnt make a decision yet
-	//and don't make a decision on the first frame.
-	//Once on the second frame, then wait a few seconds and make a decision
-	Card::actions AIDecision = Card::ERROR;
-	/*
-	if (player.IsAI() == true && this->firstTurnFrame == false) {
-		WaitTime(1.5);
-		AIDecision = MakeAIDecisionDumb(player, opponent);
-	}
-	*/
-	
-	//Enable all buttons
-	for (int i = 0; i < buttons.GetSize(); ++i) {
-		buttons[i].SetFunctionality(true);
-	}
-	
-	//Disable swap button if already used twice
-	if (player.GetTimesSwapped() >= this->maxSwaps) {
-		buttons[3].SetFunctionality(false);
-	}
-	
-	//Disable charge button if already used twice
-	if (player[this->cardInPlay]->GetCharge() >= this->maxCharges) {
-		buttons[4].SetFunctionality(false);
-	}
-	
-	//Disable flask button if already used twice
-	if (player.GetFlaskAmt() >= this->maxFlasks) {
-		buttons[5].SetFunctionality(false);
-	}
-	
-	//Disable attack button if support Card
-	if (this->currCardRole == C_SUPPORT) {
-		buttons[1].SetFunctionality(false);
-	}
-	
-	/*
-	//If Ai disable all buttons and wait on next frame
-	if (player.IsAI() == true) {
-		for (int i = 0; i < buttons.GetSize() - 1; ++i) {
-			buttons[i].SetFunctionality(false);
-		}
-		//if (flags.firstTurnFrame == false) AIDecision = player.MakeAIDecision(opponent, this->round, this->turn);
-	}
-	*/
-	
-	//Physical Attack
-	if (((buttons[1].GetAction() == true || IsKeyPressed(KEY_A)) && buttons[1].GetFunctionality() == true)
-	|| AIDecision == Card::ATTACK) {
-		this->dialog = PhysicalAttack(player[this->cardInPlay], opponent[this->round], player[this->round]);
-		--this->amtActions;
-	}
-	
-	//Magical Attack
-	if (((buttons[2].GetAction() == true || IsKeyPressed(KEY_P)) && buttons[2].GetFunctionality() == true)
-	|| AIDecision == Card::CASTSPELL) {
-		this->dialog = MagicalAttack(player[this->cardInPlay], opponent[this->round], player[this->round]);
-		--this->amtActions;
-	}
-	
-	//Swap
-	if (((buttons[3].GetAction() == true || IsKeyPressed(KEY_S)) && buttons[3].GetFunctionality() == true)
-	|| AIDecision == Card::SWAP) {
-		this->dialog = player.Swap(this->round, player.GetCardAmt()-1);
-		this->amtActions = 0; //Set to zero rather than minus one because this should always end turn immediately
-	}
-	
-	//Charge
-	if (((buttons[4].GetAction() == true || IsKeyPressed(KEY_C)) && buttons[4].GetFunctionality() == true)
-	|| AIDecision == Card::CHARGE) {
-		this->dialog = player[this->cardInPlay]->ChargeUp();
-		--this->amtActions;
-		if (player[this->cardInPlay]->GetCharge() == 2) {
-			this->dialog = ApplyAbility(player, opponent, this->cardInPlay, this->round);
-		}
-	}
-	
-	//Use Flask *does not use players turn
-	if ((buttons[5].GetAction() == true || IsKeyPressed(KEY_F)
-	|| AIDecision == Card::FLASK) 
-	&& buttons[5].GetFunctionality() == true) {
-		this->dialog = player.UseFlask(this->cardInPlay);
-	}
-	
-	/*
-	if (player.IsAI() == true && this->firstTurnFrame == true) {
-		this->firstTurnFrame = false;
-	}
-	*/
-}
+Deck &RegularGame::GetPlayer() {return *player;};
+Deck &RegularGame::GetOpponent() {return *opponent;};
 
 //Applies a cards ability
-string RegularGame::ApplyAbility(Deck &player, Deck &opponent, int pos, int mainPos) {
+string RegularGame::ApplyAbility() {
 	ostringstream oss;
-	if (player[pos]->GetAbilitiesActive() == false) {
-		oss << player[pos]->GetName() << " could not used their ability!\n";
+	if (player->at(this->cardInPlay)->GetAbilitiesActive() == false) {
+		oss << player->at(this->cardInPlay)->GetName() << " could not used their ability!\n";
 		return oss.str();
 	}
-	if (player[pos]->GetAbilityUsed() == true) {
-		oss << player[pos]->GetName() << " can not use their ability again!\n";
+	if (player->at(this->cardInPlay)->GetAbilityUsed() == true) {
+		oss << player->at(this->cardInPlay)->GetName() << " can not use their ability again!\n";
 		return oss.str();
 	}
-	player[pos]->SetAbilityUsed(true);
+	player->at(this->cardInPlay)->SetAbilityUsed(true);
 	
 	//Needed Variables
 	string amt = "E";
 	int tempHealth;
 	
 	//Handle CHAOS and STRATEGICFIRE
-	switch(player[pos]->GetAbility()) {
+	switch(player->at(this->cardInPlay)->GetAbility()) {
 		case (Card::CHAOS):
-			player[pos]->ChangeAbility(rand() % 13);
+			player->at(this->cardInPlay)->ChangeAbility(rand() % 13);
 			break;
 		case (Card::STRATEGICFIRE):
-			if (mainPos == 0 && player.GetCardLimit() > 1) { //If first and there are more cards in the Deck, use Holy or Evil Presence
-				if (rand() % 2) player[pos]->ChangeAbility(Card::HOLY_PRESENCE);
-				else player[pos]->ChangeAbility(Card::EVIL_PRESENCE);
-			} else if (mainPos == player.GetCardLimit()-1 && player.GetCardLimit() > 1) { //If last and there are more cards in the Deck, use Necromancy
-				player[pos]->ChangeAbility(Card::NECROMANCY);
-			} else if (opponent[mainPos]->GetAbilityUsed() == false) { //If the opponent hasn't used their ability nullify it
-				player[pos]->ChangeAbility(Card::NULLIFY);
+			if (this->round == 0 && player->GetCardLimit() > 1) { //If first and there are more cards in the Deck, use Holy or Evil Presence
+				if (rand() % 2) player->at(this->cardInPlay)->ChangeAbility(Card::HOLY_PRESENCE);
+				else player->at(this->cardInPlay)->ChangeAbility(Card::EVIL_PRESENCE);
+			} else if (this->round == player->GetCardLimit()-1 && player->GetCardLimit() > 1) { //If last and there are more cards in the Deck, use Necromancy
+				player->at(this->cardInPlay)->ChangeAbility(Card::NECROMANCY);
+			} else if (opponent->at(this->round)->GetAbilityUsed() == false) { //If the opponent hasn't used their ability nullify it
+				player->at(this->cardInPlay)->ChangeAbility(Card::NULLIFY);
 			} else {
-				player[pos]->ChangeAbility(Card::RESISTANT);
+				player->at(this->cardInPlay)->ChangeAbility(Card::RESISTANT);
 			}
 			break;
 		default:
@@ -297,141 +203,141 @@ string RegularGame::ApplyAbility(Deck &player, Deck &opponent, int pos, int main
 	}
 	
 	//All Other Cases
-	switch(player[pos]->GetAbility()) {
+	switch(player->at(this->cardInPlay)->GetAbility()) {
 		case (Card::MIMICRY): {
-			if (player[pos]->GetColor() == opponent[mainPos]->GetColor() || player[pos]->GetColor() == Card::C_WHITE || opponent[mainPos]->GetColor() == Card::C_WHITE) {
-				oss << player[pos]->GetName() << " used pure mimicry!\n";
-				(*player[pos]) = (*opponent[mainPos]);
+			if (player->at(this->cardInPlay)->GetColor() == opponent->at(this->round)->GetColor() || player->at(this->cardInPlay)->GetColor() == Card::C_WHITE || opponent->at(this->round)->GetColor() == Card::C_WHITE) {
+				oss << player->at(this->cardInPlay)->GetName() << " used pure mimicry!\n";
+				(*player->at(this->cardInPlay)) = (*opponent->at(this->round));
 			} else {
-				Card newCard(opponent[mainPos]->GetColor(), opponent[mainPos]->GetAttribute(), opponent[mainPos]->GetNumber());
-				oss << player[pos]->GetName() << " used discolored mimicry!\n";
-				(*player[pos]) = newCard;
+				Card newCard(opponent->at(this->round)->GetColor(), opponent->at(this->round)->GetAttribute(), opponent->at(this->round)->GetNumber());
+				oss << player->at(this->cardInPlay)->GetName() << " used discolored mimicry!\n";
+				(*player->at(this->cardInPlay)) = newCard;
 			}
 			break;
 		}
 		case (Card::HEAVY_HANDED): {
-			oss << player[pos]->GetName() << " used their ability Heavy Handed!\n";
-			oss << player[pos]->AddPower(5);
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Heavy Handed!\n";
+			oss << player->at(this->cardInPlay)->AddPower(5);
 			break;
 		}
 		case (Card::FAITHFUL): {
-			oss << player[pos]->GetName() << " used their ability Faithful!\n";
-			oss << player[pos]->DecUpperDice(3);
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Faithful!\n";
+			oss << player->at(this->cardInPlay)->DecUpperDice(3);
 			break;
 		}
 		case (Card::FAST_HAND): {
-			oss << player[pos]->GetName() << " used their ability Fast Hand!\n";
-			oss << player[pos]->AddNumActions(1);
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Fast Hand!\n";
+			oss << player->at(this->cardInPlay)->AddNumActions(1);
 			break;
 		}
 		case (Card::HEALTHY_MIND): {
-			oss << player[pos]->GetName() << " used their ability Healthy Mind!\n";
-			oss << player[pos]->AddHealth(10);
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Healthy Mind!\n";
+			oss << player->at(this->cardInPlay)->AddHealth(10);
 			break;
 		}
 		case (Card::TERROR): {
-			oss << player[pos]->GetName() << " used their ability Terror!\n";
-			oss << player[pos]->GetName() << " terrified " << opponent[mainPos]->GetName();
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Terror!\n";
+			oss << player->at(this->cardInPlay)->GetName() << " terrified " << opponent->at(this->round)->GetName();
 			oss << "!\n";
-			oss << opponent[mainPos]->DecPower(3);
+			oss << opponent->at(this->round)->DecPower(3);
 			break;
 		}
 		case (Card::RESISTANT): {
-			oss << player[pos]->GetName() << " used their ability Resistant!";
-			oss << player[pos]->AddPhysicalResistance(0.25);
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Resistant!";
+			oss << player->at(this->cardInPlay)->AddPhysicalResistance(0.25);
 			break;
 		}
 		case (Card::HOLY_PRESENCE): {
-			oss << player[pos]->GetName() << " used their ability Holy Presence!\n";
-			if (mainPos < player.GetCardLimit() - 1) {
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Holy Presence!\n";
+			if (this->round < player->GetCardLimit() - 1) {
 				oss << "A friends power was increased!\n";
-				player[mainPos+1]->ChargeUp();
+				player->at(this->round+1)->ChargeUp();
 			}
 			break;
 		}
 		case (Card::EVIL_PRESENCE): {
-			oss << player[pos]->GetName() << " used their ability Evil Presence!\n";
-			if ((mainPos < opponent.GetCardLimit()-1) && (opponent[mainPos+1]->GetCharge() == 0)) {
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Evil Presence!\n";
+			if ((this->round < opponent->GetCardLimit()-1) && (opponent->at(this->round+1)->GetCharge() == 0)) {
 				oss << "An enemies power was drained!\n";
-				opponent[mainPos+1]->ChargeDown();
+				opponent->at(this->round+1)->ChargeDown();
 			}
 			break;
 		}
 		case (Card::ACCURATE): {
-			oss << player[pos]->GetName() << " used their ability Accurate!\n";
-			oss << player[pos]->DecLowerDice(1);
-			oss << player[pos]->DecUpperDice(3);
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Accurate!\n";
+			oss << player->at(this->cardInPlay)->DecLowerDice(1);
+			oss << player->at(this->cardInPlay)->DecUpperDice(3);
 			break;
 		}
 		case (Card::INNERGATE): {
-			oss << player[pos]->GetName() << " used their ability Inner Gate!\n";
-			player[pos]->AddLowerDice(99);
-			player[pos]->DecUpperDice(99);
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Inner Gate!\n";
+			player->at(this->cardInPlay)->AddLowerDice(99);
+			player->at(this->cardInPlay)->DecUpperDice(99);
 			break;
 		}
 		case (Card::NECROMANCY): {
-			oss << player[pos]->GetName() << " used their ability Necromancy!\n";
-			if (mainPos == 0) {
-				oss << "Fallen souls strengthen " << player[pos]->GetName() << "!\n";
-				player[pos]->ChargeUp();
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Necromancy!\n";
+			if (this->round == 0) {
+				oss << "Fallen souls strengthen " << player->at(this->cardInPlay)->GetName() << "!\n";
+				player->at(this->cardInPlay)->ChargeUp();
 			} else {
 				//Finds the Card with the most power in the Deck before current Card
 				int maxPowerIndex = 0;
 				int maxPower = 0;
-				for (int j = 0; j < mainPos-1; ++j) {
-					if (player[j]->GetPower() > maxPower) {
+				for (int j = 0; j < this->round-1; ++j) {
+					if (player->at(j)->GetPower() > maxPower) {
 						maxPowerIndex = j;
-						maxPower = player[j]->GetPower();
+						maxPower = player->at(j)->GetPower();
 					}
 				}
-				(*player[pos]) = (*player[maxPowerIndex]);
+				(*player->at(this->cardInPlay)) = (*player->at(maxPowerIndex));
 				
-				player[pos]->FullHeal(); //Heals the Card back to full health
+				player->at(this->cardInPlay)->FullHeal(); //Heals the Card back to full health
 				
 				//Changes ability to prevent nullify from nullifing
 				//abilities that may have been used in previous rounds
-				player[pos]->ChangeAbility(Card::NECROMANCY);
-				player[pos]->SetAbilitiesActive(false); //Prevents repeated use of necromancy
+				player->at(this->cardInPlay)->ChangeAbility(Card::NECROMANCY);
+				player->at(this->cardInPlay)->SetAbilitiesActive(false); //Prevents repeated use of necromancy
 			}
 			break;
 		}
 		case (Card::MAGIC_IMMUNITY): {
-			oss << player[pos]->GetName() << " used their ability Magic Immunity and is now entirely immune to magic!\n";
-			player[pos]->AddMagicalResistance(player[pos]->GetMagicalResistance());
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Magic Immunity and is now entirely immune to magic!\n";
+			player->at(this->cardInPlay)->AddMagicalResistance(player->at(this->cardInPlay)->GetMagicalResistance());
 			break;
 		}
 		case (Card::DIVINEHELP): {
-			oss << player[pos]->GetName() << " used their ability Divine Help!\n";
-			opponent[mainPos]->DecHealth(15);
-			oss << opponent[mainPos]->GetName() << "'s very soul was struck for 15 points!\n";
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Divine Help!\n";
+			opponent->at(this->round)->DecHealth(15);
+			oss << opponent->at(this->round)->GetName() << "'s very soul was struck for 15 points!\n";
 			break;
 		}
 		case (Card::NULLIFY): {
-			oss << player[pos]->GetName() << " used their ability Nullify!\n";
-			if (opponent[mainPos]->GetAbilityUsed() == true && opponent[mainPos]->GetAbilitiesActive() == true) {
-				oss << NullifyOpponentsAbility(*player[pos], *opponent[mainPos]);
-				opponent[mainPos]->SetAbilitiesActive(false);
-			} else if (opponent[mainPos]->GetAbilityUsed() == false && opponent[mainPos]->GetAbilitiesActive() == true) {
-				oss << player[pos]->GetName() << " prevented " << opponent[mainPos]->GetName() <<
+			oss << player->at(this->cardInPlay)->GetName() << " used their ability Nullify!\n";
+			if (opponent->at(this->round)->GetAbilityUsed() == true && opponent->at(this->round)->GetAbilitiesActive() == true) {
+				oss << NullifyOpponentsAbility();
+				opponent->at(this->round)->SetAbilitiesActive(false);
+			} else if (opponent->at(this->round)->GetAbilityUsed() == false && opponent->at(this->round)->GetAbilitiesActive() == true) {
+				oss << player->at(this->cardInPlay)->GetName() << " prevented " << opponent->at(this->round)->GetName() <<
 					" from ever using their ability!\n";
-				opponent[mainPos]->SetAbilitiesActive(false);
+				opponent->at(this->round)->SetAbilitiesActive(false);
 			} else {
-				oss << player[pos]->GetName() << " could not nullify " << opponent[mainPos]->GetName() << "'s ability!\n";
+				oss << player->at(this->cardInPlay)->GetName() << " could not nullify " << opponent->at(this->round)->GetName() << "'s ability!\n";
 			}
 			break;
 		}
 		case (Card::MADE_IN_HEAVEN): {
-			tempHealth = opponent[mainPos]->GetHealth();
-			Card newCard(opponent[mainPos]->GetColor(), opponent[mainPos]->GetAttribute(), opponent[mainPos]->GetNumber());
-				oss << player[pos]->GetName() << " used Made In Heaven and reset their opponent!\n";
-				(*opponent[mainPos]) = newCard;
-			if (opponent[mainPos]->GetHealth() > tempHealth) {
-				opponent[mainPos]->DecHealth(opponent[mainPos]->GetHealth() - tempHealth);
+			tempHealth = opponent->at(this->round)->GetHealth();
+			Card newCard(opponent->at(this->round)->GetColor(), opponent->at(this->round)->GetAttribute(), opponent->at(this->round)->GetNumber());
+				oss << player->at(this->cardInPlay)->GetName() << " used Made In Heaven and reset their opponent!\n";
+				(*opponent->at(this->round)) = newCard;
+			if (opponent->at(this->round)->GetHealth() > tempHealth) {
+				opponent->at(this->round)->DecHealth(opponent->at(this->round)->GetHealth() - tempHealth);
 			}
 			break;
 		}
 		default: {
-			oss << player[pos]->GetName() << "'s ability is currently broken :(\n";
+			oss << player->at(this->cardInPlay)->GetName() << "'s ability is currently broken :(\n";
 			break;
 		}
 	}
@@ -439,86 +345,88 @@ string RegularGame::ApplyAbility(Deck &player, Deck &opponent, int pos, int main
 }
 
 //Tries to undo whatever the opponents ability did
-string RegularGame::NullifyOpponentsAbility(Card &player, Card &opponent) {
+string RegularGame::NullifyOpponentsAbility() {
 	ostringstream oss;
-	switch(opponent.GetAbility()) {
+	switch(opponent->at(this->round)->GetAbility()) {
 		case (Card::HEAVY_HANDED):
-			oss << opponent.DecPower(3);
+			oss << opponent->at(this->round)->DecPower(3);
 			break;
 		case (Card::FAITHFUL):
-			oss << opponent.AddUpperDice(3);
+			oss << opponent->at(this->round)->AddUpperDice(3);
 			break;
 		case (Card::FAST_HAND):
-			oss << opponent.DecNumActions(1);
+			oss << opponent->at(this->round)->DecNumActions(1);
 			break;
 		case (Card::HEALTHY_MIND):
-			oss << opponent.DecHealth(10);
+			oss << opponent->at(this->round)->DecHealth(10);
 			break;
 		case (Card::RESISTANT):
-			oss << opponent.DecPhysicalResistance(0.25);
+			oss << opponent->at(this->round)->DecPhysicalResistance(0.25);
 			break;
 		case (Card::ACCURATE):
-			oss << opponent.AddLowerDice(1);
-			oss << opponent.AddUpperDice(3);
+			oss << opponent->at(this->round)->AddLowerDice(1);
+			oss << opponent->at(this->round)->AddUpperDice(3);
 			break;
 		case (Card::DIVINEHELP):
-			player.AddHealth(15);
-			oss << "The gods have given " << player.GetName() << " their health back!\n";
+			player->at(this->cardInPlay)->AddHealth(15);
+			oss << "The gods have given " << player->at(this->cardInPlay)->GetName() << " their health back!\n";
 			break;
 		default:
-			oss << player.GetName() << " could not nullify " << opponent.GetName() << "'s ability!\n";
+			oss << player->at(this->cardInPlay)->GetName() << " could not nullify " << opponent->at(this->round)->GetName() << "'s ability!\n";
 			break;
 	}
 	return oss.str();
 }
 
 //Physically Attack an Opponent
-string RegularGame::PhysicalAttack(Card *player, Card *opponent, Card *mainCard) {
+string RegularGame::PhysicalAttack() {
+	--this->amtActions;
 	ostringstream oss;
-	Card::attackActions action = player->RollDiceEnum();
+	Card::attackActions action = player->at(this->cardInPlay)->RollDiceEnum();
 	switch (action) {
 		case (Card::HIT):
-			oss << player->GetName() << " hit " << opponent->GetName()
-				<< " for " << int(player->GetPower() * opponent->GetPhysicalResistance()) << " points!\n";
-			opponent->DecHealth(player->GetPower() * opponent->GetPhysicalResistance());
+			oss << player->at(this->cardInPlay)->GetName() << " hit " << opponent->at(this->round)->GetName()
+				<< " for " << int(player->at(this->cardInPlay)->GetPower() * opponent->at(this->round)->GetPhysicalResistance()) << " points!\n";
+			opponent->at(this->round)->DecHealth(player->at(cardInPlay)->GetPower() * opponent->at(this->round)->GetPhysicalResistance());
 			break;
 		case (Card::CRITHIT):
-			oss << player->GetName() << " critically hit " << opponent->GetName()
-				<< " for " << int(player->GetPower() * 1.2 * opponent->GetPhysicalResistance()) << " points!\n";
-			opponent->DecHealth(player->GetPower() * 1.2 * opponent->GetPhysicalResistance());
+			oss << player->at(this->cardInPlay)->GetName() << " critically hit " << opponent->at(this->round)->GetName()
+				<< " for " << int(player->at(this->cardInPlay)->GetPower() * 1.2 * opponent->at(this->round)->GetPhysicalResistance()) << " points!\n";
+			opponent->at(this->round)->DecHealth(player->at(this->cardInPlay)->GetPower() * 1.2 * opponent->at(this->round)->GetPhysicalResistance());
 			break;
 		default:
-			oss << player->GetName() << " missed!\n";
+			oss << player->at(this->cardInPlay)->GetName() << " missed!\n";
 			break;
 	};
 	return oss.str();
 }
 
 //Magically Attack an Opponent
-string RegularGame::MagicalAttack(Card *player, Card *opponent, Card *mainCard) {
+string RegularGame::MagicalAttack() {
+	--this->amtActions;
 	ostringstream oss;
 	
-	if (player->GetMagicalPower() <= 0) {
-		oss << player->GetName() << " has no magical power!\n";
+	if (player->at(this->cardInPlay)->GetMagicalPower() <= 0) {
+		oss << player->at(this->cardInPlay)->GetName() << " has no magical power!\n";
 		return oss.str();
 	}
 	
 	//Calculate base damage
-	int amt = (rand() % player->GetMagicalPower()) + 1;
+	int amt = (rand() % player->at(this->cardInPlay)->GetMagicalPower()) + 1;
 	
 	//Apply damage and crits
-	switch(player->GetSpell()) {
+	switch(player->at(this->cardInPlay)->GetSpell()) {
 		case (Card::FORCE): { //Does physical damage
 			//If the opponents color is the same as the Card advantage then critical hit
-			if (Card::advantage.at(player->GetColor()) == opponent->GetColor()) {
+			if (Card::advantage.at(player->at(this->cardInPlay)->GetColor()) == opponent->at(this->round)->GetColor()) {
 				amt *= 1.2;
-				oss << player->GetName() << " critically cast Force on " << opponent->GetName() << " for " << amt << " points!\n";
-				opponent->DecHealth(amt * opponent->GetMagicalResistance());
+				oss << player->at(this->cardInPlay)->GetName() << " critically cast Force on " << opponent->at(this->round)->GetName() << " for " << amt << " points!\n";
+				opponent->at(this->round)->DecHealth(amt * opponent->at(this->round)->GetMagicalResistance());
 					
 			//Otherwise, hit on the range of [magicalPower/2 + 1, magicalPower]
 			} else {
-				oss << player->GetName() << " cast Force on " << opponent->GetName() << " for " << int(amt * opponent->GetMagicalResistance()) << " points!\n";
-				opponent->DecHealth(amt * opponent->GetMagicalResistance());
+				oss << player->at(this->cardInPlay)->GetName() << " cast Force on " << opponent->at(this->round)->GetName() << " for " << int(amt * opponent->at(this->round)->GetMagicalResistance()) << " points!\n";
+				opponent->at(this->round)->DecHealth(amt * opponent->at(this->round)->GetMagicalResistance());
 			}
 			break;
 		}
@@ -526,43 +434,43 @@ string RegularGame::MagicalAttack(Card *player, Card *opponent, Card *mainCard) 
 			if (amt > 1) amt = amt * 0.5; //Drain Spell nerf but can't miss
 			
 			//If the opponents color is the same as the Card advantage then critical hit
-			if (Card::advantage.at(player->GetColor()) == opponent->GetColor()) {
+			if (Card::advantage.at(player->at(this->cardInPlay)->GetColor()) == opponent->at(this->round)->GetColor()) {
 				amt *= 1.2;
-				oss << player->GetName() << " critically cast Drain on " << opponent->GetName() << " for " << amt << " points!\n";
-				opponent->DecPower(amt * opponent->GetMagicalResistance());
+				oss << player->at(this->cardInPlay)->GetName() << " critically cast Drain on " << opponent->at(this->round)->GetName() << " for " << amt << " points!\n";
+				opponent->at(this->round)->DecPower(amt * opponent->at(this->round)->GetMagicalResistance());
 					
 			//Otherwise, hit on the range of [magicalPower/2 + 1, magicalPower]
 			} else {
-				oss << player->GetName() << " cast Drain on " << opponent->GetName() << " for " << int(amt * opponent->GetMagicalResistance()) << " points!\n";
-				opponent->DecPower(amt * opponent->GetMagicalResistance());
+				oss << player->at(this->cardInPlay)->GetName() << " cast Drain on " << opponent->at(this->round)->GetName() << " for " << int(amt * opponent->at(this->round)->GetMagicalResistance()) << " points!\n";
+				opponent->at(this->round)->DecPower(amt * opponent->at(this->round)->GetMagicalResistance());
 			}
 			break;
 		}
 		case(Card::WEAKEN): {
 			//If the opponents color is the same as the Card advantage then critical hit
-			if (Card::advantage.at(player->GetColor()) == opponent->GetColor()) {
+			if (Card::advantage.at(player->at(this->cardInPlay)->GetColor()) == opponent->at(this->round)->GetColor()) {
 				double amt = 0.2;
-				oss << player->GetName() << " critically cast Weaken on " << opponent->GetName() << "!\n";
-				oss << opponent->DecPhysicalResistance(amt * opponent->GetMagicalResistance());
+				oss << player->at(this->cardInPlay)->GetName() << " critically cast Weaken on " << opponent->at(this->round)->GetName() << "!\n";
+				oss << opponent->at(this->round)->DecPhysicalResistance(amt * opponent->at(this->round)->GetMagicalResistance());
 					
 			//Otherwise, hit on the range of [magicalPower/2 + 1, magicalPower]
 			} else {
 				double amt = 0.1;
-				oss << player->GetName() << " cast Weaken on " << opponent->GetName() << "!\n";
-				oss << opponent->DecPhysicalResistance(amt * opponent->GetMagicalResistance());
+				oss << player->at(this->cardInPlay)->GetName() << " cast Weaken on " << opponent->at(this->round)->GetName() << "!\n";
+				oss << opponent->at(this->round)->DecPhysicalResistance(amt * opponent->at(this->round)->GetMagicalResistance());
 			}
 			break;
 		}
 		case(Card::HEAL): {
 			//If mains color is the same as the Card advantage then Greater Heal
-			if (Card::advantage.at(player->GetColor()) == mainCard->GetColor()) {
-				oss << player->GetName() << " cast Greater Heal for " << int (amt * 1.2) << " points!\n";
-				mainCard->Heal(amt * 1.2);
+			if (Card::advantage.at(player->at(this->cardInPlay)->GetColor()) == player->at(this->round)->GetColor()) {
+				oss << player->at(this->cardInPlay)->GetName() << " cast Greater Heal for " << int (amt * 1.2) << " points!\n";
+				player->at(this->round)->Heal(amt * 1.2);
 					
 			//Otherwise, regular heal
 			} else {
-				oss << player->GetName() << " cast Heal for " << amt << " points!\n";
-				mainCard->Heal(amt);
+				oss << player->at(this->cardInPlay)->GetName() << " cast Heal for " << amt << " points!\n";
+				player->at(this->round)->Heal(amt);
 			}
 			break;
 		}
@@ -570,20 +478,43 @@ string RegularGame::MagicalAttack(Card *player, Card *opponent, Card *mainCard) 
 	return oss.str();
 }
 
-Card::actions RegularGame::MakeAIDecisionDumb(Deck &player, Deck &opponent) {
+string RegularGame::Swap() {
+	this->amtActions = 0; //Set to zero rather than minus one because this should always end turn immediately
+	ostringstream oss;
+	oss << player->Swap(this->round, player->GetCardAmt()-1);
+	return oss.str();
+}
+
+string RegularGame::Charge() {
+	--this->amtActions;
+	ostringstream oss;
+	oss << player->at(this->cardInPlay)->ChargeUp();
+	if (player->at(this->cardInPlay)->GetCharge() == 2) {
+		oss << ApplyAbility();
+	}
+	return oss.str();
+}
+
+string RegularGame::UseFlask() {
+	ostringstream oss;
+	oss << player->UseFlask(this->cardInPlay);
+	return oss.str();
+}
+
+Card::actions RegularGame::MakeAIDecisionDumb() {
 	
 	//Make a list of the actions that are allowed
 	vector<Card::actions> allowableActions = {Card::CASTSPELL};
 	
 	//Go through checks to add which actions are allowed
-	if (player[this->cardInPlay]->GetCharge() < this->maxCharges) allowableActions.push_back(Card::CHARGE);
-	if (player.GetTimesSwapped() < this->maxSwaps) allowableActions.push_back(Card::SWAP);
-	if (player.GetFlaskAmt() < this->maxFlasks) allowableActions.push_back(Card::FLASK);
+	if (player->at(this->cardInPlay)->GetCharge() < this->maxCharges) allowableActions.push_back(Card::CHARGE);
+	if (player->GetTimesSwapped() < this->maxSwaps) allowableActions.push_back(Card::SWAP);
+	if (player->GetFlaskAmt() < this->maxFlasks) allowableActions.push_back(Card::FLASK);
 	if (this->currCardRole == C_MAIN) allowableActions.push_back(Card::ATTACK);
 	
 	//Push a completely random chosen action to the queue
-	player[this->cardInPlay]->PushAction(allowableActions[rand() % allowableActions.size()]);
+	player->at(this->cardInPlay)->PushAction(allowableActions[rand() % allowableActions.size()]);
 	
 	//Remove action from queue and return it
-	return player[this->cardInPlay]->PopAction();
+	return player->at(this->cardInPlay)->PopAction();
 }

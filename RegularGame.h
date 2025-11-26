@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "raylib.h"
 #include "Card.h"
 #include "Deck.h"
@@ -20,18 +21,18 @@ class RegularGame {
     public:
         //Public Enums
         enum players {
-            PLAYER1,
-            PLAYER2,
+            PLAYER1 = 0,
+            PLAYER2 = 1,
         };
 
         enum cardRoles {
-            C_MAIN,
-            C_SUPPORT,
+            C_MAIN = 0,
+            C_SUPPORT = 0,
         };
 
         //Public Functions
         RegularGame(Deck &player1, Deck &player2, int currNumCards, int currDeckStrength, bool isDeck1AI, bool isDeck2AI);
-        void PlayRegularGame(SingleButtonGroup &buttons);
+        void PlayRegularGame(Card::actions nextDecision);
         int GetCardInPlay();
         int GetTurn();
         int GetRound();
@@ -53,9 +54,15 @@ class RegularGame {
         int GetMaxFlask();
         Deck &GetDeck1();
         Deck &GetDeck2();
+        Deck &GetPlayer();
+        Deck &GetOpponent();
 
     protected:
         //Private Variables
+        Deck deck1;
+        Deck deck2;
+        Deck* player;
+        Deck* opponent;
         int cardInPlay;
         int turn;
         int round;
@@ -75,18 +82,36 @@ class RegularGame {
         static constexpr int maxSwaps = 2;
         static constexpr int maxCharges = 2;
         static constexpr int maxFlasks = 2;
-        Deck deck1;
-        Deck deck2;
+
+        //Dispatch Table
+        /*
+        * This is a hash table that takes in a players actions and then performs that action
+        * accordingly in O(1) time.
+        * unordered_map<Card::actions, function<returnType(arguments)>>
+        * [this] Capture Clause that captures all the class variables but not any local variables
+        * () Function Arguments. Doesn't need any.
+        * {Card::Key, function to return}
+        */
+        unordered_map<Card::actions, function<string()>> performAction = {
+            {Card::ATTACK, [this](){ return PhysicalAttack(); }},
+            {Card::CASTSPELL, [this](){ return MagicalAttack(); }},
+            {Card::CHARGE, [this](){ return Charge(); }},
+            {Card::SWAP, [this](){ return Swap(); }},
+            {Card::FLASK, [this](){ return UseFlask(); }},
+            {Card::ERROR, [this](){ return ""; }}
+        };
 
         //Private Functions
-        void PlayRegularGameTurn(Deck &player, Deck &opponent, SingleButtonGroup &buttons);
         float GetCardSourceX(Card *card, float cardWidth);
         Rectangle GetCardSourceRec(Card *card, float cardWidth, float cardHeight);
-        string ApplyAbility(Deck &player, Deck &opponent, int pos, int mainPos);
-        string NullifyOpponentsAbility(Card &player, Card &opponent);
-        string PhysicalAttack(Card *player, Card *opponent, Card *mainCard);
-        string MagicalAttack(Card *player, Card *opponent, Card *mainCard);
-        Card::actions MakeAIDecisionDumb(Deck &player, Deck &opponent);
+        string ApplyAbility();
+        string NullifyOpponentsAbility();
+        string PhysicalAttack();
+        string MagicalAttack();
+        string Swap();
+        string Charge();
+        string UseFlask();
+        Card::actions MakeAIDecisionDumb();
 
 };
 
