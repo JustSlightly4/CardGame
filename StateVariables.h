@@ -33,6 +33,16 @@ enum GameScreen {
 	VIEWCARD = 7,
 };
 
+//These variables will be used to setup the intial game state
+class PreGameVars {
+	public:
+		int numCards = 5;
+		int deckStrength = 7;
+		bool deck1AI = false;
+		bool deck2AI = false;
+};
+
+//These variables are used when editing a card
 class CardEditVars {
 	public:
 		int cardClickedOn = -1;
@@ -67,6 +77,7 @@ class CardEditVars {
 		}
 };
 
+//These variables are used when viewing a card
 class ViewCardVars {
 	public:
 		int cardIndex;

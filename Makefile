@@ -9,7 +9,7 @@ EMCC = em++
 OUTPUT = index.html
 
 # Source files
-SRC = CardGameUI.cpp \
+SRC = CardGame.cpp \
       UIDrawer.cpp \
       RegularGame.cpp \
       Buttons.cpp \

@@ -24,7 +24,7 @@ using namespace std;
 class Deck {
 	public:
 		//Public Functions
-		Deck(int amountCards, shared_ptr<Texture2D> texture, bool random = false, bool ai = false, int deckStrength = 7); //Constructor
+		Deck(int amountCards, shared_ptr<Texture2D> texture, bool random = false, int deckStrength = 7); //Constructor
 		~Deck(); //Deconstructor
 		Deck(const Deck &other); //Copy Constructor
 		void operator=(const Deck &rhs);
@@ -45,8 +45,6 @@ class Deck {
 		string Swap(int one, int two); //Swaps two cards in Deck
 		void ShuffleDeck(); //Fisher-Yates Algorithm to shuffle cards
 		string UseFlask(int &pos); //Uses a flask
-		bool IsAI(); //Check if bot or not
-		void SetAI(bool b); //Set if bot or not
 		void RestoreDeck(); //Restores All card back to their original state
 		shared_ptr<Texture2D> &GetTexture(); //Returns a reference to the Card textures
 		int GetTotalPoints(); //Returns the max amount of points this Deck can have
@@ -61,7 +59,6 @@ class Deck {
 	int amtCards;
 	int timesUsedFlask;
 	int timesSwapped;
-	bool ai;
 	bool CheckIfNumber(string &number);
 	int totalPoints; //Amount of Points user has to spend on cards
 	int remainingPoints;

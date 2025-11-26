@@ -1,8 +1,8 @@
 /*
  * Eric Ryan Montgomery
  * 09/21/2025
- * Build Command: g++ -Wall -o out CardGameUI.cpp UIDrawer.cpp RegularGame.cpp Buttons.cpp Card.cpp Deck.cpp StateVariables.cpp Globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
- * Web Build Command: cmd /c em++ -Wall CardGameUI.cpp UIDrawer.cpp RegularGame.cpp Buttons.cpp Card.cpp Deck.cpp StateVariables.cpp Globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 -s ASYNCIFY_STACK_SIZE=1048576 --preload-file textures@/textures --preload-file fonts@/fonts
+ * Build Command: g++ -Wall -o out CardGame.cpp UIDrawer.cpp RegularGame.cpp Buttons.cpp Card.cpp Deck.cpp StateVariables.cpp Globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
+ * Web Build Command: cmd /c em++ -Wall CardGame.cpp UIDrawer.cpp RegularGame.cpp Buttons.cpp Card.cpp Deck.cpp StateVariables.cpp Globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 -s ASYNCIFY_STACK_SIZE=1048576 --preload-file textures@/textures --preload-file fonts@/fonts
  * Web Execute Local Command: emrun --port 8080 index.html
  * Make Commands:
  * 		1. make clean
@@ -32,7 +32,8 @@ int main(void)
     srand(static_cast<unsigned>(time(nullptr)));
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(1600, 900, "card Game");
-    RegularGame regularGame;
+    unique_ptr<RegularGame> regularGame;
+	PreGameVars preGameVars;
     CardEditVars cardEditVars;
     ViewCardVars viewCardVars;
     Vector2 mousePoint = {0.0f, 0.0f};
@@ -42,7 +43,6 @@ int main(void)
     
     //Flag to make sure Deck is reset
 	bool settingsChanged = false;
-    
 
     SetTargetFPS(0);               // Set our game to run at unlimited frames-per-second
     //--------------------------------------------------------------------------------------
@@ -75,8 +75,8 @@ int main(void)
     SingleButtonGroup singleBackButton(buttonTexture);
 		singleBackButton.AddButton("Back");
     PlusMinusButtonGroup settingsButtons(buttonTexture);
-		settingsButtons.AddButton("Number of Cards", to_string(regularGame.numCards));
-		settingsButtons.AddButton("Deck Strength", to_string(regularGame.deckStrength));
+		settingsButtons.AddButton("Number of Cards", to_string(preGameVars.numCards));
+		settingsButtons.AddButton("Deck Strength", to_string(preGameVars.deckStrength));
 		settingsButtons.AddButton("Is Player 2 AI?", "false");
 		settingsButtons.AddButton("Font", "Montserrat");
 	SingleButtonGroup gameButtons(buttonTexture);
@@ -89,7 +89,7 @@ int main(void)
 		gameButtons.AddButton("Main Menu");
 	SingleButtonGroup deck1EditButtons(invisTexture);
 	SingleButtonGroup deck2EditButtons(invisTexture);
-		for (int i = 0; i < regularGame.numCards; ++i) {
+		for (int i = 0; i < preGameVars.numCards; ++i) {
 			deck1EditButtons.AddButton("");
 			deck2EditButtons.AddButton("");
 		}
@@ -111,11 +111,9 @@ int main(void)
     
     //Deck and card Definitions
     //Dummy Deck has to be defined instead of just a single Card because decks handle textures
-    Deck dummyDeck(regularGame.numCards, cardTexture);
-    Deck deck1(regularGame.numCards, cardTexture, false, false, regularGame.deckStrength);
-    Deck deck2(regularGame.numCards, cardTexture, false, false, regularGame.deckStrength);
-    Deck deck1Copy(0, cardTexture);
-    Deck deck2Copy(0, cardTexture);
+    Deck dummyDeck(preGameVars.numCards, cardTexture);
+    Deck deck1(preGameVars.numCards, cardTexture, false, preGameVars.deckStrength);
+    Deck deck2(preGameVars.numCards, cardTexture, false, preGameVars.deckStrength);
     
     // Main game loop
     bool closeWindow = false;
@@ -184,16 +182,13 @@ int main(void)
 					previousScreen = SETUP;
 				}
 				if (setupButtons1["Create Deck 1"].GetAction() == true || IsKeyPressed(KEY_ONE)) { //Create Deck 1
-					deck1 = Deck(regularGame.numCards, cardTexture, true, regularGame.deck1AI, regularGame.deckStrength);
+					deck1 = Deck(preGameVars.numCards, cardTexture, true, preGameVars.deckStrength);
 				}
 				if (setupButtons1["Create Deck 2"].GetAction() == true || IsKeyPressed(KEY_TWO)) { //Create Deck 2
-					deck2 = Deck(regularGame.numCards, cardTexture, true, regularGame.deck2AI, regularGame.deckStrength);
+					deck2 = Deck(preGameVars.numCards, cardTexture, true, preGameVars.deckStrength);
 				}
 				if ((setupButtons1["Start"].GetAction() == true || IsKeyPressed(KEY_ENTER))) { //Start Game
-					deck1Copy = deck1;
-					deck2Copy = deck2;
-					deck1.ShuffleDeck();
-					deck2.ShuffleDeck();
+					regularGame = make_unique<RegularGame>(deck1, deck2, preGameVars.numCards, preGameVars.deckStrength, preGameVars.deck1AI, preGameVars.deck2AI);
 					currentScreen = GAME;
 					previousScreen = SETUP;
 				}
@@ -248,11 +243,11 @@ int main(void)
 					
 					//If the settings were changed reset the decks
 					if (settingsChanged == true) {
-						deck1 = Deck(regularGame.numCards, cardTexture, false, regularGame.deck1AI, regularGame.deckStrength);
-						deck2 = Deck(regularGame.numCards, cardTexture, false, regularGame.deck1AI, regularGame.deckStrength);
+						deck1 = Deck(preGameVars.numCards, cardTexture, false, preGameVars.deckStrength);
+						deck2 = Deck(preGameVars.numCards, cardTexture, false, preGameVars.deckStrength);
 						deck1EditButtons.ClearAllButtons(); //Clears and resets cardButtons
 						deck2EditButtons.ClearAllButtons();
-						for (int i = 0; i < regularGame.numCards; ++i) {
+						for (int i = 0; i < preGameVars.numCards; ++i) {
 							deck1EditButtons.AddButton("");
 							deck2EditButtons.AddButton("");
 						}
@@ -263,44 +258,42 @@ int main(void)
 				
 				//Increases or decreases the number of cards
 				if (settingsButtons["Number of Cards"].GetAction(0) == true) {
-					++regularGame.numCards;
-					if (regularGame.numCards > 7) regularGame.numCards = 7;
-					settingsButtons["Number of Cards"].SetLabel(to_string(regularGame.numCards));
+					++preGameVars.numCards;
+					if (preGameVars.numCards > 7) preGameVars.numCards = 7;
+					settingsButtons["Number of Cards"].SetLabel(to_string(preGameVars.numCards));
 					settingsChanged = true;
 				}
 				
 				if (settingsButtons["Number of Cards"].GetAction(1) == true) {
-					--regularGame.numCards;
-					if (regularGame.numCards < 3) regularGame.numCards = 3;
-					settingsButtons["Number of Cards"].SetLabel(to_string(regularGame.numCards));
+					--preGameVars.numCards;
+					if (preGameVars.numCards < 3) preGameVars.numCards = 3;
+					settingsButtons["Number of Cards"].SetLabel(to_string(preGameVars.numCards));
 					settingsChanged = true;
 				}
 				
 				//Increases or decreases the strength of the cards
 				if (settingsButtons["Deck Strength"].GetAction(0) == true) {
-					++regularGame.deckStrength;
-					if (regularGame.deckStrength > 10) regularGame.deckStrength = 10;
-					settingsButtons["Deck Strength"].SetLabel(to_string(regularGame.deckStrength));
+					++preGameVars.deckStrength;
+					if (preGameVars.deckStrength > 10) preGameVars.deckStrength = 10;
+					settingsButtons["Deck Strength"].SetLabel(to_string(preGameVars.deckStrength));
 					settingsChanged = true;
 				}
 				
 				if (settingsButtons["Deck Strength"].GetAction(1) == true) {
-					--regularGame.deckStrength;
-					if (regularGame.deckStrength < 1) regularGame.deckStrength = 1;
-					settingsButtons["Deck Strength"].SetLabel(to_string(regularGame.deckStrength));
+					--preGameVars.deckStrength;
+					if (preGameVars.deckStrength < 1) preGameVars.deckStrength = 1;
+					settingsButtons["Deck Strength"].SetLabel(to_string(preGameVars.deckStrength));
 					settingsChanged = true;
 				}
 				
 				//Change Deck2 to be ai or not
 				if (settingsButtons["Is Player 2 AI?"].GetAction(0) == true) {
-					regularGame.deck2AI = true;
-					deck2.SetAI(true);
+					preGameVars.deck2AI = true;
 					settingsButtons["Is Player 2 AI?"].SetLabel("true");
 				}
 				
 				if (settingsButtons["Is Player 2 AI?"].GetAction(1) == true) {
-					regularGame.deck2AI = false;
-					deck2.SetAI(false);
+					preGameVars.deck2AI = false;
 					settingsButtons["Is Player 2 AI?"].SetLabel("false");
 				}
 				
@@ -334,31 +327,29 @@ int main(void)
 				//View a Cards Detailed Stats
 				for (int i = 0; i < 4; ++i) {
 					if (viewCardButtons[i].GetAction() == true) {
-						if (i == 0) viewCardVars.Set(regularGame.round, 0); //Deck1 Main Card
-						if (i == 1) viewCardVars.Set(regularGame.numCards - 1, 0); //Deck1 Support Card
-						if (i == 2) viewCardVars.Set(regularGame.numCards - 1, 1); //Deck2 Main Card
-						if (i == 3) viewCardVars.Set(regularGame.round, 1); //Deck2 Support Card
+						if (i == 0) viewCardVars.Set(regularGame->GetRound(), 0); //Deck1 Main Card
+						if (i == 1) viewCardVars.Set(regularGame->GetNumCards() - 1, 0); //Deck1 Support Card
+						if (i == 2) viewCardVars.Set(regularGame->GetNumCards() - 1, 1); //Deck2 Main Card
+						if (i == 3) viewCardVars.Set(regularGame->GetRound(), 1); //Deck2 Support Card
 						currentScreen = VIEWCARD;
 						previousScreen = GAME;
 					}
 				}
 				
 				//Turns off the swap button if last round
-				if (regularGame.round >= regularGame.numCards - 1) {
+				if (regularGame->GetRound() >= regularGame->GetNumCards() - 1) {
 					gameButtons[3].SetFunctionality(false);
 				}
 				
 				//Play Game if not the end of a game
-				if (regularGame.gameEnded == false) regularGame.PlayRegularGame(deck1, deck2, gameButtons);
+				regularGame->PlayRegularGame(gameButtons);
 				
 				//Go back to the setup
 				if (gameButtons["Main Menu"].GetAction() == true || IsKeyPressed(KEY_BACKSPACE)) {
-					regularGame.Reset();
+					regularGame.reset();
 					currentScreen = SETUP;
 					previousScreen = GAME;
 					gameButtons.SetFunctionality(true, 0, gameButtons.GetSize()-1);
-					deck1 = deck1Copy;
-					deck2 = deck2Copy;
 				}
 				break;
 			}
@@ -505,7 +496,7 @@ int main(void)
 						*deck2[cardEditVars.cardClickedOn] = *dummyDeck[cardEditVars.cardClickedOn];
 						deck2.SetRemainingPoints(cardEditVars.remainingPoints);
 					}
-					dummyDeck = Deck(regularGame.numCards, cardTexture);
+					dummyDeck = Deck(preGameVars.numCards, cardTexture);
 					cardEditVars.Reset();
 				}
 				
@@ -514,7 +505,7 @@ int main(void)
 					currentScreen = SETUP;
 					previousScreen = EDITCARD;
 					drawer.scrollOffset = 0;
-					dummyDeck = Deck(regularGame.numCards, cardTexture);
+					dummyDeck = Deck(preGameVars.numCards, cardTexture);
 					cardEditVars.Reset();
 				}
 				break;
@@ -591,29 +582,29 @@ int main(void)
 				}
 				case GAME: {
 					drawer.DrawRectangleLinesOnGrid({7, 1}, {57, 7}, BLACK, 5); //Turn Counter Box
-					drawer.DrawTextSOnGrid("Round: " + to_string(regularGame.round+1), {7, 1}, {57, 4}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5); //Round #
-					drawer.DrawTextSOnGrid("Turn: " + to_string(regularGame.turn+1), {7, 4}, {57, 7}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5); //Turn #
-					drawer.DrawTextSOnGrid(regularGame.playerInPlay == 0 ? "Player 1 Turn" : "Player 2 Turn", {7, 1}, {57, 7}, {regularGame.playerInPlay == 0 ? UIDrawer::LEFTX : UIDrawer::RIGHTX, UIDrawer::CENTERY}, 6);
-					drawer.DrawCardButtonOnGrid(deck1, viewCardButtons, regularGame.round, 0, {7, 8}, {17, 38}, true); //deck1 main Card
-					drawer.DrawCardButtonOnGrid(deck2, viewCardButtons, regularGame.round, 3, {47, 8}, {57, 38}, true); //deck2 main Card
-					if (regularGame.round < deck1.size() - 1) { //Only draws support cards if not the last round
-						drawer.DrawCardButtonOnGrid(deck1, viewCardButtons, deck1.size() - 1, 1, {18, 14}, {26, 38}, true); //deck1 support Card
-						drawer.DrawCardButtonOnGrid(deck2, viewCardButtons, deck1.size() - 1, 2, {38, 14}, {46, 38}, true); //deck2 support Card
+					drawer.DrawTextSOnGrid("Round: " + to_string(regularGame->GetRound()+1), {7, 1}, {57, 4}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5); //Round #
+					drawer.DrawTextSOnGrid("Turn: " + to_string(regularGame->GetTurn()+1), {7, 4}, {57, 7}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5); //Turn #
+					drawer.DrawTextSOnGrid(regularGame->GetPlayerInPlay() == RegularGame::PLAYER1 ? "Player 1 Turn" : "Player 2 Turn", {7, 1}, {57, 7}, {regularGame->GetPlayerInPlay() == RegularGame::PLAYER1 ? UIDrawer::LEFTX : UIDrawer::RIGHTX, UIDrawer::CENTERY}, 6);
+					drawer.DrawCardButtonOnGrid(regularGame->GetDeck1(), viewCardButtons, regularGame->GetRound(), 0, {7, 8}, {17, 38}, true); //deck1 main Card
+					drawer.DrawCardButtonOnGrid(regularGame->GetDeck2(), viewCardButtons, regularGame->GetRound(), 3, {47, 8}, {57, 38}, true); //deck2 main Card
+					if (regularGame->GetRound() < deck1.size() - 1) { //Only draws support cards if not the last round
+						drawer.DrawCardButtonOnGrid(regularGame->GetDeck1(), viewCardButtons, deck1.size() - 1, 1, {18, 14}, {26, 38}, true); //deck1 support Card
+						drawer.DrawCardButtonOnGrid(regularGame->GetDeck2(), viewCardButtons, deck1.size() - 1, 2, {38, 14}, {46, 38}, true); //deck2 support Card
 					}
-					drawer.DrawRectangleOnGrid({1, 43.0f - ((42.0f/deck1.size()) * regularGame.player1Score)}, {6, 43}, RED); //Left Score Column
-					drawer.DrawRectangleOnGrid({58, 43.0f - ((42.0f/deck1.size()) * regularGame.player2Score)}, {63, 43}, BLUE); //Right Score Column Outline
+					drawer.DrawRectangleOnGrid({1, 43.0f - ((42.0f/deck1.size()) * regularGame->GetPlayer1Score())}, {6, 43}, RED); //Left Score Column
+					drawer.DrawRectangleOnGrid({58, 43.0f - ((42.0f/deck1.size()) * regularGame->GetPlayer2Score())}, {63, 43}, BLUE); //Right Score Column Outline
 					drawer.DrawRectangleLinesOnGrid({1, 1}, {6, 43}, BLACK, 5); //Left Score Column Outline
 					drawer.DrawRectangleLinesOnGrid({58, 1}, {63, 43}, BLACK, 5); //Right Score Column Outline
 					drawer.DrawRectangleLinesOnGrid({1, 44}, {63, 52}, BLACK, 5); //Text Box
-					drawer.DrawTextSWrappedOnGrid(regularGame.dialog, {1, 44}, {63, 52}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5); //Dialog in Text Box
+					drawer.DrawTextSWrappedOnGrid(regularGame->GetDialog(), {1, 44}, {63, 52}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5); //Dialog in Text Box
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons
 					drawer.DrawButtonRowOnGrid(gameButtons, drawer.REC_BTN_START1, drawer.REC_BTN_END2); //Buttons
 					//Draw Star on who is playing
-					if (regularGame.playerInPlay == RegularGame::PLAYER1) {
-						if (regularGame.currCardRole == RegularGame::C_MAIN) drawer.DrawStarOnGrid({7, 8});
+					if (regularGame->GetPlayerInPlay() == RegularGame::PLAYER1) {
+						if (regularGame->GetCurrCardRole() == RegularGame::C_MAIN) drawer.DrawStarOnGrid({7, 8});
 						else drawer.DrawStarOnGrid({18, 14});
 					} else {
-						if (regularGame.currCardRole == RegularGame::C_MAIN) drawer.DrawStarOnGrid({57, 8});
+						if (regularGame->GetCurrCardRole() == RegularGame::C_MAIN) drawer.DrawStarOnGrid({57, 8});
 						else drawer.DrawStarOnGrid({46, 14});
 					}
 					break;
@@ -651,8 +642,8 @@ int main(void)
 				}
 				case VIEWCARD: {
 					Deck *deck;
-					if (viewCardVars.deckNum == 0) deck = &deck1;
-					else deck = &deck2;
+					if (viewCardVars.deckNum == 0) deck = &regularGame->GetDeck1();
+					else deck = &regularGame->GetDeck2();
 					
 					//String for stats
 					string stats = "Power: " + to_string(deck->at(viewCardVars.cardIndex)->GetPower()) +

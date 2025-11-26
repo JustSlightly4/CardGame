@@ -9,11 +9,10 @@
 //----------------------------------------------- deck Class
 
 //Constructor
-Deck::Deck(int cardLimit, shared_ptr<Texture2D> texture, bool random, bool ai, int deckStrength) : cardTexture(texture) {
+Deck::Deck(int cardLimit, shared_ptr<Texture2D> texture, bool random, int deckStrength) : cardTexture(texture) {
 	this->amtCards = 0;
 	this->timesUsedFlask = 0;
 	this->timesSwapped = 0;
-	this->ai = ai;
 	this->cardLimit = cardLimit;
 	this->totalPoints = deckStrength * cardLimit;
 	this->remainingPoints = totalPoints;
@@ -34,14 +33,13 @@ Deck::~Deck() {
 
 // Copy Constructor
 Deck::Deck(const Deck &other) : cardTexture(other.cardTexture) {
-	this->ai = other.ai;
 	this->cardLimit = other.cardLimit;
 	this->timesUsedFlask = other.timesUsedFlask;
 	this->timesSwapped = other.timesSwapped;
 	this->totalPoints = other.totalPoints;
 	this->remainingPoints = other.remainingPoints;
 	this->amtCards = 0; //For safety reasons set amtCards equal to zero and add a Card through the AddCard function
-	for (int i = 0; i < amtCards; ++i) {
+	for (int i = 0; i < other.amtCards; ++i) {
 		Card *temp = new Card(*other.Cards[i]);
 		this->AddCard(temp);
 	}
@@ -57,7 +55,6 @@ void Deck::operator=(const Deck &rhs) {
 	this->cardLimit = rhs.cardLimit;
 	this->timesUsedFlask = rhs.timesUsedFlask;
 	this->timesSwapped = rhs.timesSwapped;
-	this->ai = rhs.ai;
 	this->totalPoints = rhs.totalPoints;
 	this->remainingPoints = rhs.remainingPoints;
 	this->amtCards = 0; //For safety reasons set amtCards equal to zero and add a Card through the AddCard function
@@ -371,16 +368,6 @@ int const &turn) {
 	return nextChoice;
 }
 */
-
-//Check if bot or not
-bool Deck::IsAI() {
-	return ai;
-}
-
-//Set if bot or not
-void Deck::SetAI(bool b) {
-	ai = b;
-}
 
 void Deck::RestoreDeck() {
     // Use vectors to store data dynamically

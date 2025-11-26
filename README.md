@@ -5,7 +5,7 @@ Card Game Documentation
 # Table of Contents
 - [Introduction](#introduction)
 - [Design Goals](#design-goals)
-- [CardGameUI](#cardgameui)
+- [Main](#main)
 - [Cards](#cards)
 - [Decks](#decks)
 - [RegularGame](#regulargame)
@@ -30,8 +30,8 @@ The second most important design goal is to be as "internally" modular as possib
 
 The third design goal is modularity over efficiency. Inspired by the Linux kernel, I would like to build a layered system rather than a monolithic one. This goal will help preserve the previous two, and efficiency should not be a large concern since the project is intended to stay small. 
 
-# CardGameUI
-CardGameUI acts as the main file for the program. It is split up into four subsequent sections:  
+# Main
+CardGame acts as the main file for the program. It is split up into four subsequent sections:  
 1. Intialization - In this section all the needed variables, buttons, classes, and the window itself is created and intialized.
 2. Logic - The logic section is where all functions that do not draw anything to the screen run. Variables and classes are updated here each frame. The logic for buttons inputs, and the game are here.
 3. Drawing - The drawing section is where all functions that draw to the screen go. Drawing should only be done using the custom made UIDrawer class.

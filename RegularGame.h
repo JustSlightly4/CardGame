@@ -29,39 +29,55 @@ class RegularGame {
             C_SUPPORT,
         };
 
-        //Public Variables
-        int who = 0; //This is the index for the Card in play
-        int turn = 0;
-        int round = 0;
-        players playerInPlay = PLAYER1; //This is the Deck that is in play
-        cardRoles currCardRole = C_MAIN; //This is the role that the current Card is in
-        int player1Score = 0;
-        int player2Score = 0;
-        string dialog = "";
-        int amtActions = 0;
-        bool gameStarted = false;
-        bool gameEnded = false;
+        //Public Functions
+        RegularGame(Deck &player1, Deck &player2, int currNumCards, int currDeckStrength, bool isDeck1AI, bool isDeck2AI);
+        void PlayRegularGame(SingleButtonGroup &buttons);
+        int GetCardInPlay();
+        int GetTurn();
+        int GetRound();
+        players GetPlayerInPlay();
+        cardRoles GetCurrCardRole();
+        int GetPlayer1Score();
+        int GetPlayer2Score();
+        string GetDialog();
+        int GetAmtActions();
+        bool GetGameStarted();
+        bool GetGameEnded();
+        int GetNumCards();
+        int GetDeckStrength();
+        bool GetDeck1AI();
+        bool GetDeck2AI();
+        bool GetFirstTurnFrame();
+        int GetMaxSwaps();
+        int GetMaxCharges();
+        int GetMaxFlask();
+        Deck &GetDeck1();
+        Deck &GetDeck2();
 
-        int numCards = 5;
-        int deckStrength = 7;
-        bool deck1AI = false;
-        bool deck2AI = false;
-        bool firstTurnFrame = true;
-        /*
-        * static constexpr makes these varable const and compile time known
-        * It also prevents errors when doing something like this:
-        * GameVars gameVars1 = gameVars2;
-        * because these variable can't be changed
-        */
+    protected:
+        //Private Variables
+        int cardInPlay;
+        int turn;
+        int round;
+        players playerInPlay;
+        cardRoles currCardRole;
+        int player1Score;
+        int player2Score;
+        string dialog;
+        int amtActions;
+        bool gameStarted;
+        bool gameEnded;
+        int numCards;
+        int deckStrength;
+        bool deck1AI;
+        bool deck2AI;
+        bool firstTurnFrame;
         static constexpr int maxSwaps = 2;
         static constexpr int maxCharges = 2;
         static constexpr int maxFlasks = 2;
+        Deck deck1;
+        Deck deck2;
 
-        //Public Functions
-        void Reset();
-        void PlayRegularGame(Deck &deck1, Deck &deck2, SingleButtonGroup &buttons);
-
-    protected:
         //Private Functions
         void PlayRegularGameTurn(Deck &player, Deck &opponent, SingleButtonGroup &buttons);
         float GetCardSourceX(Card *card, float cardWidth);

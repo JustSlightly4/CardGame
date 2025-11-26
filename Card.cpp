@@ -752,14 +752,14 @@ string Card::ChargeUp() {
 	if (charge < 0) {
 		charge = 0;
 		name.erase(name.begin() + name.size()-1);
-		oss << name << " regained their strength!";
+		oss << name << " regained their strength!\n";
 	} else {
 		++charge;
 		this->health += 10;
 		this->totalHealth += 10;
 		this->power += 3;
 		if (magicalPower > 0) this->magicalPower += 3;
-		oss << name << " charged up!";
+		oss << name << " charged up!\n";
 		this->name += '+';
 	}
 	return oss.str();
@@ -782,7 +782,7 @@ string Card::AddPower(int amount) {
 	ostringstream oss;
 	this->power += amount;
 	oss << name << "'s power was increased by "
-		<< amount << " points!";
+		<< amount << " points!\n";
 	return oss.str();
 }
 
@@ -791,7 +791,7 @@ string Card::AddMagicalPower(int amount) {
 	ostringstream oss;
 	this->magicalPower += amount;
 	oss << name << "'s magical power was increased by "
-		<< amount << " points!";
+		<< amount << " points!\n";
 	return oss.str();
 }
 
@@ -801,7 +801,7 @@ string Card::AddHealth(int amount) {
 	this->health += amount;
 	this->totalHealth += amount;
 	oss << name << "'s health was increased by "
-		<< amount << " points!";
+		<< amount << " points!\n";
 	return oss.str();
 }
 
@@ -811,10 +811,10 @@ string Card::Heal(int amount) {
 	this->health += amount;
 	if (health > totalHealth) {
 		health = totalHealth;
-		oss << name << " was fully healed!";
+		oss << name << " was fully healed!\n";
 	} else {
 		oss << name << "'s health was increased by "
-			<< amount << " points!";
+			<< amount << " points!\n";
 	}
 	return oss.str();
 }
@@ -823,7 +823,7 @@ string Card::Heal(int amount) {
 string Card::FullHeal() {
 	ostringstream oss;
 	health = totalHealth;
-	oss << name << " was fully healed!";
+	oss << name << " was fully healed!\n";
 	return oss.str();
 }
 
@@ -832,11 +832,11 @@ string Card::DecPower(int amount) {
 	ostringstream oss;
 	power -= amount;
 	if (power < 1) {
-		oss << name << " has lost the will to live!";
+		oss << name << " has lost the will to live!\n";
 		health = 0;
 	} else {
 		oss << name << "'s power was decreased by "
-			<< amount << " points!";
+			<< amount << " points!\n";
 	}
 	return oss.str();
 }
@@ -847,10 +847,10 @@ string Card::DecBothHealth(int amount) {
 	health -= amount;
 	totalHealth -= amount;
 	if (health < 1 || totalHealth < 1) {
-		oss << name << " has perished!";
+		oss << name << " has perished!\n";
 	} else {
 		oss << name << "'s health was decreased by "
-			<< amount << " points!";
+			<< amount << " points!\n";
 	}
 	return oss.str();
 }
@@ -861,10 +861,10 @@ string Card::DecTotalHealth(int amount) {
 	totalHealth -= amount;
 	if (health > totalHealth) health = totalHealth;
 	if (totalHealth < 1) {
-		oss << name << " has perished!";
+		oss << name << " has perished!\n";
 	} else {
 		oss << name << "'s total health was decreased by "
-			<< amount << " points!";
+			<< amount << " points!\n";
 	}
 	return oss.str();
 }
@@ -874,10 +874,10 @@ string Card::DecHealth(int amount) {
 	ostringstream oss;
 	health -= amount;
 	if (health < 1) {
-		oss << name << " has perished!";
+		oss << name << " has perished!\n";
 	} else {
 		oss << name << "'s health was decreased by "
-			<< amount << " points!";
+			<< amount << " points!\n";
 	}
 	return oss.str();
 }
@@ -893,7 +893,7 @@ string Card::AddPhysicalResistance(double amount) {
 		physicalResistance = 0.1;
 	}
 	oss << name << "'s physical resistance increased by "
-		<< (amount * 100) << " percent!";
+		<< (amount * 100) << " percent!\n";
 	return oss.str();
 }
 
@@ -908,7 +908,7 @@ string Card::DecPhysicalResistance(double amount) {
 		physicalResistance = 2;
 	}
 	oss << name << "'s physical resistance decreased by "
-		<< (amount * 100) << " percent!";
+		<< (amount * 100) << " percent!\n";
 	return oss.str();
 }
 
@@ -923,7 +923,7 @@ string Card::AddMagicalResistance(double amount) {
 		magicalResistance = 0.1;
 	}
 	oss << name << "'s magical resistance increased by "
-		<< (amount * 100) << " percent!";
+		<< (amount * 100) << " percent!\n";
 	return oss.str();
 }
 
@@ -938,7 +938,7 @@ string Card::DecMagicalResistance(double amount) {
 		magicalResistance = 2;
 	}
 	oss << name << "'s magical resistance decreased by "
-		<< (amount * 100) << " percent!";
+		<< (amount * 100) << " percent!\n";
 	return oss.str();
 }
 
@@ -949,9 +949,9 @@ string Card::AddUpperDice(int amount) {
 	if (upperDice > 21) {
 		upperDice = 21;
 		oss << name << "'s critical chance can not go "
-			<< "any lower!";
+			<< "any lower!\n";
 	} else {
-		oss << name << "'s critical chance decreased!";
+		oss << name << "'s critical chance decreased!\n";
 	}
 	return oss.str();
 }
@@ -963,9 +963,9 @@ string Card::DecUpperDice(int amount) {
 	if (upperDice < 10) {
 		upperDice = 10;
 		oss << name << "'s critical chance can not go "
-			<< "any higher!";
+			<< "any higher!\n";
 	} else {
-		oss << name << "'s critical chance increased!";
+		oss << name << "'s critical chance increased!\n";
 	}
 	return oss.str();
 }
@@ -977,9 +977,9 @@ string Card::AddLowerDice(int amount) {
 	if (lowerDice > 10) {
 		lowerDice = 10;
 		oss << name << "'s miss chance can not go "
-			<< "any higher!";
+			<< "any higher!\n";
 	} else {
-		oss << name << "'s miss chance increased!";
+		oss << name << "'s miss chance increased!\n";
 	}
 	return oss.str();
 }
@@ -991,9 +991,9 @@ string Card::DecLowerDice(int amount) {
 	if (lowerDice < 0) {
 		lowerDice = 0;
 		oss << name << "'s miss chance can not go "
-			<< "any lower!";
+			<< "any lower!\n";
 	} else {
-		oss << name << "'s miss chance decreased!";
+		oss << name << "'s miss chance decreased!\n";
 	}
 	return oss.str();
 }
@@ -1003,7 +1003,7 @@ string Card::AddNumActions(int amount) {
 	numActions += amount;
 	ostringstream oss;
 	oss << name << " gained " << amount
-		<< " action(s)!";
+		<< " action(s)!\n";
 	return oss.str();
 }
 
@@ -1022,7 +1022,7 @@ string Card::DecNumActions(int amount) {
 		numActions = 1;
 	}
 	oss << name << " lost " << amount
-		<< " action(s)!";
+		<< " action(s)!\n";
 	return oss.str();
 }
 
