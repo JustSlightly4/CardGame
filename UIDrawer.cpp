@@ -165,10 +165,12 @@ float UIDrawer::DrawTextSWrapped(string text, Rectangle dest, Color tint, float 
 				newLineQueue.push(i); //Marking this word as needing to start on a newline
 				sum = MeasureTextEx(this->currentFont->font, (words[i]).c_str(), fontSize, 1.0f).x;
 			}
-		} else {
+		} else if (i != words.size()-1) {
 			words[i] = "";
 			newLineQueue.push(i);
 			sum = 0;
+		} else {
+			words[i] = "";
 		}
 	}
 	
@@ -284,6 +286,7 @@ void UIDrawer::DrawCardButtonOnGrid(Deck &deck, SingleButtonGroup &buttons, int 
 
 //Draws a single button on the grid
 void UIDrawer::DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords) {
+	if (index < 0 || index > buttons.GetSize()-1) return;
 	Rectangle buttonDest = CoordsToRec(startCoords, endCoords);
 	buttons[index].SetBounds(buttonDest);
 	DrawTextureOnGrid(*buttons.GetTexture(), this->buttonSource, startCoords, endCoords, WHITE);
@@ -302,6 +305,7 @@ void UIDrawer::DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 s
 
 //Draws a PlusMinus button on the grid
 void UIDrawer::DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string value, Vector2 startCoords, Vector2 endCoords) {
+	if (index < 0 || index > buttons.GetSize()-1) return;
 	//Calculations for a single buttons width and all three buttons destinations on screen
 	float singleButtonWidth = (endCoords.x - startCoords.x)/3;
 	vector<Rectangle> buttonDest(3);
@@ -352,12 +356,20 @@ void UIDrawer::DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string
 }
 
 //Draws a horizontal row of buttons on the grid
-void UIDrawer::DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords) {
-	float buttonWidth = (endCoords.x - startCoords.x)/buttons.GetSize();
-	for (int i = 0; i < buttons.GetSize(); ++i) {
-		DrawButtonOnGrid(buttons, i, 
-		{startCoords.x + (i * buttonWidth), startCoords.y}, 
-		{startCoords.x + (i * buttonWidth) + buttonWidth, endCoords.y});
+void UIDrawer::DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords, int amountOfButtons) {
+	float buttonWidth = (endCoords.x - startCoords.x)/(min(buttons.GetSize(), amountOfButtons));
+	int amountRows = ceil((float)buttons.GetSize() / (float)amountOfButtons);
+	float buttonHeight = (endCoords.y - startCoords.y)/amountRows;
+
+	int buttonIndex = 0; //So that we know which button we're indexing
+	for (int i = 0; i < amountRows; ++i){ //The row
+		for (int j = 0; j < amountOfButtons; ++j) { //the column
+			if (buttonIndex >= buttons.GetSize()) return;
+			DrawButtonOnGrid(buttons, buttonIndex, 
+			{startCoords.x + (j * buttonWidth), startCoords.y + (i * buttonHeight)}, 
+			{startCoords.x + (j * buttonWidth) + buttonWidth, startCoords.y + (i * buttonHeight) + buttonHeight});
+			++buttonIndex; //Advance the buttonIndex
+		}
 	}
 }
 

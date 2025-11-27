@@ -93,31 +93,63 @@ void Deck::CreateRandomCards() {
 	//spells chosenSpells[cardLimit];
 	vector<Card::spells> chosenSpells(cardLimit);
 	for (int i = 0; i < cardLimit; ++i) {
-		chosenSpells[i] = Card::spellList[rand() % Card::spellList.size()];
+		chosenSpells[i] = Card::spellList[rand() % Card::spellList.size()]; //Choose a random spell here since it does not take points
 	}
-	
-	
-	//Randomly choose an aspect of a random Card and increase it by one until
-	//all points are used.
-	int indexChosen;
-	int aspectChosen;
-	for (int i = 0; i < totalPoints; ++i) {
-		indexChosen = rand() % cardLimit; //Choose a random Card in the Deck
-		aspectChosen = rand() % 3; //Choice either color, attribute, or power level to upgrade
+
+	//Define needed variables
+	enum upgradables {
+		COLOR,
+		ATTRIBUTE,
+		POWER
+	};
+	int deckIndexChosen;
+	upgradables aspectChosen;
+
+	//All cards start blank so they are all upgradable
+	vector<int> upgradableCards(cardLimit);
+	for (int i = 0; i < cardLimit; ++i) upgradableCards[i] = i;
+
+	//Loop for applying all the points
+	int usedPoints = 0;
+	for (; usedPoints < totalPoints; ++usedPoints) {
+		//Guard to make sure there is a card to upgrade
+		//Otherwise, end early
+		if (upgradableCards.size() <= 0) break;
+
+		//Choose a random card among upgradable cards and make sure to translate
+		//the index back to all the cards so that the vectors line up correctly
+		int upgradableIndexChosen = rand() % upgradableCards.size();
+		deckIndexChosen = upgradableCards[upgradableIndexChosen];
+
+		//Get all available upgrades
+		vector<upgradables> availableUpgradables;
+		if (colorChoice[deckIndexChosen] < Card::cols[Card::cols.size()-1]) availableUpgradables.push_back(COLOR);
+		if (attChoice[deckIndexChosen] < Card::atts[Card::atts.size()-1]) availableUpgradables.push_back(ATTRIBUTE);
+		if (powerLevel[deckIndexChosen] < 9) availableUpgradables.push_back(POWER);
+
+		//Pick an aspect and upgrade it
+		aspectChosen = availableUpgradables[rand() % availableUpgradables.size()];
 		switch(aspectChosen) {
-			case(0):
-				if (colorChoice[indexChosen] < Card::cols[Card::cols.size()-1]) colorChoice[indexChosen] = Card::cols[colorChoice[indexChosen] + 1];
-				else --i;
+			case COLOR: {
+				colorChoice[deckIndexChosen] = Card::cols[colorChoice[deckIndexChosen] + 1];
 				break;
-			case(1):
-				if (attChoice[indexChosen] < Card::atts[Card::atts.size()-1]) attChoice[indexChosen] = Card::atts[attChoice[indexChosen] + 1];
-				else --i;
+			}
+			case ATTRIBUTE: {
+				attChoice[deckIndexChosen] = Card::atts[attChoice[deckIndexChosen] + 1];
 				break;
-			case(2):
-				if (powerLevel[indexChosen] < 9) powerLevel[indexChosen] += 1;
-				else --i;
+			}
+			case POWER: {
+				powerLevel[deckIndexChosen] += 1;
 				break;
-		};
+			}
+		}
+
+		//If all the cards aspects are maxed out remove it from upgradable cards vector
+		if (colorChoice[deckIndexChosen] >= Card::cols.back() && attChoice[deckIndexChosen] >= Card::atts.back() && powerLevel[deckIndexChosen] >= 9) {
+			// Swap the value to the back and pop it for O(1)
+            upgradableCards[upgradableIndexChosen] = upgradableCards.back();
+            upgradableCards.pop_back();
+		}
 	}
 	
 	//Add all the cards with there chosen aspects to the Deck
@@ -126,7 +158,7 @@ void Deck::CreateRandomCards() {
 		Cards[i]->SetSpell(chosenSpells[i]);
 	}
 	
-	remainingPoints = 0;
+	remainingPoints = totalPoints - usedPoints;
 }
 
 void Deck::CreateBlankCards() {

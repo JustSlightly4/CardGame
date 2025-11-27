@@ -20,7 +20,7 @@
 	currCardRole = C_MAIN; //This is the role that the current Card is in
 	player1Score = 0;
 	player2Score = 0;
-	string dialog = "Game Start";
+	dialog = "Game Start";
 	amtActions = player->at(this->round)->GetNumActions();
 	gameStarted = false;
 	gameEnded = false;
@@ -35,107 +35,21 @@
  //Logic for the ENTIRE GAME NOT AN INDIVIDUAL TURN
 void RegularGame::PlayRegularGame(Card::actions nextDecision) {
 
-	//Guard
+	//Guard if game has ended
 	if (gameEnded == true) return;
 	
-	if (nextDecision != Card::ERROR) dialog = performAction[nextDecision]();
+	//Check to see if a valid decision has been made
+	if (nextDecision != Card::ERROR) {
+
+		//Perform next decision through a dispatch table
+		dialog = performAction[nextDecision]();
 	
-	//If anybody died move to next round
-	if ((deck1[this->round]->GetHealth() <= 0 || deck2[this->round]->GetHealth() <= 0)) {
+		//If anybody died move to next round
+		if(CheckIfRoundOver()) AdvanceRound();
 		
-		//Award Winning player points
-		if (deck1[this->round]->GetHealth() <= 0 && deck2[this->round]->GetHealth() <= 0) {
-			++this->player1Score;
-			++this->player2Score;
-			this->playerInPlay = PLAYER1;
-			this->dialog += " Ending the round in a tie!";
-		} else if (deck1[this->round]->GetHealth() <= 0) {
-			++this->player2Score;
-			this->playerInPlay = PLAYER1;
-			this->dialog += " Winning Player 2 the round!";
-		} else if (deck2[this->round]->GetHealth() <= 0) {
-			++this->player1Score;
-			this->playerInPlay = PLAYER2;
-			this->dialog += " Winning Player 1 the round!";
-		}
+		//If used all actions move to next players turn
+		if (this->amtActions <= 0) AdvanceTurn();
 
-		//Advance to next round
-		++this->round;
-
-		//Set who is the player and opponent
-		player  = &(playerInPlay == PLAYER1 ? deck1 : deck2);
-		opponent = &(playerInPlay == PLAYER1 ? deck2 : deck1);
-		this->currCardRole = C_MAIN; //Return to main card upon round end
-		
-		if (this->round >= this->numCards) { //if no next round, end game
-			this->gameEnded = true;
-			this->round = this->numCards - 1;
-			if (this->player1Score > this->player2Score) {
-				this->dialog = "Game Over. Player 1 Won!";
-			} else if (this->player1Score < this->player2Score) {
-				this->dialog = "Game Over. Player 2 Won!";
-			} else {
-				this->dialog = "Game Over. It was a tie!";
-			}
-			return;
-		}
-
-		//Set card in play index to the round number
-		this->cardInPlay = this->round;
-		
-		//Reset Card variables for next round
-		deck1.SetTimesSwapped(0);
-		deck2.SetTimesSwapped(0);
-		this->turn = 0;
-		this->amtActions = player->at(this->round)->GetNumActions();
-		this->firstTurnFrame = true;
-	}
-	
-	//If used all actions move to next players turn
-	if (this->amtActions <= 0) {
-		
-		//Increase turn
-		++this->turn;
-		
-		switch(this->currCardRole) {
-			case(C_SUPPORT): { //If support Card was in play and is done
-				
-				//Switch players and reset to main Card
-				if (this->playerInPlay == PLAYER1) this->playerInPlay = PLAYER2;
-				else this->playerInPlay = PLAYER1;
-				this->currCardRole = C_MAIN;
-
-				//Swap the player and the opponent
-				player  = &(playerInPlay == PLAYER1 ? deck1 : deck2);
-				opponent = &(playerInPlay == PLAYER1 ? deck2 : deck1);
-
-				//Set Number of actions and the card index in play
-				this->amtActions = player->at(this->round)->GetNumActions();
-				this->cardInPlay = this->round;
-
-				break;
-			}
-			case(C_MAIN): { //If main Card was in play and is done
-				
-				//Switch to support if not the last round
-				if (this->round < deck1.size()-1) {
-					this->currCardRole = C_SUPPORT;
-				} else { //If it is the last round, switch players instead
-					if (this->playerInPlay == PLAYER1) this->playerInPlay = PLAYER2;
-					else this->playerInPlay = PLAYER1;
-
-					//Swap the player and the opponent
-					player  = &(playerInPlay == PLAYER1 ? deck1 : deck2);
-					opponent = &(playerInPlay == PLAYER1 ? deck2 : deck1);
-				}
-				
-				//Set Number of actions and the card index in play
-				this->amtActions = player->at(player->size()-1)->GetNumActions();
-				this->cardInPlay = player->size()-1;
-				break;
-			}
-		}
-		this->firstTurnFrame = true;
 	}
 }
 
@@ -499,6 +413,104 @@ string RegularGame::UseFlask() {
 	ostringstream oss;
 	oss << player->UseFlask(this->cardInPlay);
 	return oss.str();
+}
+
+bool RegularGame::CheckIfRoundOver() {
+	return (deck1[this->round]->GetHealth() <= 0 || deck2[this->round]->GetHealth() <= 0);
+}
+
+void RegularGame::AdvanceRound() {
+	//Award Winning player points
+	if (deck1[this->round]->GetHealth() <= 0 && deck2[this->round]->GetHealth() <= 0) {
+		++this->player1Score;
+		++this->player2Score;
+		this->playerInPlay = PLAYER1;
+		this->dialog += " Ending the round in a tie!";
+	} else if (deck1[this->round]->GetHealth() <= 0) {
+		++this->player2Score;
+		this->playerInPlay = PLAYER1;
+		this->dialog += " Winning Player 2 the round!";
+	} else if (deck2[this->round]->GetHealth() <= 0) {
+		++this->player1Score;
+		this->playerInPlay = PLAYER2;
+		this->dialog += " Winning Player 1 the round!";
+	}
+
+	//Advance to next round
+	++this->round;
+
+	//Set who is the player and opponent
+	player  = &(playerInPlay == PLAYER1 ? deck1 : deck2);
+	opponent = &(playerInPlay == PLAYER1 ? deck2 : deck1);
+	this->currCardRole = C_MAIN; //Return to main card upon round end
+	
+	if (this->round >= this->numCards) { //if no next round, end game
+		this->gameEnded = true;
+		this->round = this->numCards - 1;
+		if (this->player1Score > this->player2Score) {
+			this->dialog = "Game Over. Player 1 Won!";
+		} else if (this->player1Score < this->player2Score) {
+			this->dialog = "Game Over. Player 2 Won!";
+		} else {
+			this->dialog = "Game Over. It was a tie!";
+		}
+		return;
+	}
+
+	//Set card in play index to the round number
+	this->cardInPlay = this->round;
+	
+	//Reset Card variables for next round
+	deck1.SetTimesSwapped(0);
+	deck2.SetTimesSwapped(0);
+	this->turn = 0;
+	this->amtActions = player->at(this->round)->GetNumActions();
+	this->firstTurnFrame = true;
+}
+
+void RegularGame::AdvanceTurn() {
+	//Increase turn
+	++this->turn;
+	
+	switch(this->currCardRole) {
+		case(C_SUPPORT): { //If support Card was in play and is done
+			
+			//Switch players and reset to main Card
+			if (this->playerInPlay == PLAYER1) this->playerInPlay = PLAYER2;
+			else this->playerInPlay = PLAYER1;
+			this->currCardRole = C_MAIN;
+
+			//Swap the player and the opponent
+			player  = &(playerInPlay == PLAYER1 ? deck1 : deck2);
+			opponent = &(playerInPlay == PLAYER1 ? deck2 : deck1);
+
+			//Set Number of actions and the card index in play
+			this->amtActions = player->at(this->round)->GetNumActions();
+			this->cardInPlay = this->round;
+
+			break;
+		}
+		case(C_MAIN): { //If main Card was in play and is done
+			
+			//Switch to support if not the last round
+			if (this->round < deck1.size()-1) {
+				this->currCardRole = C_SUPPORT;
+			} else { //If it is the last round, switch players instead
+				if (this->playerInPlay == PLAYER1) this->playerInPlay = PLAYER2;
+				else this->playerInPlay = PLAYER1;
+
+				//Swap the player and the opponent
+				player  = &(playerInPlay == PLAYER1 ? deck1 : deck2);
+				opponent = &(playerInPlay == PLAYER1 ? deck2 : deck1);
+			}
+			
+			//Set Number of actions and the card index in play
+			this->amtActions = player->at(player->size()-1)->GetNumActions();
+			this->cardInPlay = player->size()-1;
+			break;
+		}
+	}
+	this->firstTurnFrame = true;
 }
 
 Card::actions RegularGame::MakeAIDecisionDumb() {

@@ -12,6 +12,7 @@ Card Game Documentation
 - [UIDrawer](#uidrawer)
 - [Buttons](#buttons)
 - [StateVariables](#statevariables)
+- [GameDataManager](#gamedatamanager)
 - [Globals](#globals)
 - [Coding Conventions](#coding-conventions)
 - [TODO](#todo)
@@ -60,8 +61,11 @@ Both button classes handle the buttons' functionality, but not what the buttons 
 # StateVariables
 The state variables file contains multiple classes that hold the state of some screen or object. For example, the editcard screen relies on a state class to track which card is being edited and the edits being made.
 
+# GameDataManager
+The GameDataManager class saves and loads deck into and from JSON files. This class is currently extremely WIP.
+
 # Globals
-The globals file contains variables or functions that, for some reason, need to be global. Currently, this includes large, unchanging strings and overloaded operators for Raylib.
+The globals file contains variables, functions, and macros that need to be global. Currently, this includes large, unchanging strings and overloaded operators for Raylib.
 
 # Coding Conventions
 - Variables: camelCase
@@ -111,4 +115,6 @@ void Vector3D::PrintComponents() {
 6. View card screen should show things like hit, miss, and crit chance
 7. View card screen should show resistances as percentages
 8. Fix evil presence dialog not telling the player what it does
-9. Change DrawTextS to ignore last newline character
+9. Create a cache for DrawTextS and DrawTextSWrapped
+10. Continue to refactor UIDrawer class to make it work nicely as a class
+11. Continue to work on saving and loading decks

@@ -27,7 +27,7 @@ class RegularGame {
 
         enum cardRoles {
             C_MAIN = 0,
-            C_SUPPORT = 0,
+            C_SUPPORT = 1,
         };
 
         //Public Functions
@@ -98,7 +98,7 @@ class RegularGame {
             {Card::CHARGE, [this](){ return Charge(); }},
             {Card::SWAP, [this](){ return Swap(); }},
             {Card::FLASK, [this](){ return UseFlask(); }},
-            {Card::ERROR, [this](){ return ""; }}
+            {Card::ERROR, [](){ return ""; }}
         };
 
         //Private Functions
@@ -111,6 +111,9 @@ class RegularGame {
         string Swap();
         string Charge();
         string UseFlask();
+        bool CheckIfRoundOver();
+        void AdvanceRound();
+        void AdvanceTurn();
         Card::actions MakeAIDecisionDumb();
 
 };

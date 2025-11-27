@@ -1,8 +1,8 @@
 /*
  * Eric Ryan Montgomery
  * 09/21/2025
- * Build Command: g++ -Wall -o out CardGame.cpp UIDrawer.cpp RegularGame.cpp Buttons.cpp Card.cpp Deck.cpp StateVariables.cpp Globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
- * Web Build Command: cmd /c em++ -Wall CardGame.cpp UIDrawer.cpp RegularGame.cpp Buttons.cpp Card.cpp Deck.cpp StateVariables.cpp Globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 -s ASYNCIFY_STACK_SIZE=1048576 --preload-file textures@/textures --preload-file fonts@/fonts
+ * Build Command: g++ -Wall -o out CardGame.cpp UIDrawer.cpp RegularGame.cpp Buttons.cpp Card.cpp Deck.cpp StateVariables.cpp GameDataManager.cpp Globals.cpp -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
+ * Web Build Command: cmd /c em++ -Wall CardGame.cpp UIDrawer.cpp RegularGame.cpp Buttons.cpp Card.cpp Deck.cpp StateVariables.cpp GameDataManager.cpp Globals.cpp -o index.html -I include/ -L lib/ -lraylib -s USE_GLFW=3 -s FULL_ES2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 -s ASYNCIFY_STACK_SIZE=1048576 --preload-file textures@/textures --preload-file fonts@/fonts
  * Web Execute Local Command: emrun --port 8080 index.html
  * Make Commands:
  * 		1. make clean
@@ -23,6 +23,7 @@
 #include "Globals.h"
 #include "raylib.h"
 #include "StateVariables.h"
+#include "GameDataManager.h"
 using namespace std;
 
 int main(void)
@@ -40,6 +41,7 @@ int main(void)
     GameScreen currentScreen = TITLE;
     GameScreen previousScreen = TITLE;
 	UIDrawer drawer;
+	GameDataManager dataManager;
     
     //Flag to make sure Deck is reset
 	bool settingsChanged = false;
@@ -60,18 +62,18 @@ int main(void)
 	
 	
 	//Button Definitions
-    SingleButtonGroup setupButtons1(buttonTexture);
-		setupButtons1.AddButton("Rules");
-		setupButtons1.AddButton("Info");
-		setupButtons1.AddButton("Settings");
-		setupButtons1.AddButton("Create Deck 1");
-		setupButtons1.AddButton("Create Deck 2");
-		setupButtons1.AddButton("Start");
-		setupButtons1.AddButton("Exit");
-	SingleButtonGroup setupButtons2(buttonTexture);
-		for (int i = 0; i < setupButtons1.GetSize(); ++i) {
-			setupButtons2.AddButton("");
-		}
+    SingleButtonGroup setupButtons(buttonTexture);
+		setupButtons.AddButton("Rules");
+		setupButtons.AddButton("Info");
+		setupButtons.AddButton("Settings");
+		setupButtons.AddButton("Create Deck 1");
+		setupButtons.AddButton("Create Deck 2");
+		setupButtons.AddButton("Start");
+		setupButtons.AddButton("Exit");
+		setupButtons.AddButton("Save Decks to Web");
+		setupButtons.AddButton("Load Decks from Web");
+		setupButtons.AddButton("Save Decks to Local");
+		setupButtons.AddButton("Load Decks from Local");
     SingleButtonGroup singleBackButton(buttonTexture);
 		singleBackButton.AddButton("Back");
     PlusMinusButtonGroup settingsButtons(buttonTexture);
@@ -144,8 +146,7 @@ int main(void)
 				break;
 			}
 			case SETUP: {
-				setupButtons1.AnimationLogic(mousePoint); //Provides the animation logic for the button groups
-				setupButtons2.AnimationLogic(mousePoint);
+				setupButtons.AnimationLogic(mousePoint); //Provides the animation logic for the button groups
 				
 				deck1EditButtons.AnimationLogic(mousePoint);
 				for (int i = 0; i < deck1EditButtons.GetSize(); ++i) {
@@ -169,31 +170,40 @@ int main(void)
 					}
 				}
 				
-                if (setupButtons1["Rules"].GetAction() == true || IsKeyPressed(KEY_R)) { //Rules Button
+                if (setupButtons["Rules"].GetAction() == true || IsKeyPressed(KEY_R)) { //Rules Button
 					currentScreen = RULES;
 					previousScreen = SETUP;
 				}
-				if (setupButtons1["Info"].GetAction() == true || IsKeyPressed(KEY_A)) { //Abilities Button
+				if (setupButtons["Info"].GetAction() == true || IsKeyPressed(KEY_A)) { //Abilities Button
 					currentScreen = SKILLS;
 					previousScreen = SETUP;
 				}
-				if (setupButtons1["Settings"].GetAction() == true || IsKeyPressed(KEY_S)) { //Settings Button
+				if (setupButtons["Settings"].GetAction() == true || IsKeyPressed(KEY_S)) { //Settings Button
 					currentScreen = SETTINGS;
 					previousScreen = SETUP;
 				}
-				if (setupButtons1["Create Deck 1"].GetAction() == true || IsKeyPressed(KEY_ONE)) { //Create Deck 1
+				if (setupButtons["Create Deck 1"].GetAction() == true || IsKeyPressed(KEY_ONE)) { //Create Deck 1
 					deck1 = Deck(preGameVars.numCards, cardTexture, true, preGameVars.deckStrength);
 				}
-				if (setupButtons1["Create Deck 2"].GetAction() == true || IsKeyPressed(KEY_TWO)) { //Create Deck 2
+				if (setupButtons["Create Deck 2"].GetAction() == true || IsKeyPressed(KEY_TWO)) { //Create Deck 2
 					deck2 = Deck(preGameVars.numCards, cardTexture, true, preGameVars.deckStrength);
 				}
-				if ((setupButtons1["Start"].GetAction() == true || IsKeyPressed(KEY_ENTER))) { //Start Game
+				if ((setupButtons["Start"].GetAction() == true || IsKeyPressed(KEY_ENTER))) { //Start Game
 					regularGame = make_unique<RegularGame>(deck1, deck2, preGameVars.numCards, preGameVars.deckStrength, preGameVars.deck1AI, preGameVars.deck2AI);
 					currentScreen = GAME;
 					previousScreen = SETUP;
 				}
-				if (setupButtons1["Exit"].GetAction() == true) { //Exit Button
+				if (setupButtons["Exit"].GetAction() == true) { //Exit Button
 					closeWindow = true;
+				}
+				if (setupButtons["Save Decks to Web"].GetAction() == true) {
+					dataManager.SaveDecks("/decks/decks.json", deck1, deck2);
+				}
+				if (setupButtons["Save Decks to Local"].GetAction() == true) {
+					dataManager.DownloadDeck("/decks/decks.json");
+				}
+				if (setupButtons["Load Decks from Web"].GetAction() == true) {
+					dataManager.LoadDecks("/decks/decks.json", deck1, deck2);
 				}
 				break;
 			}
@@ -590,8 +600,7 @@ int main(void)
 					//Draws the setup buttons at the bottom of the screen
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons
 					//DrawButtonRowOnGrid(setupButtons, {2, 55}, {62, 62}); //Setup buttons
-					drawer.DrawButtonRowOnGrid(setupButtons1, drawer.REC_BTN_START1, drawer.REC_BTN_END1);
-					drawer.DrawButtonRowOnGrid(setupButtons2, drawer.REC_BTN_START2, drawer.REC_BTN_END2);
+					drawer.DrawButtonRowOnGrid(setupButtons, drawer.REC_BTN_START, drawer.REC_BTN_END);
 					
 					break;
 				}
@@ -602,7 +611,7 @@ int main(void)
 					
 					//Draws the back button at the bottom of the screen
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons
-					drawer.DrawButtonRowOnGrid(singleBackButton, drawer.REC_BTN_START1, drawer.REC_BTN_END2); //back button
+					drawer.DrawButtonRowOnGrid(singleBackButton, drawer.REC_BTN_START, drawer.REC_BTN_END); //back button
 					break;
 				}
 				case SKILLS: {
@@ -612,7 +621,7 @@ int main(void)
 					
 					//Draws the back button at the bottom of the screen
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons
-					drawer.DrawButtonRowOnGrid(singleBackButton, drawer.REC_BTN_START1, drawer.REC_BTN_END2); //back button
+					drawer.DrawButtonRowOnGrid(singleBackButton, drawer.REC_BTN_START, drawer.REC_BTN_END); //back button
 					break;
 				}
 				case SETTINGS: {
@@ -621,7 +630,7 @@ int main(void)
 					
 					//Draws the back button at the bottom of the screen
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons
-					drawer.DrawButtonRowOnGrid(singleBackButton, drawer.REC_BTN_START1, drawer.REC_BTN_END2); //back button
+					drawer.DrawButtonRowOnGrid(singleBackButton, drawer.REC_BTN_START, drawer.REC_BTN_END); //back button
 					break;
 				}
 				case GAME: {
@@ -642,7 +651,7 @@ int main(void)
 					drawer.DrawRectangleLinesOnGrid({1, 44}, {63, 52}, BLACK, 5); //Text Box
 					drawer.DrawTextSWrappedOnGrid(regularGame->GetDialog(), {1, 44}, {63, 52}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5); //Dialog in Text Box
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons
-					drawer.DrawButtonRowOnGrid(gameButtons, drawer.REC_BTN_START1, drawer.REC_BTN_END2); //Buttons
+					drawer.DrawButtonRowOnGrid(gameButtons, drawer.REC_BTN_START, drawer.REC_BTN_END); //Buttons
 					//Draw Star on who is playing
 					if (regularGame->GetPlayerInPlay() == RegularGame::PLAYER1) {
 						if (regularGame->GetCurrCardRole() == RegularGame::C_MAIN) drawer.DrawStarOnGrid({7, 8});
@@ -680,7 +689,7 @@ int main(void)
 					
 					//Draws the back button at the bottom of the screen
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons
-					drawer.DrawButtonRowOnGrid(cardEditScreenButtons, drawer.REC_BTN_START1, drawer.REC_BTN_END2); //back button
+					drawer.DrawButtonRowOnGrid(cardEditScreenButtons, drawer.REC_BTN_START, drawer.REC_BTN_END); //back button
 					
 					break;
 				}
@@ -704,7 +713,7 @@ int main(void)
 					
 					//Draws the back button at the bottom of the screen
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons
-					drawer.DrawButtonRowOnGrid(singleBackButton, drawer.REC_BTN_START1, drawer.REC_BTN_END2); //back button
+					drawer.DrawButtonRowOnGrid(singleBackButton, drawer.REC_BTN_START, drawer.REC_BTN_END); //back button
 					break;
 				}
 			};

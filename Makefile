@@ -16,6 +16,7 @@ SRC = CardGame.cpp \
       Card.cpp \
       Deck.cpp \
       StateVariables.cpp \
+      GameDataManager.cpp \
       Globals.cpp
 
 # Include and library paths
@@ -28,7 +29,11 @@ EM_FLAGS = -s USE_GLFW=3 \
            -s WASM=1 \
            -s ALLOW_MEMORY_GROWTH=1 \
            -s ASYNCIFY=1 \
-           -s ASYNCIFY_STACK_SIZE=1048576
+           -s ASYNCIFY_STACK_SIZE=1048576 \
+           -s FORCE_FILESYSTEM=1 \
+           -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] \
+           -s NO_DISABLE_EXCEPTION_CATCHING \
+           -lidbfs.js
 
 # Preload assets
 PRELOAD = --preload-file textures@/textures \

@@ -49,10 +49,8 @@
       static constexpr Vector2 REC_START = {1, 53};
       static constexpr Vector2 REC_END = {63, 63};
       static constexpr Color REC_COLOR = BLACK;
-      static constexpr Vector2 REC_BTN_START1 = {2, 54};
-      static constexpr Vector2 REC_BTN_END1 = {62, 58};
-      static constexpr Vector2 REC_BTN_START2 = {2, 58};
-      static constexpr Vector2 REC_BTN_END2 = {62, 62};
+      static constexpr Vector2 REC_BTN_START = {2, 54};
+      static constexpr Vector2 REC_BTN_END = {62, 62};
 
       //Alignemnt Variables
       enum AlignmentX {
@@ -99,7 +97,7 @@
       void DrawCardButtonOnGrid(Deck &deck, SingleButtonGroup &buttons, int cardIndex, int buttonIndex, Vector2 startCoords, Vector2 endCoords, bool showStats);
       void DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords);
       void DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string value, Vector2 startCoords, Vector2 endCoords);
-      void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords);
+      void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords, int amountOfButtons = 7);
       void DrawButtonColumnOnGrid(PlusMinusButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords);
       void DrawCardRowOnGrid(Deck &deck, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats);
       void DrawCardButtonRowOnGrid(Deck &deck, SingleButtonGroup &buttons, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats);
