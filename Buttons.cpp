@@ -168,21 +168,22 @@ std::shared_ptr<Texture2D>& PlusMinusButtonGroup::GetTexture() {
 
 
 //Start SingleButton Class---------------------------------------
-SingleButton::SingleButton(string label) {
+SingleButton::SingleButton(string label, function<void(SingleButton &currButton)> givenFunction) {
+	onClick = givenFunction;
 	this->label = label;
 	buttonState = 0;
-	buttonAction = false;
 	functionality = true;
 	tint = WHITE;
+	pendingAction = false;
+}
+
+void SingleButton::Click() {
+	if (onClick) onClick();
 }
 
 void SingleButton::SetButtonState(int state) {
 	if (state < 0 || state > 2) return;
 	buttonState = state;
-}
-
-void SingleButton::SetButtonAction(bool action) {
-	buttonAction = action;
 }
 
 void SingleButton::SetBounds(Rectangle dest) {
@@ -191,10 +192,6 @@ void SingleButton::SetBounds(Rectangle dest) {
 
 Rectangle SingleButton::GetBounds() {
 	return bounds;
-}
-
-bool SingleButton::GetAction() {
-	return buttonAction;
 }
 
 int SingleButton::GetState() {
@@ -223,6 +220,13 @@ void SingleButton::SetFunctionality(bool b) {
 bool SingleButton::GetFunctionality() {
 	return functionality;
 }
+
+void SingleButton::SetPendingAction(bool b){
+	pendingAction = b;
+}
+bool SingleButton::GetPendingAction() {
+	return pendingAction;
+}
 //End SingleButton Class-----------------------------------------
 
 
@@ -232,10 +236,16 @@ SingleButtonGroup::SingleButtonGroup(shared_ptr<Texture2D>& texture) : buttonTex
 	size = 0;
 }
 
-void SingleButtonGroup::AddButton(string label) {
-	buttons.push_back(SingleButton(label));
+void SingleButtonGroup::AddButton(string label, function<void()> givenFunction) {
+	buttons.push_back(SingleButton(label, givenFunction));
 	buttonsMap[label] = size;
 	++size;
+}
+
+void SingleButtonGroup::ClearAllButtons() {
+	buttons.clear();
+	buttonsMap.clear();
+	size = 0;
 }
 
 //Return size of button array
@@ -259,6 +269,34 @@ SingleButton& SingleButtonGroup::operator[](const string& label) {
     return buttons[it->second];
 }
 
+//Provides the animation logic for the button group
+void SingleButtonGroup::AnimationLogic(Vector2 &mousePoint) {
+
+	for (int i = 0; i < size; ++i) {
+		if (buttons[i].GetPendingAction() == true && !IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+			buttons[i].SetPendingAction(false);
+			buttons[i].Click();
+		}
+	}
+
+	//Allows buttons to have animations and functionality
+	for (int i = 0; i < size; ++i) {
+		if (buttons[i].GetFunctionality() == true) { //Check to make sure the button is allowed
+			if (CheckCollisionPointRec(mousePoint, buttons[i].GetBounds())) //Check to see if the mouse is over the button
+			{
+				//Sets Color and activates button if clicked
+				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {//Clicked
+					buttons[i].SetButtonState(2); //Clicked, Dark Gray
+					buttons[i].SetPendingAction(true);
+				} else {
+					buttons[i].SetButtonState(1); //Hovered, Light Gray
+				}
+			}
+			else buttons[i].SetButtonState(0); //Not hovered nor clicked, White
+		}
+	}
+}
+
 //Sets Button Functionality on a range on start(inclusive) to end(non-inclusive);
 void SingleButtonGroup::SetFunctionality(bool b, int start, int end) {
 	if (size == 0 || start > end || start < 0 || end > size - 1) {
@@ -270,36 +308,134 @@ void SingleButtonGroup::SetFunctionality(bool b, int start, int end) {
 	}
 }
 
-//Provides the animation logic for the button group
-void SingleButtonGroup::AnimationLogic(Vector2 &mousePoint) {
-	//resets all setup buttons back to false
-	for (int i = 0; i < size; i++) {
-		buttons[i].SetButtonAction(false);
-	}
-	
-	//Allows buttons to have animations and functionality
-	for (int i = 0; i < size; ++i) {
-		if (buttons[i].GetFunctionality() == true) {
-			if (CheckCollisionPointRec(mousePoint, buttons[i].GetBounds()))
-			{
-				//Sets Color
-				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) buttons[i].SetButtonState(2);
-				else buttons[i].SetButtonState(1);
-				
-				//Make the button have a flag saying it clicked
-				if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) buttons[i].SetButtonAction(true);
-			}
-			else buttons[i].SetButtonState(0); //State Determines color
-		}
-	}
-}
-
-void SingleButtonGroup::ClearAllButtons() {
-	buttons.clear();
-	size = 0;
-}
-
 shared_ptr<Texture2D>& SingleButtonGroup::GetTexture() {
 	return buttonTexture; // Doesn't increase reference count
 }
 //End SingleButtonGroup Class----------------------------------
+
+//Start DoubleButton Class-------------------------------------
+
+DoubleButton::DoubleButton(string value, string centerLabel, string leftLabel, string rightLabel, function<void()> leftFunction, function<void()> rightFunction) 
+: leftButton(leftLabel, leftFunction), rightButton(rightLabel, rightFunction) {
+	this->value = value;
+	this->centerLabel = centerLabel;
+}
+
+string DoubleButton::GetValue() {
+	return value;
+}
+
+void DoubleButton::SetValue(string newValue) {
+	value = newValue;
+}
+
+string DoubleButton::GetCenterLabel() {
+	return centerLabel;
+}
+
+void DoubleButton::SetCenterLabel(string newCenterLabel) {
+	centerLabel = newCenterLabel;
+}
+
+//End DoubleButton Class---------------------------------------
+
+//Start DoubleButtonGroup Class--------------------------------
+DoubleButtonGroup::DoubleButtonGroup(shared_ptr<Texture2D>& texture) : buttonTexture(texture) {
+	size = 0;
+}
+
+void DoubleButtonGroup::AddButton(string value, string centerLabel, string leftLabel, string rightLabel, function<void()> leftFunction, function<void()> rightFunction) {
+	buttons.push_back({value, centerLabel, leftLabel, rightLabel, leftFunction, rightFunction});
+	buttonsMap[centerLabel] = size;
+	++size;
+}
+
+void DoubleButtonGroup::ClearAllButtons() {
+	buttons.clear();
+	buttonsMap.clear();
+	size = 0;
+}
+
+int DoubleButtonGroup::GetSize() {
+	return size;
+}
+
+DoubleButton& DoubleButtonGroup::operator[](int index) {
+    if (index < 0 || index >= buttons.size())
+        throw std::out_of_range("Button index out of range");
+    return buttons[index];
+}
+
+DoubleButton& DoubleButtonGroup::operator[](const string& label) {
+    auto it = buttonsMap.find(label);
+    if (it == buttonsMap.end()) {
+        throw std::out_of_range("Button label not found: " + label);
+    }
+    return buttons[it->second];
+}
+
+int DoubleButtonGroup::GetButtonIndex(string label) {
+	auto it = buttonsMap.find(label);
+    if (it == buttonsMap.end()) {
+        throw std::out_of_range("Button index not found: " + label);
+    }
+    return it->second;
+}
+
+void DoubleButtonGroup::AnimationLogic(Vector2 &mousePoint)  {
+	for (int i = 0; i < size; ++i) {
+		if (buttons[i].leftButton.GetPendingAction() == true && !IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+			buttons[i].leftButton.SetPendingAction(false);
+			buttons[i].leftButton.Click();
+		}
+		if (buttons[i].rightButton.GetPendingAction() == true && !IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+			buttons[i].rightButton.SetPendingAction(false);
+			buttons[i].rightButton.Click();
+		}
+	}
+
+	//Allows buttons to have animations and functionality
+	for (int i = 0; i < size; ++i) {
+		if (buttons[i].leftButton.GetFunctionality() == true) { //Check to make sure the button is allowed
+			if (CheckCollisionPointRec(mousePoint, buttons[i].leftButton.GetBounds())) //Check to see if the mouse is over the button
+			{
+				//Sets Color and activates button if clicked
+				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {//Clicked
+					buttons[i].leftButton.SetButtonState(2); //Clicked, Dark Gray
+					buttons[i].leftButton.SetPendingAction(true);
+				} else {
+					buttons[i].leftButton.SetButtonState(1); //Hovered, Light Gray
+				}
+			}
+			else buttons[i].leftButton.SetButtonState(0); //Not hovered nor clicked, White
+		}
+		if (buttons[i].rightButton.GetFunctionality() == true) { //Check to make sure the button is allowed
+			if (CheckCollisionPointRec(mousePoint, buttons[i].rightButton.GetBounds())) //Check to see if the mouse is over the button
+			{
+				//Sets Color and activates button if clicked
+				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {//Clicked
+					buttons[i].rightButton.SetButtonState(2); //Clicked, Dark Gray
+					buttons[i].rightButton.SetPendingAction(true);
+				} else {
+					buttons[i].rightButton.SetButtonState(1); //Hovered, Light Gray
+				}
+			}
+			else buttons[i].rightButton.SetButtonState(0); //Not hovered nor clicked, White
+		}
+	}
+}
+
+void DoubleButtonGroup::SetFunctionality(bool b, int start, int end)  {
+	if (size == 0 || start > end || start < 0 || end > size - 1) {
+		cout << "X-axis indexing failure in function DoubleButtonGroup SetFunctionality!" << endl;
+		return;
+	}
+	for (int i = start; i < end+1; ++i) {
+		buttons[i].leftButton.SetFunctionality(b);
+		buttons[i].rightButton.SetFunctionality(b);
+	}
+}
+
+shared_ptr<Texture2D>& DoubleButtonGroup::GetTexture() {
+	return buttonTexture; // Doesn't increase reference count
+}

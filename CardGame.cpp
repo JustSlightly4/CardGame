@@ -59,66 +59,302 @@ int main(void)
 	fonts.push_back({"Super Shiny", LoadFont("fonts/SuperShiny.ttf"), 20});
 	fonts.push_back({"Akieir", LoadFont("fonts/Akieir.ttf"), 26});
 	drawer.currentFont = fonts.begin();
-	
-	
-	//Button Definitions
-    SingleButtonGroup setupButtons(buttonTexture);
-		setupButtons.AddButton("Rules");
-		setupButtons.AddButton("Info");
-		setupButtons.AddButton("Settings");
-		setupButtons.AddButton("Create Deck 1");
-		setupButtons.AddButton("Create Deck 2");
-		setupButtons.AddButton("Start");
-		setupButtons.AddButton("Exit");
-		setupButtons.AddButton("Save Decks to Web");
-		setupButtons.AddButton("Load Decks from Web");
-		setupButtons.AddButton("Save Decks to Local");
-		setupButtons.AddButton("Load Decks from Local");
-    SingleButtonGroup singleBackButton(buttonTexture);
-		singleBackButton.AddButton("Back");
-    PlusMinusButtonGroup settingsButtons(buttonTexture);
-		settingsButtons.AddButton("Number of Cards", to_string(preGameVars.numCards));
-		settingsButtons.AddButton("Deck Strength", to_string(preGameVars.deckStrength));
-		settingsButtons.AddButton("Is Player 2 AI?", "false");
-		settingsButtons.AddButton("Font", "Montserrat");
-	SingleButtonGroup gameButtons(buttonTexture);
-		gameButtons.AddButton("Rules");
-		gameButtons.AddButton("Attack");
-		gameButtons.AddButton("Cast Spell");
-		gameButtons.AddButton("Swap");
-		gameButtons.AddButton("Charge");
-		gameButtons.AddButton("Use Flask");
-		gameButtons.AddButton("Main Menu");
-	SingleButtonGroup deck1EditButtons(invisTexture);
-	SingleButtonGroup deck2EditButtons(invisTexture);
-		for (int i = 0; i < preGameVars.numCards; ++i) {
-			deck1EditButtons.AddButton("");
-			deck2EditButtons.AddButton("");
-		}
-	SingleButtonGroup viewCardButtons(invisTexture);
-		for (int i = 0; i < 4; ++i) {
-			viewCardButtons.AddButton("");
-		}
-	PlusMinusButtonGroup cardEditButtons(buttonTexture);
-		cardEditButtons.AddButton("Color", "");
-		cardEditButtons.AddButton("Attribute", "");
-		cardEditButtons.AddButton("Power Level", "");
-		cardEditButtons.AddButton("Spell", "");
-	SingleButtonGroup cardEditScreenButtons(buttonTexture);
-		cardEditScreenButtons.AddButton("Rules");
-		cardEditScreenButtons.AddButton("Abilities");
-		cardEditScreenButtons.AddButton("Wipe");
-		cardEditScreenButtons.AddButton("Accept");
-		cardEditScreenButtons.AddButton("Cancel");
-    
-    //Deck and card Definitions
+
+	//Deck and card Definitions
     //Dummy Deck has to be defined instead of just a single Card because decks handle textures
     Deck dummyDeck(preGameVars.numCards, cardTexture);
     Deck deck1(preGameVars.numCards, cardTexture, false, preGameVars.deckStrength);
     Deck deck2(preGameVars.numCards, cardTexture, false, preGameVars.deckStrength);
     
-    // Main game loop
+    //Variable for the main window to close
     bool closeWindow = false;
+	
+	Card::actions decision = Card::ERROR;
+	
+	//Button Definitions
+    SingleButtonGroup setupButtons(buttonTexture);
+		setupButtons.AddButton("Rules", [&](){
+			currentScreen = RULES;
+			previousScreen = SETUP;
+		});
+		setupButtons.AddButton("Info", [&](){
+			currentScreen = SKILLS;
+			previousScreen = SETUP;
+		});
+		setupButtons.AddButton("Settings", [&](){
+			currentScreen = SETTINGS;
+			previousScreen = SETUP;
+		});
+		setupButtons.AddButton("Create Deck 1", [&](){
+			deck1 = Deck(preGameVars.numCards, cardTexture, true, preGameVars.deckStrength);
+		});
+		setupButtons.AddButton("Create Deck 2", [&](){
+			deck2 = Deck(preGameVars.numCards, cardTexture, true, preGameVars.deckStrength);
+		});
+		setupButtons.AddButton("Start", [&](){
+			regularGame = make_unique<RegularGame>(deck1, deck2, preGameVars.numCards, preGameVars.deckStrength, preGameVars.deck1AI, preGameVars.deck2AI);
+			currentScreen = GAME;
+			previousScreen = SETUP;
+		});
+		setupButtons.AddButton("Exit", [&](){
+			closeWindow = true;
+		});
+		setupButtons.AddButton("Save Decks to Web", [&](){
+			dataManager.SaveDecks("/decks/decks.json", deck1, deck2);
+		});
+		setupButtons.AddButton("Load Decks from Web", [&](){
+			dataManager.LoadDecks("/decks/decks.json", deck1, deck2);
+		});
+		setupButtons.AddButton("Save Decks to Local", [&](){
+			dataManager.DownloadDeck("/decks/decks.json");
+		});
+		setupButtons.AddButton("Load Decks from Local", [&](){
+
+		});
+	DoubleButtonGroup settingsButtons(buttonTexture);
+		settingsButtons.AddButton(to_string(preGameVars.numCards), "Number of Cards", "+", "-", [&](){
+			int currButtonIndex = settingsButtons.GetButtonIndex("Number of Cards");
+			++preGameVars.numCards;
+			if (preGameVars.numCards >= 7) {
+				preGameVars.numCards = 7;
+				settingsButtons[currButtonIndex].leftButton.SetFunctionality(false);
+			} else {
+				settingsButtons[currButtonIndex].rightButton.SetFunctionality(true);
+			}
+			settingsButtons[currButtonIndex].SetValue(to_string(preGameVars.numCards));
+			settingsChanged = true;
+		}, [&](){
+			int currButtonIndex = settingsButtons.GetButtonIndex("Number of Cards");
+			--preGameVars.numCards;
+			if (preGameVars.numCards <= 3) {
+				preGameVars.numCards = 3;
+				settingsButtons[currButtonIndex].rightButton.SetFunctionality(false);
+			} else {
+				settingsButtons[currButtonIndex].leftButton.SetFunctionality(true);
+			}
+			settingsButtons[currButtonIndex].SetValue(to_string(preGameVars.numCards));
+			settingsChanged = true;
+		});
+		settingsButtons.AddButton(to_string(preGameVars.deckStrength), "Deck Strength", "+", "-", [&](){
+			int currButtonIndex = settingsButtons.GetButtonIndex("Deck Strength");
+			++preGameVars.deckStrength;
+			if (preGameVars.deckStrength >= 10) {
+				preGameVars.deckStrength = 10;
+				settingsButtons[currButtonIndex].leftButton.SetFunctionality(false);
+			} else {
+				settingsButtons[currButtonIndex].rightButton.SetFunctionality(true);
+			}
+			settingsButtons[currButtonIndex].SetValue(to_string(preGameVars.deckStrength));
+			settingsChanged = true;
+		}, [&](){
+			int currButtonIndex = settingsButtons.GetButtonIndex("Deck Strength");
+			--preGameVars.deckStrength;
+			if (preGameVars.deckStrength <= 1) {
+				preGameVars.deckStrength = 1;
+				settingsButtons[currButtonIndex].rightButton.SetFunctionality(false);
+			} else {
+				settingsButtons[currButtonIndex].leftButton.SetFunctionality(true);
+			}
+			settingsButtons[currButtonIndex].SetValue(to_string(preGameVars.deckStrength));
+			settingsChanged = true;
+		});
+		settingsButtons.AddButton("false", "Is Player 2 AI?", "true", "false", [&](){
+			int currButtonIndex = settingsButtons.GetButtonIndex("Is Player 2 AI?");
+			preGameVars.deck2AI = true;
+			settingsButtons[currButtonIndex].SetValue("true");
+		}, [&](){
+			int currButtonIndex = settingsButtons.GetButtonIndex("Is Player 2 AI?");
+			preGameVars.deck2AI = false;
+			settingsButtons[currButtonIndex].SetValue("false");
+		});
+		settingsButtons.AddButton("Montserrat", "font", "<-", "->", [&](){
+			int currButtonIndex = settingsButtons.GetButtonIndex("font");
+			++drawer.currentFont;
+			if (drawer.currentFont == fonts.end()) drawer.currentFont = fonts.begin(); // wrap around
+			settingsButtons[currButtonIndex].SetValue(drawer.currentFont->name);
+		}, [&](){
+			int currButtonIndex = settingsButtons.GetButtonIndex("font");
+			if (drawer.currentFont == fonts.begin()) {
+				drawer.currentFont = prev(fonts.end());
+			} else {
+				--drawer.currentFont;
+			}
+			settingsButtons[currButtonIndex].SetValue(drawer.currentFont->name);
+		});
+	SingleButtonGroup gameButtons(buttonTexture);
+		gameButtons.AddButton("Rules", [&](){
+			currentScreen = RULES;
+			previousScreen = GAME;
+		});
+		gameButtons.AddButton("Attack", [&](){
+			decision = Card::ATTACK;
+		});
+		gameButtons.AddButton("Cast Spell", [&](){
+			decision = Card::CASTSPELL;
+		});
+		gameButtons.AddButton("Swap", [&](){
+			decision = Card::SWAP;
+		});
+		gameButtons.AddButton("Charge", [&](){
+			decision = Card::CHARGE;
+		});
+		gameButtons.AddButton("Use Flask", [&](){
+			decision = Card::FLASK;
+		});
+		gameButtons.AddButton("Main Menu", [&](){
+			regularGame.reset();
+			currentScreen = SETUP;
+			previousScreen = GAME;
+			gameButtons.SetFunctionality(true, 0, gameButtons.GetSize()-1);
+		});
+	DoubleButtonGroup cardEditButtons(buttonTexture);
+		cardEditButtons.AddButton("", "Color", "+", "-", [&](){
+			if (cardEditVars.remainingPoints <= 0) return;
+			if (cardEditVars.chosenColor != Card::cols[Card::cols.size() - 1]) {
+				cardEditVars.chosenColor = Card::cols[cardEditVars.chosenColor + 1];
+				--cardEditVars.remainingPoints;
+				cardEditVars.cardEdited = true;
+			}
+			if (cardEditVars.chosenColor == Card::cols[Card::cols.size() - 1]) {
+				cardEditButtons["Color"].leftButton.SetFunctionality(false);
+			} else {
+				cardEditButtons["Color"].rightButton.SetFunctionality(true);
+			}
+		}, [&](){
+			if (cardEditVars.chosenColor != Card::cols[0]) {
+				cardEditVars.chosenColor = Card::cols[cardEditVars.chosenColor - 1];
+				++cardEditVars.remainingPoints;
+				cardEditVars.cardEdited = true;
+			}
+			if (cardEditVars.chosenColor == Card::cols[0]) {
+				cardEditButtons["Color"].rightButton.SetFunctionality(false);
+			} else {
+				cardEditButtons["Color"].leftButton.SetFunctionality(true);
+			}
+		});
+		cardEditButtons.AddButton("", "Attribute", "+", "-", [](){}, [](){});
+		cardEditButtons.AddButton("", "Power Level", "+", "-", [](){}, [](){});
+		cardEditButtons.AddButton("", "Spell", "+", "-", [](){}, [](){});
+	SingleButtonGroup deck1EditButtons(invisTexture);
+	SingleButtonGroup deck2EditButtons(invisTexture);
+		for (int i = 0; i < preGameVars.numCards; ++i) {
+			deck1EditButtons.AddButton("", [&, i](){
+				currentScreen = EDITCARD;
+				previousScreen = SETUP;
+				cardEditVars.Set(deck1, i, 0);
+				*dummyDeck[i] = *deck1[i];
+				cardEditButtons["Color"].SetValue(dummyDeck[i]->GetColorStr());
+				cardEditButtons["Attribute"].SetValue(dummyDeck[i]->GetAttributeStr());
+				cardEditButtons["Power Level"].SetValue(to_string(dummyDeck[i]->GetNumber()));
+				cardEditButtons["Spell"].SetValue(dummyDeck[i]->GetSpellStr());
+			});
+			deck2EditButtons.AddButton("", [&, i](){
+				currentScreen = EDITCARD;
+				previousScreen = SETUP;
+				cardEditVars.Set(deck2, i, 1);
+				*dummyDeck[i] = *deck2[i];
+				cardEditButtons["Color"].SetValue(dummyDeck[i]->GetColorStr());
+				cardEditButtons["Attribute"].SetValue(dummyDeck[i]->GetAttributeStr());
+				cardEditButtons["Power Level"].SetValue(to_string(dummyDeck[i]->GetNumber()));
+				cardEditButtons["Spell"].SetValue(dummyDeck[i]->GetSpellStr());
+			});
+		}
+	SingleButtonGroup viewCardButtons(invisTexture);
+		viewCardButtons.AddButton("", [&](){
+			viewCardVars.Set(regularGame->GetRound(), 0); //Deck1 Main Card
+			currentScreen = VIEWCARD;
+			previousScreen = GAME;
+		});
+		viewCardButtons.AddButton("", [&](){
+			viewCardVars.Set(regularGame->GetNumCards() - 1, 0); //Deck1 Support Card
+			currentScreen = VIEWCARD;
+			previousScreen = GAME;
+		});
+		viewCardButtons.AddButton("", [&](){
+			viewCardVars.Set(regularGame->GetNumCards() - 1, 1); //Deck2 Main Card
+			currentScreen = VIEWCARD;
+			previousScreen = GAME;
+		});
+		viewCardButtons.AddButton("", [&](){
+			viewCardVars.Set(regularGame->GetRound(), 1); //Deck2 Support Card
+			currentScreen = VIEWCARD;
+			previousScreen = GAME;
+		});
+	SingleButtonGroup cardEditScreenButtons(buttonTexture);
+		cardEditScreenButtons.AddButton("Rules", [&](){
+			currentScreen = RULES;
+			previousScreen = EDITCARD;
+		});
+		cardEditScreenButtons.AddButton("Abilities", [&](){
+			currentScreen = SKILLS;
+			previousScreen = EDITCARD;
+		});
+		cardEditScreenButtons.AddButton("Wipe", [&](){
+			cardEditVars.remainingPoints += (cardEditVars.chosenColor + cardEditVars.chosenAtt + cardEditVars.chosenPowerLevel);
+			cardEditVars.chosenColor = Card::cols[0];
+			cardEditVars.chosenAtt = Card::atts[0];
+			cardEditVars.chosenPowerLevel = 0;
+			cardEditVars.chosenSpell = Card::FORCE;
+		});
+		cardEditScreenButtons.AddButton("Accept", [&](){
+			currentScreen = SETUP;
+			previousScreen = EDITCARD;
+			drawer.scrollOffset = 0;
+			if (cardEditVars.playerEditing == 0) {
+				*deck1[cardEditVars.cardClickedOn] = *dummyDeck[cardEditVars.cardClickedOn];
+				deck1.SetRemainingPoints(cardEditVars.remainingPoints);
+			}
+			if (cardEditVars.playerEditing == 1) {
+				*deck2[cardEditVars.cardClickedOn] = *dummyDeck[cardEditVars.cardClickedOn];
+				deck2.SetRemainingPoints(cardEditVars.remainingPoints);
+			}
+			dummyDeck = Deck(preGameVars.numCards, cardTexture);
+			cardEditVars.Reset();
+		});
+		cardEditScreenButtons.AddButton("Cancel", [&](){
+			currentScreen = SETUP;
+			previousScreen = EDITCARD;
+			drawer.scrollOffset = 0;
+			dummyDeck = Deck(preGameVars.numCards, cardTexture);
+			cardEditVars.Reset();
+		});
+	SingleButtonGroup singleBackButton(buttonTexture);
+		singleBackButton.AddButton("Back", [&](){
+			currentScreen = previousScreen;
+			previousScreen = RULES; //FIXME
+			drawer.scrollOffset = 0;
+		});
+	SingleButtonGroup settingsBackButton(buttonTexture);
+		settingsBackButton.AddButton("Back", [&](){
+			currentScreen = previousScreen;
+			previousScreen = SETTINGS;
+			drawer.scrollOffset = 0;
+			
+			//If the settings were changed reset the decks
+			if (settingsChanged == true) {
+				deck1 = Deck(preGameVars.numCards, cardTexture, false, preGameVars.deckStrength);
+				deck2 = Deck(preGameVars.numCards, cardTexture, false, preGameVars.deckStrength);
+				deck1EditButtons.ClearAllButtons(); //Clears and resets cardButtons
+				deck2EditButtons.ClearAllButtons();
+				for (int i = 0; i < preGameVars.numCards; ++i) {
+					deck1EditButtons.AddButton("", [&, i](){
+						currentScreen = EDITCARD;
+						previousScreen = SETUP;
+						cardEditVars.Set(deck1, i, 0);
+						*dummyDeck[i] = *deck1[i];
+					});
+					deck2EditButtons.AddButton("", [&, i](){
+						currentScreen = EDITCARD;
+						previousScreen = SETUP;
+						cardEditVars.Set(deck2, i, 1);
+						*dummyDeck[i] = *deck2[i];
+					});
+				}
+				settingsChanged = false;
+			}
+		});
+    
+	//Main program loop
     while (!closeWindow)    // Detect window close button or ESC key
     {
 		//UpdateStyleGuide(StyleGuide);
@@ -149,62 +385,8 @@ int main(void)
 				setupButtons.AnimationLogic(mousePoint); //Provides the animation logic for the button groups
 				
 				deck1EditButtons.AnimationLogic(mousePoint);
-				for (int i = 0; i < deck1EditButtons.GetSize(); ++i) {
-					if (deck1EditButtons[i].GetAction() == true) {
-						currentScreen = EDITCARD;
-						previousScreen = SETUP;
-						cardEditVars.Set(deck1, i, 0);
-						*dummyDeck[i] = *deck1[i];
-						break;
-					}
-				}
-				
 				deck2EditButtons.AnimationLogic(mousePoint);
-				for (int i = 0; i < deck2EditButtons.GetSize(); ++i) {
-					if (deck2EditButtons[i].GetAction() == true) {
-						currentScreen = EDITCARD;
-						previousScreen = SETUP;
-						cardEditVars.Set(deck2, i, 1);
-						*dummyDeck[i] = *deck2[i];
-						break;
-					}
-				}
 				
-                if (setupButtons["Rules"].GetAction() == true || IsKeyPressed(KEY_R)) { //Rules Button
-					currentScreen = RULES;
-					previousScreen = SETUP;
-				}
-				if (setupButtons["Info"].GetAction() == true || IsKeyPressed(KEY_A)) { //Abilities Button
-					currentScreen = SKILLS;
-					previousScreen = SETUP;
-				}
-				if (setupButtons["Settings"].GetAction() == true || IsKeyPressed(KEY_S)) { //Settings Button
-					currentScreen = SETTINGS;
-					previousScreen = SETUP;
-				}
-				if (setupButtons["Create Deck 1"].GetAction() == true || IsKeyPressed(KEY_ONE)) { //Create Deck 1
-					deck1 = Deck(preGameVars.numCards, cardTexture, true, preGameVars.deckStrength);
-				}
-				if (setupButtons["Create Deck 2"].GetAction() == true || IsKeyPressed(KEY_TWO)) { //Create Deck 2
-					deck2 = Deck(preGameVars.numCards, cardTexture, true, preGameVars.deckStrength);
-				}
-				if ((setupButtons["Start"].GetAction() == true || IsKeyPressed(KEY_ENTER))) { //Start Game
-					regularGame = make_unique<RegularGame>(deck1, deck2, preGameVars.numCards, preGameVars.deckStrength, preGameVars.deck1AI, preGameVars.deck2AI);
-					currentScreen = GAME;
-					previousScreen = SETUP;
-				}
-				if (setupButtons["Exit"].GetAction() == true) { //Exit Button
-					closeWindow = true;
-				}
-				if (setupButtons["Save Decks to Web"].GetAction() == true) {
-					dataManager.SaveDecks("/decks/decks.json", deck1, deck2);
-				}
-				if (setupButtons["Save Decks to Local"].GetAction() == true) {
-					dataManager.DownloadDeck("/decks/decks.json");
-				}
-				if (setupButtons["Load Decks from Web"].GetAction() == true) {
-					dataManager.LoadDecks("/decks/decks.json", deck1, deck2);
-				}
 				break;
 			}
 			case RULES: {
@@ -212,135 +394,30 @@ int main(void)
 				//Enables the logic for the back button
 				singleBackButton.AnimationLogic(mousePoint);
                 
-                //Goes back to previous screen
-                if (singleBackButton[0].GetAction() == true || IsKeyPressed(KEY_BACKSPACE) || IsKeyPressed(KEY_B)) {
-					currentScreen = previousScreen;
-					previousScreen = RULES;
-					drawer.scrollOffset = 0;
-				}
 				break;
 			}
 			case SKILLS: {
 
 				//Enables the logic for the back button
 				singleBackButton.AnimationLogic(mousePoint);
-				
-				//Goes back to previous screen
-                if (singleBackButton[0].GetAction() == true || IsKeyPressed(KEY_BACKSPACE) || IsKeyPressed(KEY_B)) {
-					currentScreen = previousScreen;
-					previousScreen = SKILLS;
-					drawer.scrollOffset = 0;
-				}
+
 				break;
 			}
 			case SETTINGS: {
-				
+
 				//Enables the logic for the back button
-				singleBackButton.AnimationLogic(mousePoint);
+				settingsBackButton.AnimationLogic(mousePoint);
 				settingsButtons.AnimationLogic(mousePoint);
-				
-				//Reset Button On/Off Logic
-				for (int i = 0; i < cardEditButtons.GetSize(); ++i) {
-					settingsButtons[i].SetFunctionality(0, true);
-					settingsButtons[i].SetFunctionality(1, true);
-				}
-				
-				//Goes back to previous screen
-                if (singleBackButton[0].GetAction() == true || IsKeyPressed(KEY_BACKSPACE) || IsKeyPressed(KEY_B)) {
-					currentScreen = previousScreen;
-					previousScreen = SETTINGS;
-					drawer.scrollOffset = 0;
-					
-					//If the settings were changed reset the decks
-					if (settingsChanged == true) {
-						deck1 = Deck(preGameVars.numCards, cardTexture, false, preGameVars.deckStrength);
-						deck2 = Deck(preGameVars.numCards, cardTexture, false, preGameVars.deckStrength);
-						deck1EditButtons.ClearAllButtons(); //Clears and resets cardButtons
-						deck2EditButtons.ClearAllButtons();
-						for (int i = 0; i < preGameVars.numCards; ++i) {
-							deck1EditButtons.AddButton("");
-							deck2EditButtons.AddButton("");
-						}
-						settingsChanged = false;
-					}
-					
-				}
-				
-				//Increases or decreases the number of cards
-				if (settingsButtons["Number of Cards"].GetAction(0) == true) {
-					++preGameVars.numCards;
-					if (preGameVars.numCards > 7) preGameVars.numCards = 7;
-					settingsButtons["Number of Cards"].SetLabel(to_string(preGameVars.numCards));
-					settingsChanged = true;
-				}
-				
-				if (settingsButtons["Number of Cards"].GetAction(1) == true) {
-					--preGameVars.numCards;
-					if (preGameVars.numCards < 3) preGameVars.numCards = 3;
-					settingsButtons["Number of Cards"].SetLabel(to_string(preGameVars.numCards));
-					settingsChanged = true;
-				}
-				
-				//Increases or decreases the strength of the cards
-				if (settingsButtons["Deck Strength"].GetAction(0) == true) {
-					++preGameVars.deckStrength;
-					if (preGameVars.deckStrength > 10) preGameVars.deckStrength = 10;
-					settingsButtons["Deck Strength"].SetLabel(to_string(preGameVars.deckStrength));
-					settingsChanged = true;
-				}
-				
-				if (settingsButtons["Deck Strength"].GetAction(1) == true) {
-					--preGameVars.deckStrength;
-					if (preGameVars.deckStrength < 1) preGameVars.deckStrength = 1;
-					settingsButtons["Deck Strength"].SetLabel(to_string(preGameVars.deckStrength));
-					settingsChanged = true;
-				}
-				
-				//Change Deck2 to be ai or not
-				if (settingsButtons["Is Player 2 AI?"].GetAction(0) == true) {
-					preGameVars.deck2AI = true;
-					settingsButtons["Is Player 2 AI?"].SetLabel("true");
-				}
-				
-				if (settingsButtons["Is Player 2 AI?"].GetAction(1) == true) {
-					preGameVars.deck2AI = false;
-					settingsButtons["Is Player 2 AI?"].SetLabel("false");
-				}
-				
-				//Changes the font ++
-				if (settingsButtons["Font"].GetAction(0) == true) {
-					++drawer.currentFont;
-					if (drawer.currentFont == fonts.end()) drawer.currentFont = fonts.begin(); // wrap around
-					settingsButtons["Font"].SetLabel(drawer.currentFont->name);
-				}
-				
-				//Changes the font --
-				if (settingsButtons["Font"].GetAction(1) == true) {
-					if (drawer.currentFont == fonts.begin()) drawer.currentFont = fonts.end();
-					--drawer.currentFont;
-					settingsButtons["Font"].SetLabel(drawer.currentFont->name);
-				}
-				
+
 				break;
 			}
 			case GAME: {
+
+				decision = Card::ERROR;
+
 				//Allows animation and logic for buttons
 				gameButtons.AnimationLogic(mousePoint);
 				viewCardButtons.AnimationLogic(mousePoint);
-
-				Card::actions decision = Card::ERROR;
-				
-				//View a Cards Detailed Stats
-				for (int i = 0; i < 4; ++i) {
-					if (viewCardButtons[i].GetAction() == true) {
-						if (i == 0) viewCardVars.Set(regularGame->GetRound(), 0); //Deck1 Main Card
-						if (i == 1) viewCardVars.Set(regularGame->GetNumCards() - 1, 0); //Deck1 Support Card
-						if (i == 2) viewCardVars.Set(regularGame->GetNumCards() - 1, 1); //Deck2 Main Card
-						if (i == 3) viewCardVars.Set(regularGame->GetRound(), 1); //Deck2 Support Card
-						currentScreen = VIEWCARD;
-						previousScreen = GAME;
-					}
-				}
 
 				//Enable all buttons
 				gameButtons.SetFunctionality(true, 0, gameButtons.GetSize()-1); //----------------------------------------------
@@ -372,35 +449,6 @@ int main(void)
 
 				//Disable all buttons if game is done
 				if (regularGame->GetGameEnded()) gameButtons.SetFunctionality(false, 0, gameButtons.GetSize()-2);
-
-				//Look up the game rules
-				if (gameButtons["Rules"].GetAction() == true || IsKeyPressed(KEY_R)) {
-					currentScreen = RULES;
-					previousScreen = GAME;
-				}
-
-				//Go back to the setup
-				if (gameButtons["Main Menu"].GetAction() == true || IsKeyPressed(KEY_BACKSPACE)) {
-					regularGame.reset();
-					currentScreen = SETUP;
-					previousScreen = GAME;
-					gameButtons.SetFunctionality(true, 0, gameButtons.GetSize()-1);
-				}
-				
-				//Physical Attack
-				if (((gameButtons["Attack"].GetAction() == true || IsKeyPressed(KEY_A)) && gameButtons["Attack"].GetFunctionality() == true)) decision = Card::ATTACK;
-				
-				//Magical Attack
-				if (((gameButtons["Cast Spell"].GetAction() == true || IsKeyPressed(KEY_P)) && gameButtons["Cast Spell"].GetFunctionality() == true)) decision = Card::CASTSPELL;
-				
-				//Swap
-				if (((gameButtons["Swap"].GetAction() == true || IsKeyPressed(KEY_S)) && gameButtons["Swap"].GetFunctionality() == true)) decision = Card::SWAP;
-				
-				//Charge
-				if (((gameButtons["Charge"].GetAction() == true || IsKeyPressed(KEY_C)) && gameButtons["Charge"].GetFunctionality() == true)) decision = Card::CHARGE;
-				
-				//Flask *does not use players turn
-				if ((gameButtons["Use Flask"].GetAction() == true || IsKeyPressed(KEY_F)) && gameButtons["Use Flask"].GetFunctionality() == true) decision = Card::FLASK;
 				
 				//Play Game if not the end of a game
 				regularGame->PlayRegularGame(decision);
@@ -412,6 +460,7 @@ int main(void)
 				cardEditScreenButtons.AnimationLogic(mousePoint);
 				cardEditButtons.AnimationLogic(mousePoint);
 				
+				/*
 				//Reset Button On/Off Logic
 				for (int i = 0; i < cardEditButtons.GetSize(); ++i) {
 					cardEditButtons[i].SetFunctionality(0, true);
@@ -512,66 +561,22 @@ int main(void)
 					cardEditVars.chosenSpell = Card::spellList[cardEditVars.chosenSpell - 1];
 					dummyDeck[cardEditVars.cardClickedOn]->SetSpell(cardEditVars.chosenSpell);
 				}
+				*/
 				
 				//Edits the displayed Card not the original
 				if (cardEditVars.cardEdited == true) {
 					*dummyDeck[cardEditVars.cardClickedOn] = Card(cardEditVars.chosenColor, cardEditVars.chosenAtt, cardEditVars.chosenPowerLevel);
 					dummyDeck[cardEditVars.cardClickedOn]->SetSpell(cardEditVars.chosenSpell);
-				}
-				
-				if (cardEditScreenButtons["Rules"].GetAction() == true || IsKeyPressed(KEY_R)) { //Rules Button
-					currentScreen = RULES;
-					previousScreen = EDITCARD;
-				}
-				
-				if (cardEditScreenButtons["Abilities"].GetAction() == true || IsKeyPressed(KEY_A)) { //Abilities Button
-					currentScreen = SKILLS;
-					previousScreen = EDITCARD;
-				}
-				
-				if (cardEditScreenButtons["Wipe"].GetAction() == true || IsKeyPressed(KEY_W)) { //Wipe card Button
-					cardEditVars.remainingPoints += (cardEditVars.chosenColor + cardEditVars.chosenAtt + cardEditVars.chosenPowerLevel);
-					cardEditVars.chosenColor = Card::cols[0];
-					cardEditVars.chosenAtt = Card::atts[0];
-					cardEditVars.chosenPowerLevel = 0;
-					cardEditVars.chosenSpell = Card::FORCE;
-				}
-				
-				//Goes back to setup screen and saves selection
-                if (cardEditScreenButtons["Accept"].GetAction() == true || IsKeyPressed(KEY_ENTER)) {
-					currentScreen = SETUP;
-					previousScreen = EDITCARD;
-					drawer.scrollOffset = 0;
-					if (cardEditVars.playerEditing == 0) {
-						*deck1[cardEditVars.cardClickedOn] = *dummyDeck[cardEditVars.cardClickedOn];
-						deck1.SetRemainingPoints(cardEditVars.remainingPoints);
-					}
-					if (cardEditVars.playerEditing == 1) {
-						*deck2[cardEditVars.cardClickedOn] = *dummyDeck[cardEditVars.cardClickedOn];
-						deck2.SetRemainingPoints(cardEditVars.remainingPoints);
-					}
-					dummyDeck = Deck(preGameVars.numCards, cardTexture);
-					cardEditVars.Reset();
-				}
-				
-				//Goes back to setup screen and cancels selection
-                if (cardEditScreenButtons["Cancel"].GetAction() == true || IsKeyPressed(KEY_BACKSPACE)) {
-					currentScreen = SETUP;
-					previousScreen = EDITCARD;
-					drawer.scrollOffset = 0;
-					dummyDeck = Deck(preGameVars.numCards, cardTexture);
-					cardEditVars.Reset();
+					cardEditButtons["Color"].SetValue(dummyDeck[cardEditVars.cardClickedOn]->GetColorStr());
+					cardEditButtons["Attribute"].SetValue(dummyDeck[cardEditVars.cardClickedOn]->GetAttributeStr());
+					cardEditButtons["Power Level"].SetValue(to_string(dummyDeck[cardEditVars.cardClickedOn]->GetNumber()));
+					cardEditButtons["Spell"].SetValue(dummyDeck[cardEditVars.cardClickedOn]->GetSpellStr());
 				}
 				break;
 			}
 			case VIEWCARD: {
 				singleBackButton.AnimationLogic(mousePoint);
 				
-				//Goes back to previous screen
-                if (singleBackButton[0].GetAction() == true || IsKeyPressed(KEY_BACKSPACE) || IsKeyPressed(KEY_B)) {
-					currentScreen = previousScreen;
-					previousScreen = VIEWCARD;
-				}
 				break;
 			}
 		};
@@ -630,7 +635,7 @@ int main(void)
 					
 					//Draws the back button at the bottom of the screen
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons
-					drawer.DrawButtonRowOnGrid(singleBackButton, drawer.REC_BTN_START, drawer.REC_BTN_END); //back button
+					drawer.DrawButtonRowOnGrid(settingsBackButton, drawer.REC_BTN_START, drawer.REC_BTN_END); //back button
 					break;
 				}
 				case GAME: {
@@ -682,10 +687,10 @@ int main(void)
 					{7, 1}, {57, 7}, {UIDrawer::CENTERX, UIDrawer::CENTERY}, 5);
 					
 					//Draws the settings buttons
-					drawer.DrawButtonOnGrid(cardEditButtons, 0, dummyDeck[cardEditVars.cardClickedOn]->GetColorStr(), {41, 10}, {57, 17});
-					drawer.DrawButtonOnGrid(cardEditButtons, 1, dummyDeck[cardEditVars.cardClickedOn]->GetAttributeStr(), {41, 19}, {57, 26});
-					drawer.DrawButtonOnGrid(cardEditButtons, 2, to_string(dummyDeck[cardEditVars.cardClickedOn]->GetNumber()), {41, 28}, {57, 35});
-					drawer.DrawButtonOnGrid(cardEditButtons, 3, dummyDeck[cardEditVars.cardClickedOn]->GetSpellStr(), {41, 37}, {57, 44});
+					drawer.DrawButtonOnGrid(cardEditButtons, 0, {41, 10}, {57, 17});
+					drawer.DrawButtonOnGrid(cardEditButtons, 1, {41, 19}, {57, 26});
+					drawer.DrawButtonOnGrid(cardEditButtons, 2, {41, 28}, {57, 35});
+					drawer.DrawButtonOnGrid(cardEditButtons, 3, {41, 37}, {57, 44});
 					
 					//Draws the back button at the bottom of the screen
 					drawer.DrawRectangleOnGrid(drawer.REC_START, drawer.REC_END, drawer.REC_COLOR); //Rectangle behind buttons

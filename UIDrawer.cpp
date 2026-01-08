@@ -355,6 +355,59 @@ void UIDrawer::DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string
 	DrawTextSWrapped(string(1, buttons[index].GetSymbolLabel(1)), buttonDest[2], this->textColor, this->currentFont->fontSize, (Alignment){CENTERX, CENTERY});
 }
 
+
+//Draws a DoubleButton button on the grid
+void UIDrawer::DrawButtonOnGrid(DoubleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords) {
+	if (index < 0 || index > buttons.GetSize()-1) return;
+	//Calculations for a single buttons width and all three buttons destinations on screen
+	float singleButtonWidth = (endCoords.x - startCoords.x)/3;
+	vector<Rectangle> buttonDest(3);
+	buttonDest[0] = CoordsToRec(startCoords, {startCoords.x + singleButtonWidth, endCoords.y});
+	buttonDest[1] = CoordsToRec({startCoords.x + singleButtonWidth, startCoords.y}, {startCoords.x + (singleButtonWidth * 2), endCoords.y});
+	buttonDest[2] = CoordsToRec({startCoords.x + (singleButtonWidth * 2), startCoords.y}, {startCoords.x + (singleButtonWidth * 3), endCoords.y});
+	
+	//Setting the bounds on button 1 and 2
+	buttons[index].leftButton.SetBounds(buttonDest[0]);
+	buttons[index].rightButton.SetBounds(buttonDest[2]);
+	
+	//Drawing all three buttons
+	DrawTexturePro(*buttons.GetTexture(), this->buttonSource, buttonDest[0], this->origin, 0.0f, WHITE);
+	DrawTexturePro(*buttons.GetTexture(), this->buttonSource, buttonDest[1], this->origin, 0.0f, WHITE);
+	DrawTexturePro(*buttons.GetTexture(), this->buttonSource, buttonDest[2], this->origin, 0.0f, WHITE);
+	
+	//Draws grey rectangle on the left most button if needed
+	switch(buttons[index].leftButton.GetState()) {
+		case 1://Hovered GRAY (Color){ 130, 130, 130, 100 }
+			DrawRectangleRec(buttonDest[0], (Color){ 130, 130, 130, 100 });
+			break;
+		case 2: //Clicked DARKGRAY (Color){ 80, 80, 80, 100 }
+			DrawRectangleRec(buttonDest[0], (Color){ 80, 80, 80, 100 });
+			break;
+		default: //Neither hover nor clicked
+			break;
+	}
+	
+	//Draws grey rectangle on the right most button if needed
+	switch(buttons[index].rightButton.GetState()) {
+		case 1://Hovered GRAY (Color){ 130, 130, 130, 100 }
+			DrawRectangleRec(buttonDest[2], (Color){ 130, 130, 130, 100 });
+			break;
+		case 2: //Clicked DARKGRAY (Color){ 80, 80, 80, 100 }
+			DrawRectangleRec(buttonDest[2], (Color){ 80, 80, 80, 100 });
+			break;
+		default: //Neither hover nor clicked
+			break;
+	}
+	
+	//The title above all three buttons
+	DrawTextSOnGrid(buttons[index].GetCenterLabel(), {startCoords.x, startCoords.y - 2}, {endCoords.x, startCoords.y}, (Alignment){CENTERX, CENTERY});
+	
+	//All three buttons values
+	DrawTextSWrapped(buttons[index].leftButton.GetLabel(), buttonDest[0], this->textColor, this->currentFont->fontSize, (Alignment){CENTERX, CENTERY});
+	DrawTextSWrapped(buttons[index].GetValue(), buttonDest[1], this->textColor, this->currentFont->fontSize, (Alignment){CENTERX, CENTERY});
+	DrawTextSWrapped(buttons[index].rightButton.GetLabel(), buttonDest[2], this->textColor, this->currentFont->fontSize, (Alignment){CENTERX, CENTERY});
+}
+
 //Draws a horizontal row of buttons on the grid
 void UIDrawer::DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords, int amountOfButtons) {
 	float buttonWidth = (endCoords.x - startCoords.x)/(min(buttons.GetSize(), amountOfButtons));
@@ -377,6 +430,15 @@ void UIDrawer::DrawButtonColumnOnGrid(PlusMinusButtonGroup &buttons, Vector2 sta
 	float buttonHeight = (endCoords.y - startCoords.y - (buttons.GetSize() * 3))/buttons.GetSize();
 	for (int i = 0; i < buttons.GetSize(); ++i) {
 		DrawButtonOnGrid(buttons, i, buttons[i].GetLabel(), 
+		{startCoords.x, startCoords.y + (i * buttonHeight) + (i * 3)}, 
+		{endCoords.x, startCoords.y + (i * buttonHeight) + buttonHeight + (i * 3)});
+	}
+}
+
+void UIDrawer::DrawButtonColumnOnGrid(DoubleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords) {
+	float buttonHeight = (endCoords.y - startCoords.y - (buttons.GetSize() * 3))/buttons.GetSize();
+	for (int i = 0; i < buttons.GetSize(); ++i) {
+		DrawButtonOnGrid(buttons, i, 
 		{startCoords.x, startCoords.y + (i * buttonHeight) + (i * 3)}, 
 		{endCoords.x, startCoords.y + (i * buttonHeight) + buttonHeight + (i * 3)});
 	}

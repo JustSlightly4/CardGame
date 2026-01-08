@@ -97,8 +97,10 @@
       void DrawCardButtonOnGrid(Deck &deck, SingleButtonGroup &buttons, int cardIndex, int buttonIndex, Vector2 startCoords, Vector2 endCoords, bool showStats);
       void DrawButtonOnGrid(SingleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords);
       void DrawButtonOnGrid(PlusMinusButtonGroup &buttons, int index, string value, Vector2 startCoords, Vector2 endCoords);
+      void DrawButtonOnGrid(DoubleButtonGroup &buttons, int index, Vector2 startCoords, Vector2 endCoords);
       void DrawButtonRowOnGrid(SingleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords, int amountOfButtons = 7);
       void DrawButtonColumnOnGrid(PlusMinusButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords);
+      void DrawButtonColumnOnGrid(DoubleButtonGroup &buttons, Vector2 startCoords, Vector2 endCoords);
       void DrawCardRowOnGrid(Deck &deck, int cardWidthSegments, Vector2 startCoords, Vector2 endCoords, bool showStats);
       void DrawCardButtonRowOnGrid(Deck &deck, SingleButtonGroup &buttons, int spacing, Vector2 startCoords, Vector2 endCoords, bool showStats);
 

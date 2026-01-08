@@ -56,7 +56,7 @@ The RegularGame class handles all functionality and the state of the current gam
 The UIDrawer class handles all functionality that relates to drawing to the screen. It is IMPORTANT to note that the regular Raylib functions should never be used outside this class, as the UIDrawer class operates on a grid to keep the window and all textures consistent.
 
 # Buttons
-Both button classes handle the buttons' functionality, but not what the buttons actually do. The button classes only update the variables for whether the buttons are hovered over, clicked, or currently on screen. What each button actually does/modifies is handled in the code's logic section, either in main or in other functions.
+The buttons class handles everything related to the buttons except for drawing. When creating a single button it must have two things: a string to label what the button does and a lamda function to provide functionality to that button.
 
 # StateVariables
 The state variables file contains multiple classes that hold the state of some screen or object. For example, the editcard screen relies on a state class to track which card is being edited and the edits being made.
@@ -118,3 +118,4 @@ void Vector3D::PrintComponents() {
 9. Create a cache for DrawTextS and DrawTextSWrapped
 10. Continue to refactor UIDrawer class to make it work nicely as a class
 11. Continue to work on saving and loading decks
+12. Settings currently have a bug where the single back button doesn't have the correct functionality anymore
